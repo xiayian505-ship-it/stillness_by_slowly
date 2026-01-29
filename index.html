@@ -3,55 +3,165 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Stillness by Slowly</title>
 
 <style>
+/* =========================
+   🎛 文字大小總控制區（以後只改這裡）
+========================= */
+:root{
+  --title-size: 1.8rem;       /* 主標題「慢 慢」 */
+  --subtitle-size: 1.2rem;      /* 副標 Stillness by Slowly */
+
+  --menu-main-size: 0.9rem;   /* 左側「慢慢」 */
+  --menu-sub-size: 0.7rem;      /* 一點痕跡 / 邁向未來 / 相伴 */
+}
+
+/* ========================= */
+
 body{
   margin:0;
   min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#f5f5f2; /* 柔和淺底 */
+  background:#f5f5f2;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   color:#333;
+  display:flex;
+  flex-direction:column;
 }
 
-.portal{
+/* 頁面標題區 */
+.header{
   text-align:center;
-  line-height:2.2;
+  padding:16px 20px 4px;
 }
 
-.portal a{
-  text-decoration:none;
-  color:inherit;
-  display:block;
-  font-size:1.2rem;
-  letter-spacing:0.08em;
-  transition:.3s ease;
+.title{
+  margin:0;
+  font-weight:500;
+  font-size:var(--title-size);
+  letter-spacing:.15em;
+  cursor:pointer;
 }
 
-.portal a:hover{
+.subtitle{
+  margin:6px 0 0;
+  font-size:var(--subtitle-size);
+  opacity:.6;
+}
+
+/* 主體左右結構 */
+.layout{
+  flex:1;
+  display:flex;
+  min-height:0;
+}
+
+/* 左側選單 */
+.menu{
+  width:20%;
+  max-width:150px;
+  padding:15px 8px;
+  box-sizing:border-box;
+  border-right:1px solid rgba(0,0,0,.05);
+  background:#f5f5f2;
+}
+
+.menu-main{
+  font-size:var(--menu-main-size);
+  letter-spacing:.04em;
+  line-height:2.6;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.menu-main:hover{
   opacity:.5;
 }
 
-.static{
-  font-size:1.2rem;
-  letter-spacing:0.08em;
+.submenu{
+  margin-left:5px;
+  display:none;
+  opacity:.7;
+}
+
+.menu-sub{
+  font-size:var(--menu-sub-size);
+  letter-spacing:.04em;
+  line-height:2.4;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.menu-sub:hover{
+  opacity:.5;
+}
+
+/* 右側閱讀舞台 */
+.content{
+  flex:1;
+  overflow:auto;
+  background:#f5f5f2;
+  padding:12px 0;
+  display:flex;
+  justify-content:center;
+}
+
+.stage{
+  width:100%;
+  max-width:2500px;
+  min-height:100%;
+  background:#fff;
+  box-shadow:0 4px 24px rgba(0,0,0,.05);
+  overflow:auto;
+}
+
+.stage iframe{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  border:none;
+  display:block;
 }
 </style>
 </head>
 
 <body>
 
-<div class="portal">
+<div class="header">
+  <h1 class="title" onclick="loadPage('devlog.html')">慢 慢</h1>
+  <p class="subtitle">Stillness by Slowly</p>
+</div>
 
-  <a href="diary.html">慢 慢｜一點痕跡</a>
-  <a href="capsule.html">慢 慢｜邁向未來</a>
-  <div class="static">慢 慢｜相伴</div>
+<div class="layout">
+
+  <div class="menu">
+    <div class="menu-main" onclick="toggleMenu()">慢慢</div>
+
+    <div class="submenu" id="submenu">
+      <div class="menu-sub" onclick="loadPage('diary.html')">一點痕跡</div>
+      <div class="menu-sub" onclick="loadPage('capsule.html')">邁向未來</div>
+      <div class="menu-sub">相伴</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stage">
+      <iframe id="viewer" src="devlog.html"></iframe>
+    </div>
+  </div>
 
 </div>
+
+<script>
+function loadPage(page){
+  document.getElementById("viewer").src = page;
+}
+
+function toggleMenu(){
+  const m = document.getElementById("submenu");
+  m.style.display = (m.style.display === "block") ? "none" : "block";
+}
+</script>
 
 </body>
 </html>
