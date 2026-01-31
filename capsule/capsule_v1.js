@@ -510,7 +510,7 @@ fillExportCard(previewKey,entry);
   exportCard.style.opacity="1";
   await new Promise(r=>setTimeout(r,50));
 
-  const canvas=await html2canvas(exportCard,{backgroundColor:null,scale:2,useCORS:true});
+  const canvas=await html2canvas(exportCard,{backgroundColor:null,scale:4,useCORS:true});
   exportCard.style.left="-9999px";
 
   canvas.toBlob(blob=>{
@@ -784,3 +784,4 @@ else{
 }
 
 });
+
