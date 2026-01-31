@@ -34,9 +34,7 @@ body{
   border-radius:var(--radius);
   box-shadow:var(--shadow);
   overflow:hidden;
-  width: 420px;
-  height: 600px;
-  
+
 }
 
 
@@ -497,4 +495,3 @@ color:rgba(90,120,120,.42);
   gap:12px;
   margin-top:18px;
 }
-
