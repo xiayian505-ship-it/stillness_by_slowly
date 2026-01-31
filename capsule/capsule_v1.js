@@ -578,40 +578,36 @@ if(confirmExportBtn){
 
     await new Promise(r=>setTimeout(r,30));
 
-    // ⭐ 找到會影響排版的父層（時光膠囊頁）
-    const pageEl = document.querySelector(".page.active");
+    // ⭐ 1. 複製一張「乾淨卡片」
+    const clone = exportCard.cloneNode(true);
 
-    // ⭐ 保存原本狀態
-    const oldPageTransform = pageEl.style.transform;
-    const oldCardTransform = exportCard.style.transform;
-    const oldWidth = exportCard.style.width;
-    const oldPosition = exportCard.style.position;
+    clone.style.position = "fixed";
+    clone.style.left = "0";
+    clone.style.top = "0";
+    clone.style.transform = "none";
+    clone.style.margin = "0";
+    clone.style.scale = "1";
+    clone.style.zoom = "1";
 
-    // ⭐ 關閉所有 transform 影響
-    pageEl.style.transform = "none";
-    exportCard.style.transform = "none";
-    exportCard.style.position = "relative";
-    exportCard.style.width = exportCard.offsetWidth + "px";
+    // 防止繼承任何 transform
+    clone.style.contain = "layout style paint";
 
-    // 等版面重新排好
+    document.body.appendChild(clone);
+
+    // ⭐ 2. 等待重新排版
     await new Promise(r => requestAnimationFrame(r));
 
-    // ⭐ 用正確尺寸截圖
-    const canvas = await html2canvas(exportCard,{
+    // ⭐ 3. 用「純淨世界卡片」截圖
+    const canvas = await html2canvas(clone,{
       backgroundColor:"#ffffff",
       scale:2,
-      useCORS:true,
-      width: exportCard.offsetWidth,
-      height: exportCard.offsetHeight
+      useCORS:true
     });
 
-    // ⭐ 截完恢復現場
-    pageEl.style.transform = oldPageTransform;
-    exportCard.style.transform = oldCardTransform;
-    exportCard.style.width = oldWidth;
-    exportCard.style.position = oldPosition;
+    // ⭐ 4. 移除複製卡
+    clone.remove();
 
-    // ⭐ 下載
+    // ⭐ 5. 下載
     canvas.toBlob(blob=>{
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
