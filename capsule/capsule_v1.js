@@ -510,6 +510,18 @@ fillExportCard(previewKey,entry);
   exportCard.style.opacity="1";
   await new Promise(r=>setTimeout(r,50));
 
+// ⭐ 截圖前強制還原真實尺寸
+const oldTransform = exportCard.style.transform;
+const oldWidth = exportCard.style.width;
+
+exportCard.style.transform = "none";
+exportCard.style.width = exportCard.offsetWidth + "px";
+exportCard.style.position = "relative";
+
+// 等 DOM 穩定
+await new Promise(r => requestAnimationFrame(r));
+
+
   const canvas=await html2canvas(exportCard,{backgroundColor:null,scale:2,useCORS:true});
   exportCard.style.left="-9999px";
 
@@ -566,16 +578,25 @@ if(confirmExportBtn){
 
     await new Promise(r=>setTimeout(r,30));
 
-    // ⭐ 保存原本樣式
-    const oldTransform = exportCard.style.transform;
-    const oldWidth = exportCard.style.width;
+    // ⭐ 找到會影響排版的父層（時光膠囊頁）
+    const pageEl = document.querySelector(".page.active");
 
-    // ⭐ 關閉旋轉與自適應尺寸（這行是關鍵）
+    // ⭐ 保存原本狀態
+    const oldPageTransform = pageEl.style.transform;
+    const oldCardTransform = exportCard.style.transform;
+    const oldWidth = exportCard.style.width;
+    const oldPosition = exportCard.style.position;
+
+    // ⭐ 關閉所有 transform 影響
+    pageEl.style.transform = "none";
     exportCard.style.transform = "none";
+    exportCard.style.position = "relative";
     exportCard.style.width = exportCard.offsetWidth + "px";
 
-    await new Promise(r=>setTimeout(r,30)); // 等版面重排
+    // 等版面重新排好
+    await new Promise(r => requestAnimationFrame(r));
 
+    // ⭐ 用正確尺寸截圖
     const canvas = await html2canvas(exportCard,{
       backgroundColor:"#ffffff",
       scale:2,
@@ -584,10 +605,13 @@ if(confirmExportBtn){
       height: exportCard.offsetHeight
     });
 
-    // ⭐ 截完恢復
-    exportCard.style.transform = oldTransform;
+    // ⭐ 截完恢復現場
+    pageEl.style.transform = oldPageTransform;
+    exportCard.style.transform = oldCardTransform;
     exportCard.style.width = oldWidth;
+    exportCard.style.position = oldPosition;
 
+    // ⭐ 下載
     canvas.toBlob(blob=>{
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
