@@ -510,7 +510,7 @@ fillExportCard(previewKey,entry);
   exportCard.style.opacity="1";
   await new Promise(r=>setTimeout(r,50));
 
-  const canvas=await html2canvas(exportCard,{backgroundColor:null,scale:4,useCORS:true});
+  const canvas=await html2canvas(exportCard,{backgroundColor:null,scale:2,useCORS:true});
   exportCard.style.left="-9999px";
 
   canvas.toBlob(blob=>{
@@ -563,13 +563,30 @@ if(cancelExportBtn){
 
 if(confirmExportBtn){
   confirmExportBtn.onclick = async ()=>{
+
     await new Promise(r=>setTimeout(r,30));
 
+    // ⭐ 保存原本樣式
+    const oldTransform = exportCard.style.transform;
+    const oldWidth = exportCard.style.width;
+
+    // ⭐ 關閉旋轉與自適應尺寸（這行是關鍵）
+    exportCard.style.transform = "none";
+    exportCard.style.width = exportCard.offsetWidth + "px";
+
+    await new Promise(r=>setTimeout(r,30)); // 等版面重排
+
     const canvas = await html2canvas(exportCard,{
-      backgroundColor:null,
+      backgroundColor:"#ffffff",
       scale:2,
-      useCORS:true
+      useCORS:true,
+      width: exportCard.offsetWidth,
+      height: exportCard.offsetHeight
     });
+
+    // ⭐ 截完恢復
+    exportCard.style.transform = oldTransform;
+    exportCard.style.width = oldWidth;
 
     canvas.toBlob(blob=>{
       const url = URL.createObjectURL(blob);
@@ -784,4 +801,3 @@ else{
 }
 
 });
-
