@@ -335,7 +335,7 @@ body {
 .mm_time_layer_scene{
   position:relative;
   width:100%;
-  height:calc(100vh - 140px); /* 不蓋掉 header & tabs */
+  min-height:calc(100dvh - 140px); /* ⭐ 改這行 */
   overflow:hidden;
 }
 
