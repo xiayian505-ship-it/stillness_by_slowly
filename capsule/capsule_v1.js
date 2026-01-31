@@ -336,8 +336,8 @@ function showPreview(key){
 
   previewKey = key;
 
-  previewTitle.textContent = e.title || "留 給 未 來";
-  previewContent.textContent = e.content || "";
+  previewTitle.innerText = e.title || "留 給 未 來";
+  previewContent.innerText = e.content || "";
   previewActions.style.display = "flex";
 }
 
@@ -493,8 +493,8 @@ function buildToText(entry){
 }
 
 function fillExportCard(key,entry){
-  if(exportTitle) exportTitle.textContent = entry.title || "留 給 未 來";
-  if(exportBody)  exportBody.textContent  = entry.content || "";
+if(exportTitle) exportTitle.innerText = entry.title || "留 給 未 來";
+if(exportBody)  exportBody.innerText  = entry.content || "";
   if(exportFrom)  exportFrom.textContent  = `from ${entry.sealedAt||key}`;
   if(exportTo)    exportTo.textContent    = buildToText(entry);
 }
@@ -581,9 +581,15 @@ if(confirmExportBtn){
     // ⭐ 1. 複製一張「乾淨卡片」
     const clone = exportCard.cloneNode(true);
 
+// ⭐⭐⭐ 關鍵修正：鎖定 clone 真實尺寸（解決文字擠在一起）
+clone.style.width  = exportCard.offsetWidth + "px";
+clone.style.height = exportCard.offsetHeight + "px";
+
     clone.style.position = "fixed";
     clone.style.left = "0";
     clone.style.top = "0";
+    clone.style.right = "auto";
+clone.style.bottom = "auto";
     clone.style.transform = "none";
     clone.style.margin = "0";
     clone.style.scale = "1";
