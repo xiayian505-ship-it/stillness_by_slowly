@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f5f5f7" />
+  <meta name="theme-color" content="#dce9eb" />
   <title>作品探索</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,19 +13,19 @@
 
   <style>
     :root {
-      --bg: #e9eaed;
-      --surface: rgba(246,247,249,.84);
-      --surface-solid: #f7f7f9;
-      --text: #1d1d1f;
-      --muted: #6e6e73;
-      --muted-2: #8e8e93;
-      --line: rgba(60,60,67,.14);
-      --line-strong: rgba(60,60,67,.22);
-      --accent: #007aff;
-      --accent-soft: rgba(0,122,255,.10);
+      --bg: #dce9eb;
+      --surface: rgba(236,245,246,.87);
+      --surface-solid: #edf5f6;
+      --text: #1f2c30;
+      --muted: #60747A;
+      --muted-2: #7d9196;
+      --line: rgba(43,76,84,.14);
+      --line-strong: rgba(43,76,84,.22);
+      --accent: #4f8994;
+      --accent-soft: rgba(79,137,148,.12);
       --danger: #ff3b30;
       --warning: #ff9f0a;
-      --success: #34c759;
+      --success: #5d9584;
       --shadow: 0 10px 35px rgba(0,0,0,.08);
       --radius-xl: 28px;
       --radius-lg: 20px;
@@ -46,8 +46,8 @@
       min-height: 100vh;
       color: var(--text);
       background:
-        radial-gradient(circle at 10% -10%, rgba(0,122,255,.07), transparent 28rem),
-        linear-gradient(180deg, #f0f1f3 0%, var(--bg) 34%, #e6e7ea 100%);
+        radial-gradient(circle at 10% -10%, rgba(79,137,148,.11), transparent 28rem),
+        linear-gradient(180deg, #e8f2f3 0%, var(--bg) 36%, #d6e5e8 100%);
       font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Microsoft JhengHei", sans-serif;
     }
 
@@ -73,7 +73,7 @@
       position: sticky;
       top: 0;
       z-index: 30;
-      background: rgba(233,234,237,.82);
+      background: rgba(220,233,235,.85);
       backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
       border-bottom: 1px solid var(--line);
@@ -207,7 +207,7 @@
       margin-top: 26px;
       padding: 14px;
       border-radius: var(--radius-xl);
-      background: rgba(244,245,247,.76);
+      background: rgba(234,243,245,.81);
       border: 1px solid rgba(255,255,255,.58);
       box-shadow: var(--shadow);
       backdrop-filter: blur(24px) saturate(170%);
@@ -225,14 +225,14 @@
       border: 0;
       border-radius: 18px;
       outline: none;
-      background: rgba(118,118,128,.09);
+      background: rgba(72,101,108,.09);
       color: var(--text);
       font-size: 15px;
     }
 
     .search-box input:focus {
-      box-shadow: inset 0 0 0 2px rgba(0,122,255,.18);
-      background: rgba(118,118,128,.07);
+      box-shadow: inset 0 0 0 2px rgba(79,137,148,.20);
+      background: rgba(72,101,108,.07);
     }
 
     .search-icon {
@@ -253,7 +253,7 @@
       height: 26px;
       border-radius: 50%;
       border: 0;
-      background: rgba(118,118,128,.20);
+      background: rgba(79,137,148,.28);
       color: white;
       display: none;
       place-items: center;
@@ -291,7 +291,7 @@
 
     .filter-trigger:hover,
     .filter-trigger.active {
-      border-color: rgba(0,122,255,.32);
+      border-color: rgba(79,137,148,.40);
       color: var(--accent);
       background: var(--accent-soft);
     }
@@ -305,7 +305,7 @@
       display: none;
       padding: 14px;
       border-radius: 18px;
-      background: rgba(118,118,128,.07);
+      background: rgba(72,101,108,.07);
     }
 
     .filter-drawer.show {
@@ -364,7 +364,7 @@
       border: 0;
       border-radius: 999px;
       padding: 7px 10px;
-      background: rgba(0,122,255,.10);
+      background: rgba(79,137,148,.12);
       color: var(--accent);
       cursor: pointer;
       font-size: 12px;
@@ -410,7 +410,7 @@
       font-weight: 700;
       font-size: 12.5px;
       cursor: pointer;
-      box-shadow: 0 5px 18px rgba(0,122,255,.23);
+      box-shadow: 0 5px 18px rgba(79,137,148,.24);
     }
 
     .primary-btn:hover {
@@ -489,7 +489,7 @@
 
     .system-tag {
       border: 0;
-      background: rgba(118,118,128,.08);
+      background: rgba(72,101,108,.08);
       color: var(--muted);
       border-radius: 999px;
       padding: 5px 8px;
@@ -531,13 +531,13 @@
     }
 
     .status-連載中 {
-      background: rgba(0,122,255,.10);
+      background: rgba(79,137,148,.12);
       color: var(--accent);
     }
 
     .status-已完結 {
-      background: rgba(52,199,89,.12);
-      color: #248a3d;
+      background: rgba(93,149,132,.13);
+      color: #527d72;
     }
 
     .status-停更中 {
@@ -637,7 +637,7 @@
       height: 100dvh;
       transform: translateX(102%);
       transition: transform .28s cubic-bezier(.22,.8,.24,1);
-      background: rgba(244,245,247,.97);
+      background: rgba(234,243,245,.97);
       backdrop-filter: blur(30px) saturate(180%);
       -webkit-backdrop-filter: blur(30px) saturate(180%);
       box-shadow: -18px 0 50px rgba(0,0,0,.13);
@@ -663,7 +663,7 @@
       gap: 12px;
       padding: 14px 18px;
       border-bottom: 1px solid var(--line);
-      background: rgba(244,245,247,.88);
+      background: rgba(234,243,245,.91);
       backdrop-filter: blur(20px);
     }
 
@@ -678,7 +678,7 @@
       height: 36px;
       border: 0;
       border-radius: 50%;
-      background: rgba(118,118,128,.10);
+      background: rgba(72,101,108,.10);
       color: var(--text);
       cursor: pointer;
       display: grid;
@@ -770,7 +770,7 @@
       border: 0;
       border-radius: 999px;
       padding: 7px 10px;
-      background: rgba(0,122,255,.09);
+      background: rgba(79,143,132,.11);
       color: var(--accent);
       cursor: pointer;
       font-size: 12px;
@@ -779,7 +779,7 @@
     .custom-tag {
       border-radius: 999px;
       padding: 7px 10px;
-      background: rgba(118,118,128,.08);
+      background: rgba(72,101,108,.08);
       color: var(--muted);
       font-size: 12px;
     }
@@ -804,7 +804,7 @@
     }
 
     .work-link:hover {
-      border-color: rgba(0,122,255,.25);
+      border-color: rgba(79,137,148,.30);
     }
 
     .share-actions,
@@ -822,7 +822,7 @@
       cursor: pointer;
       font-weight: 700;
       font-size: 12.5px;
-      background: rgba(118,118,128,.09);
+      background: rgba(72,101,108,.09);
       color: var(--text);
     }
 
@@ -937,7 +937,7 @@
       border-radius: 13px;
       padding: 11px 12px;
       outline: none;
-      background: rgba(118,118,128,.06);
+      background: rgba(72,101,108,.06);
       color: var(--text);
       font-size: 13px;
     }
@@ -950,8 +950,8 @@
 
     .field input:focus,
     .field textarea:focus {
-      border-color: rgba(0,122,255,.35);
-      box-shadow: 0 0 0 3px rgba(0,122,255,.08);
+      border-color: rgba(79,137,148,.42);
+      box-shadow: 0 0 0 3px rgba(79,137,148,.11);
     }
 
     .counter {
@@ -996,7 +996,7 @@
     .series-block {
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: rgba(118,118,128,.035);
+      background: rgba(72,101,108,.04);
       overflow: hidden;
     }
 
@@ -1040,7 +1040,7 @@
       border: 0;
       border-radius: 12px;
       padding: 0 13px;
-      background: rgba(118,118,128,.10);
+      background: rgba(72,101,108,.10);
       color: var(--text);
       cursor: pointer;
       font-size: 12px;
@@ -1060,7 +1060,7 @@
       gap: 7px;
       border-radius: 999px;
       padding: 7px 8px 7px 10px;
-      background: rgba(118,118,128,.09);
+      background: rgba(72,101,108,.09);
       color: var(--muted);
       font-size: 12px;
     }
@@ -1085,7 +1085,7 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 10px;
-      background: rgba(118,118,128,.035);
+      background: rgba(72,101,108,.04);
     }
 
     .link-editor-grid {
@@ -1106,7 +1106,7 @@
       border: 0;
       border-radius: 10px;
       padding: 7px 9px;
-      background: rgba(118,118,128,.09);
+      background: rgba(72,101,108,.09);
       color: var(--muted);
       cursor: pointer;
       font-size: 11px;
@@ -2193,12 +2193,12 @@ async function downloadShareCard(id) {
   const ctx = canvas.getContext("2d");
 
   /* 背景 */
-  ctx.fillStyle = "#E9EAED";
+  ctx.fillStyle = "#D9E8EB";
   ctx.fillRect(0, 0, width, height);
 
   /* 主卡：偏實體書籤比例 */
   roundedRect(ctx, 24, 24, width - 48, height - 48, 28);
-  ctx.fillStyle = "#F1F2F4";
+  ctx.fillStyle = "#EDF5F6";
   ctx.fill();
 
   const left = 58;
@@ -2209,13 +2209,13 @@ async function downloadShareCard(id) {
   ctx.textBaseline = "alphabetic";
 
   /* 書名 */
-  ctx.fillStyle = "#1D1D1F";
+  ctx.fillStyle = "#1F2C30";
   ctx.font = '700 40px "Noto Serif TC", serif';
   y = drawWrappedText(ctx, work.title, left, y, contentW, 58, 1);
 
   /* 副標：最多 16 字，分享書卡不放一句話簡介 */
   if (work.subtitle) {
-    ctx.fillStyle = "#6E6E73";
+    ctx.fillStyle = "#60747A";
     ctx.font = '500 21px "Noto Sans TC", sans-serif';
     y += 34;
     y = drawWrappedText(
@@ -2231,18 +2231,18 @@ async function downloadShareCard(id) {
 
   /* 作者 */
   y += 46;
-  ctx.fillStyle = "#8E8E93";
+  ctx.fillStyle = "#7D9196";
   ctx.font = '600 17px "Noto Sans TC", sans-serif';
   ctx.fillText("作者", left, y);
 
-  ctx.fillStyle = "#1D1D1F";
+  ctx.fillStyle = "#1F2C30";
   ctx.font = '700 20px "Noto Sans TC", sans-serif';
   ctx.fillText(work.author || "未署名", left + 62, y);
 
   /* 分類 */
   const tags = getAllSystemTags(work).slice(0, 6);
   y += 48;
-  ctx.fillStyle = "#6E6E73";
+  ctx.fillStyle = "#60747A";
   ctx.font = '500 17px "Noto Sans TC", sans-serif';
   y = drawWrappedText(ctx, tags.join("  ·  "), left, y, contentW, 30, 1);
 
@@ -2251,11 +2251,11 @@ async function downloadShareCard(id) {
     work.links.find(link => /^https?:\/\//i.test(link.url || ""))?.url || "";
 
   y += 44;
-  ctx.fillStyle = "#8E8E93";
+  ctx.fillStyle = "#7D9196";
   ctx.font = '600 15px "Noto Sans TC", sans-serif';
   ctx.fillText("作品網址", left, y);
 
-  ctx.fillStyle = "#3A3A3C";
+  ctx.fillStyle = "#3D5055";
   ctx.font = '500 15px "Noto Sans TC", sans-serif';
   drawWrappedText(
     ctx,
@@ -2268,14 +2268,14 @@ async function downloadShareCard(id) {
   );
 
   /* 底部品牌 */
-  ctx.strokeStyle = "rgba(60,60,67,.14)";
+  ctx.strokeStyle = "rgba(43,76,84,.14)";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(58, 350);
   ctx.lineTo(width - 58, 350);
   ctx.stroke();
 
-  ctx.fillStyle = "#8E8E93";
+  ctx.fillStyle = "#7D9196";
   ctx.font = '600 17px "Noto Serif TC", serif';
   ctx.fillText("慢 慢", 58, 398);
 
@@ -2284,7 +2284,7 @@ async function downloadShareCard(id) {
   ctx.fillText(" | stillness by slowly", 58 + logoWidth + 5, 398);
 
   ctx.textAlign = "right";
-  ctx.fillStyle = "#8E8E93";
+  ctx.fillStyle = "#7D9196";
   ctx.font = '500 14px "Noto Sans TC", sans-serif';
   ctx.fillText("作品探索", width - 58, 398);
   ctx.textAlign = "left";
