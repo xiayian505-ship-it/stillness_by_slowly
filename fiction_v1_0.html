@@ -1,0 +1,4770 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>書卡目錄</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --page: #E3DFD3;
+      --card: #F8F5EC;
+      --ink: #29241E;
+      --ink-soft: #6E6656;
+      --line: #CBC3AD;
+      --line-soft: #DAD4C2;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      background: var(--page);
+      color: var(--ink);
+      font-family:
+        "Noto Sans TC",
+        "PingFang TC",
+        "Microsoft JhengHei",
+        sans-serif;
+    }
+
+    button,
+    input,
+    textarea {
+      font-family:
+        "Noto Sans TC",
+        "PingFang TC",
+        "Microsoft JhengHei",
+        sans-serif;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    ::selection {
+      background: #C2903F55;
+    }
+
+    .app {
+      min-height: 100vh;
+      background: var(--page);
+    }
+
+    /* =========================
+       Header
+    ========================= */
+
+    .header {
+      padding: 26px clamp(16px, 4vw, 40px) 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 4px;
+      background: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--card);
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .brand-subtitle {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    .mode-switch {
+      display: flex;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px;
+    }
+
+    .mode-btn {
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--ink-soft);
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--ink);
+      color: var(--card);
+    }
+
+    /* =========================
+       Main
+    ========================= */
+
+    main {
+      padding: 22px clamp(16px, 4vw, 40px) 60px;
+    }
+
+    .reader-container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .author-container {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    /* =========================
+       Loading
+    ========================= */
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 70px 20px;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    /* =========================
+       Today
+    ========================= */
+
+    .today-section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 18px 20px;
+      margin-bottom: 22px;
+    }
+
+    .today-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .today-title h2 {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .today-counts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .today-count {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      border-left: 3px solid;
+      background: #fff;
+      font-size: 12.5px;
+      color: var(--ink);
+    }
+
+    .today-count .count-tag {
+      font-weight: 700;
+    }
+
+    .today-empty {
+      margin: 0;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .today-group {
+      margin-bottom: 14px;
+    }
+
+    .today-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .today-group-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .today-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .today-work {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      background: transparent;
+      border: none;
+      border-bottom: 1px dashed var(--line-soft);
+      padding: 6px 2px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+
+    .today-work-title {
+      font-size: 13.5px;
+    }
+
+    .today-work-author {
+      font-size: 11px;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* =========================
+       Search
+    ========================= */
+
+    .search-wrap {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-soft);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 11px 14px 11px 38px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--ink-soft);
+    }
+
+    /* =========================
+       Tags
+    ========================= */
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .sub-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+
+    .tag-chip {
+      padding: 6px 14px;
+      font-size: 13px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s ease;
+    }
+
+    .tag-chip.small {
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    .tag-chip.active {
+      color: #F8F5EC;
+      font-weight: 700;
+    }
+
+    .result-count {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 14px;
+    }
+
+    /* =========================
+       Work Grid
+    ========================= */
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(260px, 1fr)
+      );
+      gap: 18px;
+    }
+
+    .work-card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 26px 18px 16px;
+      cursor: pointer;
+      box-shadow: 2px 3px 0 rgba(41, 36, 30, .06);
+      transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+    }
+
+    .work-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 3px 5px 0 rgba(41, 36, 30, .10);
+    }
+
+    .catalog-tab {
+      position: absolute;
+      top: -1px;
+      left: 20px;
+      color: #F8F5EC;
+      font-family: "Noto Serif TC", serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1px;
+      padding: 3px 12px 5px;
+      border-radius: 0 0 6px 6px;
+    }
+
+    .work-title {
+      font-family: "Noto Serif TC", serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 8px;
+      line-height: 1.4;
+    }
+
+    .work-intro {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      margin: 0 0 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .work-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .format-badge,
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      border-radius: 999px;
+    }
+
+    .format-badge {
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      padding: 2px 8px 2px 6px;
+    }
+
+    .status-badge {
+      gap: 5px;
+      font-weight: 700;
+      border: 1px solid;
+      padding: 2px 9px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .sub-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .sub-tag {
+      font-size: 11px;
+      color: var(--ink-soft);
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+
+    .work-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--ink-soft);
+      border-top: 1px dashed var(--line-soft);
+      padding-top: 10px;
+    }
+
+    .author-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .link-count {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .work-footer-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* =========================
+       Empty
+    ========================= */
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    /* =========================
+       Author
+    ========================= */
+
+    .author-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 4px;
+      border: none;
+      background: var(--ink);
+      color: var(--card);
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+
+    .logout-btn {
+      padding: 9px 16px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink-soft);
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    .admin-status {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+
+    .author-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .author-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 12px 16px;
+      gap: 10px;
+    }
+
+    .author-item-info {
+      min-width: 0;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .author-item-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      min-width: 0;
+    }
+
+    .mini-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #fff;
+      border-radius: 999px;
+      padding: 1.5px 8px;
+      flex-shrink: 0;
+    }
+
+    .author-item-title {
+      font-family: "Noto Serif TC", serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--ink);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .author-item-author {
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    .author-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      padding: 7px;
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .edit-btn {
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .delete-btn {
+      border: 1px solid #B3564C;
+      color: #B3564C;
+    }
+
+    /* =========================
+       Login
+    ========================= */
+
+    .login-panel {
+      max-width: 420px;
+      margin: 30px auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 24px;
+      box-shadow: 3px 4px 0 rgba(41, 36, 30, .08);
+    }
+
+    .login-title {
+      margin: 0 0 6px;
+      font-family: "Noto Serif TC", serif;
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    .login-desc {
+      margin: 0 0 20px;
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+    }
+
+    .login-group {
+      margin-bottom: 12px;
+    }
+
+    .login-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+
+    .login-btn {
+      width: 100%;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 16px;
+      background: var(--ink);
+      color: var(--card);
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .login-btn:disabled {
+      background: var(--line);
+      cursor: wait;
+    }
+
+    .login-message {
+      font-size: 12px;
+      color: #A24D43;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    /* =========================
+       Modal
+    ========================= */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(41, 36, 30, .45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 6px;
+      width: 100%;
+      max-width: 460px;
+      max-height: 88vh;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      box-shadow: 6px 8px 0 rgba(41, 36, 30, .12);
+    }
+
+    .modal.wide {
+      max-width: 560px;
+    }
+
+    .modal-content {
+      padding: 26px;
+    }
+
+    .form-content {
+      padding: 24px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink-soft);
+      font-size: 20px;
+      padding: 0;
+    }
+
+    /* =========================
+       Detail
+    ========================= */
+
+    .detail-main-tag {
+      display: inline-flex;
+      color: #fff;
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .detail-title {
+      font-family: "Noto Serif TC", serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 12px 0 8px;
+    }
+
+    .detail-author {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
+    }
+
+    .detail-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .detail-intro {
+      font-size: 14.5px;
+      color: var(--ink);
+      line-height: 1.9;
+      margin: 0 0 18px;
+    }
+
+    .detail-section {
+      margin-bottom: 20px;
+    }
+
+    .detail-section-title {
+      font-size: 11px;
+      color: var(--ink-soft);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .detail-links {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .detail-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--line-soft);
+      border-radius: 4px;
+      padding: 7px 10px;
+    }
+
+    .detail-link:hover {
+      background: #fff;
+    }
+
+    .detail-link-label {
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .detail-link-url {
+      color: var(--ink-soft);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .detail-empty-link {
+      font-size: 13px;
+      color: var(--ink-soft);
+      border: 1px solid var(--line-soft);
+      border-radius: 4px;
+      padding: 7px 10px;
+    }
+
+    .detail-sub-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .detail-sub-tag {
+      font-size: 12px;
+      color: var(--ink);
+      border: 1px solid var(--line-soft);
+      border-radius: 999px;
+      padding: 3px 10px;
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 10px;
+      border-top: 1px dashed var(--line-soft);
+      padding-top: 16px;
+    }
+
+    .detail-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      background: transparent;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .detail-edit {
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .detail-delete {
+      border: 1px solid #B3564C;
+      color: #B3564C;
+    }
+
+    /* =========================
+       Form
+    ========================= */
+
+    .form-body {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+
+    .form-input {
+      width: 100%;
+      font-size: 14px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 9px 11px;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--ink-soft);
+    }
+
+    textarea.form-input {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    .main-tags-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .main-tag-option {
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: transparent;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .main-tag-option span {
+      font-weight: 400;
+      margin-left: 4px;
+      font-size: 11px;
+      opacity: .85;
+    }
+
+    .status-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-option {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: transparent;
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    .format-options {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .format-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .format-option input {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--ink);
+    }
+
+    .link-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .link-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .link-label-input {
+      flex: 0 0 30%;
+    }
+
+    .link-url-input {
+      flex: 1;
+    }
+
+    .remove-link {
+      flex-shrink: 0;
+      border: 1px solid var(--line);
+      background: transparent;
+      border-radius: 4px;
+      padding: 0 10px;
+      cursor: pointer;
+      color: var(--ink-soft);
+    }
+
+    .add-link-btn {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: none;
+      background: transparent;
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .sub-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .sub-add-btn {
+      padding: 0 14px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .form-sub-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .form-sub-tag {
+      font-size: 12px;
+      color: var(--ink);
+      background: var(--line-soft);
+      border-radius: 999px;
+      padding: 3px 6px 3px 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .remove-sub {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      color: var(--ink-soft);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .cancel-btn {
+      padding: 9px 18px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .save-btn {
+      padding: 9px 20px;
+      border-radius: 4px;
+      border: none;
+      background: var(--ink);
+      color: var(--card);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .save-btn:disabled {
+      background: var(--line);
+      cursor: not-allowed;
+    }
+
+    /* =========================
+       Error
+    ========================= */
+
+    .error-message {
+      background: #F3DCD9;
+      color: #8A3B32;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* =========================
+       Mobile
+    ========================= */
+
+    @media (max-width: 600px) {
+      .header {
+        align-items: flex-start;
+      }
+
+      .mode-switch {
+        width: 100%;
+      }
+
+      .mode-btn {
+        flex: 1;
+      }
+
+      .work-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .today-work {
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .today-work-author {
+        flex-shrink: 0;
+      }
+
+      .author-item {
+        align-items: flex-start;
+      }
+
+      .author-actions {
+        flex-direction: column;
+      }
+
+      .link-row {
+        flex-wrap: wrap;
+      }
+
+      .link-label-input,
+      .link-url-input {
+        flex: 1 1 100%;
+      }
+
+      .remove-link {
+        position: absolute;
+        right: 0;
+        margin-top: 4px;
+      }
+
+      .link-row {
+        position: relative;
+        padding-right: 42px;
+      }
+
+      .modal-overlay {
+        padding: 8px;
+      }
+
+      .modal {
+        max-height: 94vh;
+      }
+
+      .modal-content {
+        padding: 20px;
+      }
+
+      .form-content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="app" class="app">
+
+  <!-- Header -->
+  <header class="header">
+
+    <div class="brand">
+      <div class="brand-icon">📖</div>
+
+      <div>
+        <h1 class="brand-title">書卡目錄</h1>
+        <p class="brand-subtitle">
+          作者上架作品，讀者依標籤快速尋找
+        </p>
+      </div>
+    </div>
+
+    <div class="mode-switch">
+      <button
+        id="readerModeBtn"
+        class="mode-btn active"
+        type="button"
+      >
+        讀者瀏覽
+      </button>
+
+      <button
+        id="authorModeBtn"
+        class="mode-btn"
+        type="button"
+      >
+        作者管理
+      </button>
+    </div>
+
+  </header>
+
+
+  <!-- Main -->
+  <main>
+
+    <div id="errorContainer"></div>
+
+    <div id="loadingView" class="loading">
+      正在讀取作品資料……
+    </div>
+
+
+    <!-- Reader -->
+    <section
+      id="readerView"
+      class="reader-container"
+      style="display:none;"
+    >
+
+      <div id="todaySection"></div>
+
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+
+        <input
+          id="searchInput"
+          class="search-input"
+          type="text"
+          placeholder="搜尋書名、簡介、作者或連結"
+          autocomplete="off"
+        >
+      </div>
+
+      <div
+        id="mainTags"
+        class="tag-row"
+      ></div>
+
+      <div
+        id="subTags"
+        class="sub-tag-row"
+      ></div>
+
+      <div
+        id="resultCount"
+        class="result-count"
+      ></div>
+
+      <div
+        id="workGrid"
+        class="work-grid"
+      ></div>
+
+    </section>
+
+
+    <!-- Author -->
+    <section
+      id="authorView"
+      class="author-container"
+      style="display:none;"
+    >
+
+      <!-- 尚未登入 -->
+      <div
+        id="authorLoginPanel"
+        class="login-panel"
+      >
+
+        <h2 class="login-title">
+          管理員登入
+        </h2>
+
+        <p class="login-desc">
+          此區域只有網站管理員可以使用。
+          登入後可直接新增、修改與刪除作品。
+        </p>
+
+        <div class="login-group">
+          <label for="loginEmail">
+            Email
+          </label>
+
+          <input
+            id="loginEmail"
+            class="form-input"
+            type="email"
+            autocomplete="username"
+            placeholder="管理員 Email"
+          >
+        </div>
+
+        <div class="login-group">
+          <label for="loginPassword">
+            密碼
+          </label>
+
+          <input
+            id="loginPassword"
+            class="form-input"
+            type="password"
+            autocomplete="current-password"
+            placeholder="管理員密碼"
+          >
+        </div>
+
+        <button
+          id="loginBtn"
+          class="login-btn"
+          type="button"
+        >
+          登入管理
+        </button>
+
+        <div
+          id="loginMessage"
+          class="login-message"
+        ></div>
+
+      </div>
+
+
+      <!-- 已登入管理 -->
+      <div
+        id="authorManagePanel"
+        style="display:none;"
+      >
+
+        <div class="admin-status">
+          ✓ 已以管理員身分登入
+        </div>
+
+        <div class="author-toolbar">
+
+          <button
+            id="addWorkBtn"
+            class="add-btn"
+            type="button"
+          >
+            ＋ 新增作品
+          </button>
+
+          <button
+            id="logoutBtn"
+            class="logout-btn"
+            type="button"
+          >
+            登出
+          </button>
+
+        </div>
+
+        <div
+          id="authorList"
+          class="author-list"
+        ></div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+<!-- Modal -->
+<div
+  id="modalOverlay"
+  class="modal-overlay"
+  style="display:none;"
+>
+  <div
+    id="modal"
+    class="modal"
+  ></div>
+</div>
+
+
+<script>
+/* =========================================================
+   書卡目錄
+   GitHub Pages + Supabase
+========================================================= */
+
+
+/* =========================================================
+   Supabase 設定
+========================================================= */
+
+const SUPABASE_URL =
+  "https://bkjqaetxwvcdciieevvs.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_dAHoIimWgbGAF2wtIVSZfg_V8rzc200";
+
+/*
+  管理員 UID
+
+  這個 UID 本身不是密碼，
+  真正的寫入安全仍由 Supabase RLS 負責。
+*/
+const ADMIN_UID =
+  "372c6a7f-4e6b-49fa-8228-183b46cbdede";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =========================================================
+   基本設定
+========================================================= */
+
+const COLORS = {
+  page: "#E3DFD3",
+  card: "#F8F5EC",
+  ink: "#29241E",
+  inkSoft: "#6E6656",
+  line: "#CBC3AD",
+  lineSoft: "#DAD4C2"
+};
+
+
+const MAIN_TAGS = [
+  {
+    id: "BG",
+    label: "BG",
+    desc: "男女向",
+    color: "#7C8A64"
+  },
+  {
+    id: "BL",
+    label: "BL",
+    desc: "男男向",
+    color: "#5B7C99"
+  },
+  {
+    id: "GL",
+    label: "GL",
+    desc: "女女向",
+    color: "#B17093"
+  },
+  {
+    id: "同人",
+    label: "同人",
+    desc: "衍生創作",
+    color: "#C2903F"
+  },
+  {
+    id: "奇幻",
+    label: "奇幻",
+    desc: "奇幻題材",
+    color: "#6F5B96"
+  }
+];
+
+
+const FORMAT_OPTIONS = [
+  "已出版",
+  "電子書",
+  "個人誌"
+];
+
+
+const STATUS_OPTIONS = [
+  "連載中",
+  "已完結",
+  "停更中"
+];
+
+
+const STATUS_COLORS = {
+  "連載中": "#4C7A94",
+  "已完結": "#6E8B6B",
+  "停更中": "#A65C4D"
+};
+
+
+/* =========================================================
+   狀態
+========================================================= */
+
+let works = [];
+
+let mode = "reader";
+
+let searchText = "";
+
+let selectedMain = new Set();
+
+let selectedSub = new Set();
+
+let detailWorkId = null;
+
+let editingWorkId = null;
+
+let formSubTags = [];
+
+let formLinks = [];
+
+let formFormats = [];
+
+let formStatus = "連載中";
+
+let formMainTag = "BG";
+
+let currentSession = null;
+
+let loading = true;
+
+
+/* =========================================================
+   管理員判斷
+========================================================= */
+
+function isAdmin() {
+
+  return Boolean(
+    currentSession &&
+    currentSession.user &&
+    currentSession.user.id === ADMIN_UID
+  );
+}
+
+
+/* =========================================================
+   工具
+========================================================= */
+
+function tagColor(id) {
+
+  const tag =
+    MAIN_TAGS.find(function(t) {
+      return t.id === id;
+    });
+
+  return tag
+    ? tag.color
+    : COLORS.inkSoft;
+}
+
+
+function escapeHTML(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+function escapeAttribute(value) {
+
+  return String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'");
+}
+
+
+function normalizeURL(url) {
+
+  if (!url) {
+    return "";
+  }
+
+  const value =
+    String(url).trim();
+
+  if (
+    value.startsWith("http://") ||
+    value.startsWith("https://") ||
+    value.startsWith("mailto:")
+  ) {
+    return value;
+  }
+
+  return "";
+}
+
+
+function isToday(ts) {
+
+  if (!ts) {
+    return false;
+  }
+
+  const a =
+    new Date(ts);
+
+  const b =
+    new Date();
+
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+
+/* =========================================================
+   Supabase row → 前端作品格式
+========================================================= */
+
+function normalizeWork(row) {
+
+  return {
+
+    id:
+      row.id,
+
+    title:
+      row.title || "",
+
+    author:
+      row.author || "",
+
+    intro:
+      row.intro || "",
+
+    mainTag:
+      row.main_tag || "BG",
+
+    status:
+      row.status || "",
+
+    formats:
+      Array.isArray(row.formats)
+        ? row.formats
+        : [],
+
+    subTags:
+      Array.isArray(row.sub_tags)
+        ? row.sub_tags
+        : [],
+
+    links:
+      Array.isArray(row.links)
+        ? row.links.map(function(link) {
+            return {
+              label:
+                link && link.label
+                  ? link.label
+                  : "",
+
+              url:
+                link && link.url
+                  ? link.url
+                  : ""
+            };
+          })
+        : [],
+
+    createdAt:
+      row.created_at || null
+
+  };
+}
+
+
+/* =========================================================
+   前端作品格式 → Supabase row
+========================================================= */
+
+function workToDatabase(data) {
+
+  return {
+
+    title:
+      data.title || "",
+
+    author:
+      data.author || "",
+
+    intro:
+      data.intro || "",
+
+    main_tag:
+      data.mainTag || "BG",
+
+    status:
+      data.status || "",
+
+    formats:
+      Array.isArray(data.formats)
+        ? data.formats
+        : [],
+
+    sub_tags:
+      Array.isArray(data.subTags)
+        ? data.subTags
+        : [],
+
+    links:
+      Array.isArray(data.links)
+        ? data.links
+        : []
+
+  };
+}
+
+
+/* =========================================================
+   Error
+========================================================= */
+
+function showError(message) {
+
+  const container =
+    document.getElementById(
+      "errorContainer"
+    );
+
+  container.innerHTML =
+    '<div class="error-message">' +
+    escapeHTML(message) +
+    "</div>";
+}
+
+
+function clearError() {
+
+  document
+    .getElementById(
+      "errorContainer"
+    )
+    .innerHTML = "";
+}
+
+
+/* =========================================================
+   Supabase：讀取作品
+========================================================= */
+
+async function loadWorks() {
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("works")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    works =
+      (data || [])
+        .map(normalizeWork);
+
+
+    clearError();
+
+  } catch (error) {
+
+    console.error(
+      "讀取作品失敗：",
+      error
+    );
+
+    works = [];
+
+    showError(
+      "作品資料讀取失敗，請稍後重新整理頁面。"
+    );
+
+  } finally {
+
+    loading = false;
+
+    render();
+
+  }
+}
+
+
+/* =========================================================
+   找作品
+========================================================= */
+
+function getWork(id) {
+
+  return (
+    works.find(function(work) {
+      return String(work.id) === String(id);
+    }) || null
+  );
+}
+
+
+/* =========================================================
+   Render
+========================================================= */
+
+function render() {
+
+  renderMode();
+
+  if (loading) {
+    return;
+  }
+
+  if (mode === "reader") {
+
+    renderToday();
+
+    renderMainTags();
+
+    renderSubTags();
+
+    renderWorks();
+
+  } else {
+
+    renderAuthorArea();
+
+  }
+}
+
+
+/* =========================================================
+   Mode
+========================================================= */
+
+function renderMode() {
+
+  const loadingView =
+    document.getElementById(
+      "loadingView"
+    );
+
+  const readerView =
+    document.getElementById(
+      "readerView"
+    );
+
+  const authorView =
+    document.getElementById(
+      "authorView"
+    );
+
+  const readerBtn =
+    document.getElementById(
+      "readerModeBtn"
+    );
+
+  const authorBtn =
+    document.getElementById(
+      "authorModeBtn"
+    );
+
+
+  if (loading) {
+
+    loadingView.style.display =
+      "flex";
+
+    readerView.style.display =
+      "none";
+
+    authorView.style.display =
+      "none";
+
+    return;
+  }
+
+
+  loadingView.style.display =
+    "none";
+
+
+  if (mode === "reader") {
+
+    readerView.style.display =
+      "block";
+
+    authorView.style.display =
+      "none";
+
+    readerBtn.classList.add(
+      "active"
+    );
+
+    authorBtn.classList.remove(
+      "active"
+    );
+
+  } else {
+
+    readerView.style.display =
+      "none";
+
+    authorView.style.display =
+      "block";
+
+    readerBtn.classList.remove(
+      "active"
+    );
+
+    authorBtn.classList.add(
+      "active"
+    );
+
+  }
+}
+
+
+/* =========================================================
+   Author Area
+========================================================= */
+
+function renderAuthorArea() {
+
+  const loginPanel =
+    document.getElementById(
+      "authorLoginPanel"
+    );
+
+  const managePanel =
+    document.getElementById(
+      "authorManagePanel"
+    );
+
+
+  if (isAdmin()) {
+
+    loginPanel.style.display =
+      "none";
+
+    managePanel.style.display =
+      "block";
+
+    renderAuthorList();
+
+  } else {
+
+    loginPanel.style.display =
+      "block";
+
+    managePanel.style.display =
+      "none";
+
+  }
+}
+
+
+/* =========================================================
+   管理員登入
+========================================================= */
+
+async function loginAdmin() {
+
+  const emailInput =
+    document.getElementById(
+      "loginEmail"
+    );
+
+  const passwordInput =
+    document.getElementById(
+      "loginPassword"
+    );
+
+  const loginBtn =
+    document.getElementById(
+      "loginBtn"
+    );
+
+  const message =
+    document.getElementById(
+      "loginMessage"
+    );
+
+
+  const email =
+    emailInput.value.trim();
+
+  const password =
+    passwordInput.value;
+
+
+  message.textContent = "";
+
+
+  if (
+    !email ||
+    !password
+  ) {
+
+    message.textContent =
+      "請輸入 Email 和密碼。";
+
+    return;
+  }
+
+
+  loginBtn.disabled = true;
+
+  loginBtn.textContent =
+    "登入中……";
+
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth
+        .signInWithPassword({
+          email: email,
+          password: password
+        });
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    if (
+      !data.user ||
+      data.user.id !== ADMIN_UID
+    ) {
+
+      await supabaseClient.auth
+        .signOut();
+
+      currentSession = null;
+
+      message.textContent =
+        "此帳號沒有管理權限。";
+
+      return;
+    }
+
+
+    currentSession =
+      data.session;
+
+
+    passwordInput.value = "";
+
+    message.textContent = "";
+
+    clearError();
+
+    render();
+
+  } catch (error) {
+
+    console.error(
+      "登入失敗：",
+      error
+    );
+
+    message.textContent =
+      "登入失敗，請確認 Email 或密碼是否正確。";
+
+  } finally {
+
+    loginBtn.disabled = false;
+
+    loginBtn.textContent =
+      "登入管理";
+
+  }
+}
+
+
+/* =========================================================
+   登出
+========================================================= */
+
+async function logoutAdmin() {
+
+  try {
+
+    await supabaseClient.auth
+      .signOut();
+
+  } catch (error) {
+
+    console.error(
+      "登出失敗：",
+      error
+    );
+
+  }
+
+  currentSession = null;
+
+  mode = "reader";
+
+  closeModal();
+
+  render();
+}
+
+
+/* =========================================================
+   Today Section
+========================================================= */
+
+function renderToday() {
+
+  const container =
+    document.getElementById(
+      "todaySection"
+    );
+
+  const todayWorks =
+    works.filter(function(work) {
+      return isToday(
+        work.createdAt
+      );
+    });
+
+
+  const counts =
+    MAIN_TAGS.map(function(tag) {
+
+      return {
+        ...tag,
+
+        count:
+          todayWorks
+            .filter(function(work) {
+              return (
+                work.mainTag ===
+                tag.id
+              );
+            })
+            .length
+      };
+
+    });
+
+
+  let html = "";
+
+  html +=
+    '<div class="today-section">';
+
+  html += `
+    <div class="today-title">
+      <span>✦</span>
+      <h2>今日新書快報</h2>
+    </div>
+  `;
+
+
+  html +=
+    '<div class="today-counts">';
+
+
+  counts.forEach(function(c) {
+
+    html += `
+      <div
+        class="today-count"
+        style="border-left-color:${c.color};"
+      >
+
+        <span
+          class="count-tag"
+          style="color:${c.color};"
+        >
+          ${escapeHTML(c.id)}
+        </span>
+
+        <span>
+          今日新增
+          <strong>${c.count}</strong>
+          本
+        </span>
+
+      </div>
+    `;
+
+  });
+
+
+  html += "</div>";
+
+
+  if (todayWorks.length === 0) {
+
+    html += `
+      <p class="today-empty">
+        今天還沒有新作品上架。
+      </p>
+    `;
+
+  } else {
+
+    MAIN_TAGS.forEach(
+      function(tag) {
+
+        const group =
+          todayWorks.filter(
+            function(work) {
+              return (
+                work.mainTag ===
+                tag.id
+              );
+            }
+          );
+
+
+        if (
+          group.length === 0
+        ) {
+          return;
+        }
+
+
+        html += `
+          <div class="today-group">
+
+            <div
+              class="today-group-title"
+            >
+
+              <span
+                class="today-dot"
+                style="background:${tag.color};"
+              ></span>
+
+              <span>
+                ${escapeHTML(tag.id)}
+                ${escapeHTML(tag.desc)}
+              </span>
+
+            </div>
+        `;
+
+
+        group.forEach(
+          function(work) {
+
+            html += `
+              <button
+                class="today-work"
+                type="button"
+                onclick="openDetail(${work.id})"
+              >
+
+                <span
+                  class="today-work-title"
+                >
+                  ${escapeHTML(work.title)}
+                </span>
+
+                <span
+                  class="today-work-author"
+                >
+                  ${escapeHTML(
+                    work.author ||
+                    "匿名作者"
+                  )}
+                  ›
+                </span>
+
+              </button>
+            `;
+
+          }
+        );
+
+
+        html += "</div>";
+
+      }
+    );
+
+  }
+
+
+  html += "</div>";
+
+  container.innerHTML = html;
+}
+
+
+/* =========================================================
+   Main Tags
+========================================================= */
+
+function renderMainTags() {
+
+  const container =
+    document.getElementById(
+      "mainTags"
+    );
+
+  let html = "";
+
+
+  MAIN_TAGS.forEach(function(tag) {
+
+    const active =
+      selectedMain.has(
+        tag.id
+      );
+
+
+    html += `
+      <button
+        type="button"
+        class="tag-chip ${
+          active
+            ? "active"
+            : ""
+        }"
+        style="
+          ${
+            active
+              ? "background:" +
+                tag.color +
+                ";border-color:" +
+                tag.color +
+                ";"
+              : ""
+          }
+        "
+        onclick="toggleMainTag('${tag.id}')"
+      >
+        ${escapeHTML(tag.label)}
+      </button>
+    `;
+
+  });
+
+
+  container.innerHTML = html;
+}
+
+
+/* =========================================================
+   Sub Tags
+========================================================= */
+
+function renderSubTags() {
+
+  const container =
+    document.getElementById(
+      "subTags"
+    );
+
+
+  const allSubTags =
+    Array.from(
+      new Set(
+        works.flatMap(
+          function(work) {
+            return (
+              work.subTags ||
+              []
+            );
+          }
+        )
+      )
+    )
+    .sort(
+      function(a, b) {
+        return a.localeCompare(
+          b,
+          "zh-Hant"
+        );
+      }
+    );
+
+
+  if (
+    allSubTags.length === 0
+  ) {
+
+    container.innerHTML = "";
+
+    return;
+  }
+
+
+  let html = "";
+
+
+  allSubTags.forEach(
+    function(tag) {
+
+      const active =
+        selectedSub.has(tag);
+
+
+      html += `
+        <button
+          type="button"
+          class="tag-chip small ${
+            active
+              ? "active"
+              : ""
+          }"
+          style="
+            ${
+              active
+                ? "background:" +
+                  COLORS.inkSoft +
+                  ";border-color:" +
+                  COLORS.inkSoft +
+                  ";"
+                : ""
+            }
+          "
+          onclick="toggleSubTag('${escapeAttribute(tag)}')"
+        >
+          ${escapeHTML(tag)}
+        </button>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+/* =========================================================
+   Filter
+========================================================= */
+
+function getFilteredWorks() {
+
+  const q =
+    searchText
+      .trim()
+      .toLowerCase();
+
+
+  return works.filter(
+    function(work) {
+
+      const linksText =
+        (work.links || [])
+          .map(
+            function(link) {
+
+              return (
+                (link.label || "") +
+                " " +
+                (link.url || "")
+              );
+
+            }
+          )
+          .join(" ")
+          .toLowerCase();
+
+
+      const matchesSearch =
+        !q ||
+
+        (work.title || "")
+          .toLowerCase()
+          .includes(q) ||
+
+        (work.intro || "")
+          .toLowerCase()
+          .includes(q) ||
+
+        (work.author || "")
+          .toLowerCase()
+          .includes(q) ||
+
+        linksText.includes(q);
+
+
+      const matchesMain =
+        selectedMain.size === 0 ||
+        selectedMain.has(
+          work.mainTag
+        );
+
+
+      const matchesSub =
+        selectedSub.size === 0 ||
+
+        (work.subTags || [])
+          .some(
+            function(tag) {
+              return (
+                selectedSub.has(tag)
+              );
+            }
+          );
+
+
+      return (
+        matchesSearch &&
+        matchesMain &&
+        matchesSub
+      );
+
+    }
+  );
+}
+
+
+/* =========================================================
+   Work Grid
+========================================================= */
+
+function renderWorks() {
+
+  const container =
+    document.getElementById(
+      "workGrid"
+    );
+
+  const count =
+    document.getElementById(
+      "resultCount"
+    );
+
+
+  const filtered =
+    getFilteredWorks();
+
+
+  count.textContent =
+    "找到 " +
+    filtered.length +
+    " 部作品";
+
+
+  if (
+    filtered.length === 0
+  ) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+        目前沒有符合條件的作品。
+      </div>
+    `;
+
+    return;
+  }
+
+
+  let html = "";
+
+
+  filtered.forEach(
+    function(work) {
+
+      const color =
+        tagColor(
+          work.mainTag
+        );
+
+
+      html += `
+        <article
+          class="work-card"
+          onclick="openDetail(${work.id})"
+        >
+
+          <div
+            class="catalog-tab"
+            style="background:${color};"
+          >
+            ${escapeHTML(work.mainTag)}
+          </div>
+
+
+          <h3 class="work-title">
+            ${escapeHTML(work.title)}
+          </h3>
+
+
+          <p class="work-intro">
+            ${escapeHTML(
+              work.intro ||
+              "尚未填寫簡介。"
+            )}
+          </p>
+      `;
+
+
+      if (
+        work.status ||
+        (
+          work.formats &&
+          work.formats.length
+        )
+      ) {
+
+        html += `
+          <div class="work-badges">
+        `;
+
+
+        if (work.status) {
+
+          html +=
+            statusBadgeHTML(
+              work.status
+            );
+
+        }
+
+
+        (work.formats || [])
+          .forEach(
+            function(format) {
+
+              html += `
+                <span
+                  class="format-badge"
+                >
+                  ✓ ${escapeHTML(format)}
+                </span>
+              `;
+
+            }
+          );
+
+
+        html += "</div>";
+
+      }
+
+
+      html += `
+        <div class="sub-tags">
+      `;
+
+
+      (work.subTags || [])
+        .slice(0, 4)
+        .forEach(
+          function(tag) {
+
+            html += `
+              <span
+                class="sub-tag"
+              >
+                ${escapeHTML(tag)}
+              </span>
+            `;
+
+          }
+        );
+
+
+      html += `
+        </div>
+
+
+        <div class="work-footer">
+
+          <span class="author-name">
+            ♙
+            ${escapeHTML(
+              work.author ||
+              "匿名作者"
+            )}
+          </span>
+
+
+          <span
+            class="work-footer-right"
+          >
+
+            ${
+              work.links &&
+              work.links.length > 0
+                ? `
+                  <span
+                    class="link-count"
+                  >
+                    🔗 ${work.links.length}
+                  </span>
+                `
+                : ""
+            }
+
+            ›
+
+          </span>
+
+        </div>
+
+        </article>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+/* =========================================================
+   Badge
+========================================================= */
+
+function statusBadgeHTML(status) {
+
+  const color =
+    STATUS_COLORS[status] ||
+    COLORS.inkSoft;
+
+
+  return `
+    <span
+      class="status-badge"
+      style="
+        color:${color};
+        border-color:${color};
+      "
+    >
+
+      <span
+        class="status-dot"
+        style="background:${color};"
+      ></span>
+
+      ${escapeHTML(status)}
+
+    </span>
+  `;
+}
+
+
+/* =========================================================
+   Author List
+========================================================= */
+
+function renderAuthorList() {
+
+  const container =
+    document.getElementById(
+      "authorList"
+    );
+
+
+  if (!isAdmin()) {
+
+    container.innerHTML = "";
+
+    return;
+  }
+
+
+  if (
+    works.length === 0
+  ) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+        還沒有任何作品，點上方按鈕開始建立目錄卡。
+      </div>
+    `;
+
+    return;
+  }
+
+
+  let html = "";
+
+
+  works.forEach(
+    function(work) {
+
+      html += `
+        <div class="author-item">
+
+          <div
+            class="author-item-info"
+            onclick="openDetail(${work.id})"
+          >
+
+            <div
+              class="author-item-title-row"
+            >
+
+              <span
+                class="mini-tag"
+                style="background:${tagColor(work.mainTag)};"
+              >
+                ${escapeHTML(work.mainTag)}
+              </span>
+
+              <span
+                class="author-item-title"
+              >
+                ${escapeHTML(work.title)}
+              </span>
+
+            </div>
+
+            <div
+              class="author-item-author"
+            >
+              ${escapeHTML(
+                work.author ||
+                "匿名作者"
+              )}
+            </div>
+
+          </div>
+
+
+          <div
+            class="author-actions"
+          >
+
+            <button
+              class="icon-btn edit-btn"
+              type="button"
+              title="編輯"
+              onclick="
+                event.stopPropagation();
+                editWork(${work.id});
+              "
+            >
+              ✎
+            </button>
+
+
+            <button
+              class="icon-btn delete-btn"
+              type="button"
+              title="刪除"
+              onclick="
+                event.stopPropagation();
+                deleteWork(${work.id});
+              "
+            >
+              🗑
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+/* =========================================================
+   Main Tag Toggle
+========================================================= */
+
+function toggleMainTag(tag) {
+
+  if (
+    selectedMain.has(tag)
+  ) {
+
+    selectedMain.delete(tag);
+
+  } else {
+
+    selectedMain.add(tag);
+
+  }
+
+
+  renderMainTags();
+
+  renderWorks();
+}
+
+
+/* =========================================================
+   Sub Tag Toggle
+========================================================= */
+
+function toggleSubTag(tag) {
+
+  if (
+    selectedSub.has(tag)
+  ) {
+
+    selectedSub.delete(tag);
+
+  } else {
+
+    selectedSub.add(tag);
+
+  }
+
+
+  renderSubTags();
+
+  renderWorks();
+}
+
+
+/* =========================================================
+   Modal
+========================================================= */
+
+function showModal(
+  html,
+  wide = false
+) {
+
+  const overlay =
+    document.getElementById(
+      "modalOverlay"
+    );
+
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+
+  modal.className =
+    wide
+      ? "modal wide"
+      : "modal";
+
+
+  modal.innerHTML = html;
+
+  overlay.style.display =
+    "flex";
+}
+
+
+function closeModal() {
+
+  document
+    .getElementById(
+      "modalOverlay"
+    )
+    .style.display =
+      "none";
+
+  document
+    .getElementById(
+      "modal"
+    )
+    .innerHTML = "";
+
+  detailWorkId = null;
+
+  editingWorkId = null;
+}
+
+
+/* 點背景關閉 */
+
+document
+  .getElementById(
+    "modalOverlay"
+  )
+  .addEventListener(
+    "click",
+    function(event) {
+
+      if (
+        event.target === this
+      ) {
+
+        closeModal();
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   Detail
+========================================================= */
+
+function openDetail(id) {
+
+  const work =
+    getWork(id);
+
+
+  if (!work) {
+    return;
+  }
+
+
+  detailWorkId =
+    work.id;
+
+
+  let html = "";
+
+
+  html += `
+    <div class="modal-content">
+
+      <div
+        class="modal-header"
+        style="margin-bottom:6px;"
+      >
+
+        <span
+          class="detail-main-tag"
+          style="background:${tagColor(work.mainTag)};"
+        >
+          ${escapeHTML(work.mainTag)}
+        </span>
+
+        <button
+          class="close-btn"
+          type="button"
+          onclick="closeModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <h2 class="detail-title">
+        ${escapeHTML(work.title)}
+      </h2>
+
+
+      <div class="detail-author">
+        ♙
+        ${escapeHTML(
+          work.author ||
+          "匿名作者"
+        )}
+      </div>
+  `;
+
+
+  if (
+    work.status ||
+    (
+      work.formats &&
+      work.formats.length
+    )
+  ) {
+
+    html += `
+      <div class="detail-badges">
+    `;
+
+
+    if (work.status) {
+
+      html +=
+        statusBadgeHTML(
+          work.status
+        );
+
+    }
+
+
+    (work.formats || [])
+      .forEach(
+        function(format) {
+
+          html += `
+            <span
+              class="format-badge"
+            >
+              ✓ ${escapeHTML(format)}
+            </span>
+          `;
+
+        }
+      );
+
+
+    html += "</div>";
+
+  }
+
+
+  html += `
+      <p class="detail-intro">
+        ${escapeHTML(
+          work.intro ||
+          "作者尚未填寫簡介。"
+        )}
+      </p>
+  `;
+
+
+  if (
+    work.links &&
+    work.links.length > 0
+  ) {
+
+    html += `
+      <div class="detail-section">
+
+        <div
+          class="detail-section-title"
+        >
+          作品連結
+        </div>
+
+        <div class="detail-links">
+    `;
+
+
+    work.links.forEach(
+      function(link) {
+
+        const safeURL =
+          normalizeURL(
+            link.url
+          );
+
+
+        if (safeURL) {
+
+          html += `
+            <a
+              class="detail-link"
+              href="${escapeHTML(safeURL)}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+
+              <span>↗</span>
+
+              <span
+                class="detail-link-label"
+              >
+                ${escapeHTML(
+                  link.label ||
+                  "連結"
+                )}
+              </span>
+
+              <span
+                class="detail-link-url"
+              >
+                ${escapeHTML(link.url)}
+              </span>
+
+            </a>
+          `;
+
+        } else {
+
+          html += `
+            <div
+              class="detail-empty-link"
+            >
+              ${escapeHTML(
+                link.label ||
+                "連結"
+              )}
+            </div>
+          `;
+
+        }
+
+      }
+    );
+
+
+    html += `
+        </div>
+      </div>
+    `;
+
+  }
+
+
+  if (
+    work.subTags &&
+    work.subTags.length > 0
+  ) {
+
+    html += `
+      <div class="detail-section">
+
+        <div
+          class="detail-section-title"
+        >
+          小標籤
+        </div>
+
+        <div
+          class="detail-sub-tags"
+        >
+    `;
+
+
+    work.subTags.forEach(
+      function(tag) {
+
+        html += `
+          <span
+            class="detail-sub-tag"
+          >
+            ${escapeHTML(tag)}
+          </span>
+        `;
+
+      }
+    );
+
+
+    html += `
+        </div>
+      </div>
+    `;
+
+  }
+
+
+  if (
+    mode === "author" &&
+    isAdmin()
+  ) {
+
+    html += `
+      <div class="detail-actions">
+
+        <button
+          class="detail-action detail-edit"
+          type="button"
+          onclick="editWork(${work.id})"
+        >
+          ✎ 編輯
+        </button>
+
+
+        <button
+          class="detail-action detail-delete"
+          type="button"
+          onclick="deleteWork(${work.id})"
+        >
+          🗑 刪除
+        </button>
+
+      </div>
+    `;
+
+  }
+
+
+  html += `
+    </div>
+  `;
+
+
+  showModal(html);
+}
+
+
+/* =========================================================
+   Form
+========================================================= */
+
+function openForm(id = null) {
+
+  if (!isAdmin()) {
+
+    alert(
+      "請先以管理員身分登入。"
+    );
+
+    return;
+  }
+
+
+  editingWorkId = id;
+
+
+  const work =
+    id !== null
+      ? getWork(id)
+      : null;
+
+
+  formMainTag =
+    work
+      ? work.mainTag
+      : "BG";
+
+
+  formStatus =
+    work
+      ? work.status
+      : "連載中";
+
+
+  formFormats =
+    work
+      ? [
+          ...(
+            work.formats ||
+            []
+          )
+        ]
+      : [];
+
+
+  formSubTags =
+    work
+      ? [
+          ...(
+            work.subTags ||
+            []
+          )
+        ]
+      : [];
+
+
+  formLinks =
+    work &&
+    work.links &&
+    work.links.length > 0
+
+      ? work.links.map(
+          function(link) {
+
+            return {
+              label:
+                link.label || "",
+
+              url:
+                link.url || ""
+            };
+
+          }
+        )
+
+      : [
+          {
+            label: "",
+            url: ""
+          }
+        ];
+
+
+  const title =
+    work
+      ? work.title
+      : "";
+
+
+  const author =
+    work
+      ? work.author
+      : "";
+
+
+  const intro =
+    work
+      ? work.intro
+      : "";
+
+
+  let html = "";
+
+
+  html += `
+    <div class="form-content">
+
+      <div class="modal-header">
+
+        <h2 class="modal-title">
+          ${
+            work
+              ? "編輯作品"
+              : "新增作品"
+          }
+        </h2>
+
+        <button
+          class="close-btn"
+          type="button"
+          onclick="closeModal()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="form-body">
+
+        <div class="form-group">
+
+          <label>
+            書名 *
+          </label>
+
+          <input
+            id="formTitle"
+            class="form-input"
+            value="${escapeHTML(title)}"
+            placeholder="輸入作品名稱"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            作者
+          </label>
+
+          <input
+            id="formAuthor"
+            class="form-input"
+            value="${escapeHTML(author)}"
+            placeholder="輸入作者名稱"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            分類標籤 *
+          </label>
+
+          <div
+            id="formMainTags"
+            class="main-tags-form"
+          >
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            連載狀態
+          </label>
+
+          <div
+            id="formStatusOptions"
+            class="status-options"
+          >
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            發布形式
+          </label>
+
+          <div
+            id="formFormats"
+            class="format-options"
+          >
+          </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            簡介
+          </label>
+
+          <textarea
+            id="formIntro"
+            class="form-input"
+            placeholder="簡短介紹這部作品的內容或賣點"
+          >${escapeHTML(intro)}</textarea>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            作品連結（可新增多個，例如平台連載、社群貼文、購買頁）
+          </label>
+
+          <div
+            id="formLinks"
+            class="link-rows"
+          >
+          </div>
+
+
+          <button
+            class="add-link-btn"
+            type="button"
+            onclick="addFormLink()"
+          >
+            ＋ 新增連結
+          </button>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            小標籤（可自訂，例如：古風、都會、校園）
+          </label>
+
+          <div class="sub-input-row">
+
+            <input
+              id="subTagInput"
+              class="form-input"
+              placeholder="輸入後按 Enter 新增"
+            >
+
+            <button
+              class="sub-add-btn"
+              type="button"
+              onclick="addFormSubTag()"
+            >
+              新增
+            </button>
+
+          </div>
+
+
+          <div
+            id="formSubTags"
+            class="form-sub-tags"
+          >
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-actions">
+
+        <button
+          class="cancel-btn"
+          type="button"
+          onclick="closeModal()"
+        >
+          取消
+        </button>
+
+        <button
+          id="saveFormBtn"
+          class="save-btn"
+          type="button"
+          onclick="saveForm()"
+        >
+          ${
+            work
+              ? "儲存變更"
+              : "新增作品"
+          }
+        </button>
+
+      </div>
+
+    </div>
+  `;
+
+
+  showModal(
+    html,
+    true
+  );
+
+
+  renderFormMainTags();
+
+  renderFormStatus();
+
+  renderFormFormats();
+
+  renderFormLinks();
+
+  renderFormSubTags();
+
+
+  const titleInput =
+    document.getElementById(
+      "formTitle"
+    );
+
+
+  titleInput.addEventListener(
+    "input",
+    updateSaveButton
+  );
+
+
+  document
+    .getElementById(
+      "subTagInput"
+    )
+    .addEventListener(
+      "keydown",
+      function(event) {
+
+        if (
+          event.key ===
+            "Enter" ||
+          event.key === ","
+        ) {
+
+          event.preventDefault();
+
+          addFormSubTag();
+
+        }
+
+      }
+    );
+
+
+  updateSaveButton();
+}
+
+
+/* =========================================================
+   Form Main Tags
+========================================================= */
+
+function renderFormMainTags() {
+
+  const container =
+    document.getElementById(
+      "formMainTags"
+    );
+
+
+  let html = "";
+
+
+  MAIN_TAGS.forEach(
+    function(tag) {
+
+      const active =
+        formMainTag ===
+        tag.id;
+
+
+      html += `
+        <button
+          type="button"
+          class="main-tag-option"
+          style="
+            border:1px solid ${
+              active
+                ? tag.color
+                : COLORS.line
+            };
+
+            background:${
+              active
+                ? tag.color
+                : "transparent"
+            };
+
+            color:${
+              active
+                ? "#fff"
+                : COLORS.inkSoft
+            };
+          "
+          onclick="setFormMainTag('${tag.id}')"
+        >
+
+          ${escapeHTML(tag.label)}
+
+          <span>
+            ${escapeHTML(tag.desc)}
+          </span>
+
+        </button>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+function setFormMainTag(tag) {
+
+  formMainTag = tag;
+
+  renderFormMainTags();
+}
+
+
+/* =========================================================
+   Form Status
+========================================================= */
+
+function renderFormStatus() {
+
+  const container =
+    document.getElementById(
+      "formStatusOptions"
+    );
+
+
+  let html = "";
+
+
+  STATUS_OPTIONS.forEach(
+    function(status) {
+
+      const color =
+        STATUS_COLORS[status];
+
+
+      const active =
+        formStatus === status;
+
+
+      html += `
+        <button
+          type="button"
+          class="status-option"
+          style="
+            border:1px solid ${
+              active
+                ? color
+                : COLORS.line
+            };
+
+            background:${
+              active
+                ? color
+                : "transparent"
+            };
+
+            color:${
+              active
+                ? "#fff"
+                : COLORS.inkSoft
+            };
+          "
+          onclick="setFormStatus('${status}')"
+        >
+          ${escapeHTML(status)}
+        </button>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+function setFormStatus(status) {
+
+  formStatus = status;
+
+  renderFormStatus();
+}
+
+
+/* =========================================================
+   Form Formats
+========================================================= */
+
+function renderFormFormats() {
+
+  const container =
+    document.getElementById(
+      "formFormats"
+    );
+
+
+  let html = "";
+
+
+  FORMAT_OPTIONS.forEach(
+    function(format) {
+
+      const checked =
+        formFormats.includes(
+          format
+        );
+
+
+      html += `
+        <label
+          class="format-option"
+        >
+
+          <input
+            type="checkbox"
+            ${
+              checked
+                ? "checked"
+                : ""
+            }
+            onchange="toggleFormFormat('${format}')"
+          >
+
+          ${escapeHTML(format)}
+
+        </label>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+function toggleFormFormat(format) {
+
+  if (
+    formFormats.includes(
+      format
+    )
+  ) {
+
+    formFormats =
+      formFormats.filter(
+        function(x) {
+          return (
+            x !== format
+          );
+        }
+      );
+
+  } else {
+
+    formFormats.push(
+      format
+    );
+
+  }
+
+
+  renderFormFormats();
+}
+
+
+/* =========================================================
+   Form Links
+========================================================= */
+
+function renderFormLinks() {
+
+  const container =
+    document.getElementById(
+      "formLinks"
+    );
+
+
+  let html = "";
+
+
+  formLinks.forEach(
+    function(link, index) {
+
+      html += `
+        <div class="link-row">
+
+          <input
+            class="form-input link-label-input"
+            value="${escapeHTML(link.label)}"
+            placeholder="標籤，例：平台A"
+            oninput="updateFormLink(${index}, 'label', this.value)"
+          >
+
+
+          <input
+            class="form-input link-url-input"
+            value="${escapeHTML(link.url)}"
+            placeholder="https://..."
+            oninput="updateFormLink(${index}, 'url', this.value)"
+          >
+      `;
+
+
+      if (
+        formLinks.length > 1
+      ) {
+
+        html += `
+          <button
+            class="remove-link"
+            type="button"
+            onclick="removeFormLink(${index})"
+          >
+            ×
+          </button>
+        `;
+
+      }
+
+
+      html += `
+        </div>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+function updateFormLink(
+  index,
+  field,
+  value
+) {
+
+  if (
+    !formLinks[index]
+  ) {
+    return;
+  }
+
+  formLinks[index][field] =
+    value;
+}
+
+
+function addFormLink() {
+
+  formLinks.push({
+    label: "",
+    url: ""
+  });
+
+  renderFormLinks();
+}
+
+
+function removeFormLink(index) {
+
+  formLinks =
+    formLinks.filter(
+      function(_, i) {
+        return i !== index;
+      }
+    );
+
+
+  if (
+    formLinks.length === 0
+  ) {
+
+    formLinks.push({
+      label: "",
+      url: ""
+    });
+
+  }
+
+
+  renderFormLinks();
+}
+
+
+/* =========================================================
+   Form Sub Tags
+========================================================= */
+
+function renderFormSubTags() {
+
+  const container =
+    document.getElementById(
+      "formSubTags"
+    );
+
+
+  if (
+    formSubTags.length === 0
+  ) {
+
+    container.innerHTML = "";
+
+    return;
+  }
+
+
+  let html = "";
+
+
+  formSubTags.forEach(
+    function(tag, index) {
+
+      html += `
+        <span
+          class="form-sub-tag"
+        >
+
+          ${escapeHTML(tag)}
+
+          <button
+            type="button"
+            class="remove-sub"
+            onclick="removeFormSubTag(${index})"
+          >
+            ×
+          </button>
+
+        </span>
+      `;
+
+    }
+  );
+
+
+  container.innerHTML = html;
+}
+
+
+function addFormSubTag() {
+
+  const input =
+    document.getElementById(
+      "subTagInput"
+    );
+
+
+  const value =
+    input.value.trim();
+
+
+  if (
+    value &&
+    !formSubTags.includes(
+      value
+    )
+  ) {
+
+    formSubTags.push(
+      value
+    );
+
+  }
+
+
+  input.value = "";
+
+  renderFormSubTags();
+}
+
+
+function removeFormSubTag(index) {
+
+  formSubTags =
+    formSubTags.filter(
+      function(_, i) {
+        return i !== index;
+      }
+    );
+
+
+  renderFormSubTags();
+}
+
+
+/* =========================================================
+   Save Button
+========================================================= */
+
+function updateSaveButton() {
+
+  const button =
+    document.getElementById(
+      "saveFormBtn"
+    );
+
+  const input =
+    document.getElementById(
+      "formTitle"
+    );
+
+
+  if (
+    !button ||
+    !input
+  ) {
+    return;
+  }
+
+
+  button.disabled =
+    input
+      .value
+      .trim()
+      .length === 0;
+}
+
+
+/* =========================================================
+   Save Form → Supabase
+========================================================= */
+
+async function saveForm() {
+
+  if (!isAdmin()) {
+
+    alert(
+      "管理員登入已失效，請重新登入。"
+    );
+
+    closeModal();
+
+    render();
+
+    return;
+  }
+
+
+  const titleInput =
+    document.getElementById(
+      "formTitle"
+    );
+
+  const authorInput =
+    document.getElementById(
+      "formAuthor"
+    );
+
+  const introInput =
+    document.getElementById(
+      "formIntro"
+    );
+
+  const saveBtn =
+    document.getElementById(
+      "saveFormBtn"
+    );
+
+
+  const title =
+    titleInput
+      .value
+      .trim();
+
+
+  if (!title) {
+
+    alert(
+      "請輸入書名。"
+    );
+
+    titleInput.focus();
+
+    return;
+  }
+
+
+  const data = {
+
+    title:
+      title,
+
+    author:
+      authorInput
+        .value
+        .trim(),
+
+    mainTag:
+      formMainTag,
+
+    intro:
+      introInput
+        .value
+        .trim(),
+
+    subTags:
+      [...formSubTags],
+
+    formats:
+      [...formFormats],
+
+    status:
+      formStatus,
+
+    links:
+      formLinks
+        .map(
+          function(link) {
+
+            return {
+
+              label:
+                (
+                  link.label ||
+                  ""
+                ).trim(),
+
+              url:
+                (
+                  link.url ||
+                  ""
+                ).trim()
+
+            };
+
+          }
+        )
+        .filter(
+          function(link) {
+
+            return (
+              link.label ||
+              link.url
+            );
+
+          }
+        )
+
+  };
+
+
+  const dbData =
+    workToDatabase(
+      data
+    );
+
+
+  saveBtn.disabled = true;
+
+  saveBtn.textContent =
+    "儲存中……";
+
+
+  try {
+
+    if (
+      editingWorkId !== null
+    ) {
+
+      const savedId =
+        editingWorkId;
+
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("works")
+          .update(dbData)
+          .eq(
+            "id",
+            savedId
+          );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      closeModal();
+
+      await loadWorks();
+
+      render();
+
+
+      setTimeout(
+        function() {
+
+          if (
+            getWork(savedId)
+          ) {
+
+            openDetail(
+              savedId
+            );
+
+          }
+
+        },
+        0
+      );
+
+    } else {
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("works")
+          .insert(
+            dbData
+          );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      closeModal();
+
+      await loadWorks();
+
+    }
+
+
+    clearError();
+
+  } catch (error) {
+
+    console.error(
+      "儲存作品失敗：",
+      error
+    );
+
+    showError(
+      "作品儲存失敗，請確認管理員仍為登入狀態。"
+    );
+
+
+    saveBtn.disabled = false;
+
+    saveBtn.textContent =
+      editingWorkId !== null
+        ? "儲存變更"
+        : "新增作品";
+
+  }
+}
+
+
+/* =========================================================
+   Edit
+========================================================= */
+
+function editWork(id) {
+
+  if (!isAdmin()) {
+
+    alert(
+      "請先登入管理員帳號。"
+    );
+
+    return;
+  }
+
+
+  const work =
+    getWork(id);
+
+
+  if (!work) {
+    return;
+  }
+
+
+  closeModal();
+
+  openForm(id);
+}
+
+
+/* =========================================================
+   Delete → Supabase
+========================================================= */
+
+async function deleteWork(id) {
+
+  if (!isAdmin()) {
+
+    alert(
+      "請先登入管理員帳號。"
+    );
+
+    return;
+  }
+
+
+  const work =
+    getWork(id);
+
+
+  if (!work) {
+    return;
+  }
+
+
+  const confirmed =
+    confirm(
+      "確定要刪除「" +
+      work.title +
+      "」嗎？\n\n刪除後無法復原。"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("works")
+        .delete()
+        .eq(
+          "id",
+          work.id
+        );
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    closeModal();
+
+    await loadWorks();
+
+    clearError();
+
+  } catch (error) {
+
+    console.error(
+      "刪除作品失敗：",
+      error
+    );
+
+    showError(
+      "刪除作品失敗，請確認管理員仍為登入狀態。"
+    );
+
+  }
+}
+
+
+/* =========================================================
+   Mode
+========================================================= */
+
+function setMode(nextMode) {
+
+  mode =
+    nextMode;
+
+  closeModal();
+
+  render();
+}
+
+
+document
+  .getElementById(
+    "readerModeBtn"
+  )
+  .addEventListener(
+    "click",
+    function() {
+
+      setMode(
+        "reader"
+      );
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "authorModeBtn"
+  )
+  .addEventListener(
+    "click",
+    function() {
+
+      setMode(
+        "author"
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   Search
+========================================================= */
+
+document
+  .getElementById(
+    "searchInput"
+  )
+  .addEventListener(
+    "input",
+    function(event) {
+
+      searchText =
+        event.target.value;
+
+      renderWorks();
+
+    }
+  );
+
+
+/* =========================================================
+   Login events
+========================================================= */
+
+document
+  .getElementById(
+    "loginBtn"
+  )
+  .addEventListener(
+    "click",
+    loginAdmin
+  );
+
+
+document
+  .getElementById(
+    "loginPassword"
+  )
+  .addEventListener(
+    "keydown",
+    function(event) {
+
+      if (
+        event.key ===
+        "Enter"
+      ) {
+
+        loginAdmin();
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   Logout
+========================================================= */
+
+document
+  .getElementById(
+    "logoutBtn"
+  )
+  .addEventListener(
+    "click",
+    logoutAdmin
+  );
+
+
+/* =========================================================
+   Add Work
+========================================================= */
+
+document
+  .getElementById(
+    "addWorkBtn"
+  )
+  .addEventListener(
+    "click",
+    function() {
+
+      openForm();
+
+    }
+  );
+
+
+/* =========================================================
+   Auth Session
+========================================================= */
+
+supabaseClient.auth
+  .onAuthStateChange(
+    function(
+      event,
+      session
+    ) {
+
+      currentSession =
+        session;
+
+
+      /*
+        若不是指定的管理員，
+        不讓作者管理畫面出現。
+      */
+
+      if (
+        session &&
+        session.user &&
+        session.user.id !==
+          ADMIN_UID
+      ) {
+
+        supabaseClient.auth
+          .signOut();
+
+        currentSession = null;
+
+      }
+
+
+      if (!loading) {
+        render();
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   啟動
+========================================================= */
+
+async function initApp() {
+
+  loading = true;
+
+  renderMode();
+
+
+  try {
+
+    const {
+      data
+    } =
+      await supabaseClient.auth
+        .getSession();
+
+
+    currentSession =
+      data.session || null;
+
+
+    if (
+      currentSession &&
+      currentSession.user &&
+      currentSession.user.id !==
+        ADMIN_UID
+    ) {
+
+      await supabaseClient.auth
+        .signOut();
+
+      currentSession = null;
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "讀取登入狀態失敗：",
+      error
+    );
+
+    currentSession = null;
+
+  }
+
+
+  await loadWorks();
+}
+
+
+initApp();
+
+</script>
+
+</body>
+</html>
