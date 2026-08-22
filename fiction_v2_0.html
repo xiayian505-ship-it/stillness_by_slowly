@@ -2053,24 +2053,12 @@ async function downloadShareCard(id) {
   ctx.fillStyle = "#FFFFFF";
   ctx.fill();
 
-  /* 裝飾 */
-  ctx.fillStyle = "#1D1D1F";
-  roundedRect(ctx, 110, 108, 76, 76, 22);
-  ctx.fill();
-
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = '700 30px "Noto Serif TC", serif';
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("文", 148, 146);
-
+  /* 標題 */
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-
-  /* 標題 */
   ctx.fillStyle = "#1D1D1F";
   ctx.font = '700 64px "Noto Serif TC", serif';
-  let y = 280;
+  let y = 205;
   y = drawWrappedText(ctx, work.title, 112, y, 750, 82, 2);
 
   if (work.subtitle) {
@@ -2117,6 +2105,15 @@ async function downloadShareCard(id) {
   ctx.fillStyle = "#8E8E93";
   ctx.font = '500 21px "Noto Sans TC", sans-serif';
   ctx.fillText("fiction_v2_0", 112, footerY + 40);
+
+  /* 品牌文字 Logo */
+  ctx.fillStyle = "#8E8E93";
+  ctx.font = '600 21px "Noto Serif TC", serif';
+  ctx.fillText("慢 慢", 112, footerY + 92);
+
+  const logoPrefixWidth = ctx.measureText("慢 慢").width;
+  ctx.font = '500 20px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
+  ctx.fillText(" | stillness by slowly", 112 + logoPrefixWidth + 6, footerY + 92);
 
   /* QR：回到本站這部作品的專屬入口 */
   const workShareUrl = getWorkShareUrl(work);
