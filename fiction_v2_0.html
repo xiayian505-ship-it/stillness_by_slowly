@@ -1,0 +1,2809 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f5f7" />
+  <title>作品探索</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #e9eaed;
+      --surface: rgba(246,247,249,.84);
+      --surface-solid: #f7f7f9;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --muted-2: #8e8e93;
+      --line: rgba(60,60,67,.14);
+      --line-strong: rgba(60,60,67,.22);
+      --accent: #007aff;
+      --accent-soft: rgba(0,122,255,.10);
+      --danger: #ff3b30;
+      --warning: #ff9f0a;
+      --success: #34c759;
+      --shadow: 0 10px 35px rgba(0,0,0,.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --content: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% -10%, rgba(0,122,255,.07), transparent 28rem),
+        linear-gradient(180deg, #f0f1f3 0%, var(--bg) 34%, #e6e7ea 100%);
+      font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(233,234,237,.82);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-inner {
+      width: min(var(--content), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: var(--text);
+      color: white;
+      font-size: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.14);
+      flex: 0 0 auto;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-family: "Noto Serif TC", serif;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .brand-kicker {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .admin-pill {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 10px 7px 12px;
+      background: var(--surface-solid);
+      border: 1px solid var(--line);
+      box-shadow: 0 3px 14px rgba(0,0,0,.04);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .admin-pill.show {
+      display: inline-flex;
+    }
+
+    .admin-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--success);
+    }
+
+    .admin-pill button {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    main {
+      flex: 1;
+      width: min(var(--content), calc(100% - 32px));
+      margin: 0 auto;
+      padding: 46px 0 72px;
+    }
+
+    .hero {
+      padding: 20px 0 30px;
+    }
+
+    .hero-eyebrow {
+      font-size: 12px;
+      letter-spacing: .14em;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(36px, 6vw, 68px);
+      letter-spacing: -.04em;
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 14px 0 0;
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .search-panel {
+      margin-top: 26px;
+      padding: 14px;
+      border-radius: var(--radius-xl);
+      background: rgba(244,245,247,.76);
+      border: 1px solid rgba(255,255,255,.58);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(24px) saturate(170%);
+      -webkit-backdrop-filter: blur(24px) saturate(170%);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 52px;
+      padding: 0 46px 0 46px;
+      border: 0;
+      border-radius: 18px;
+      outline: none;
+      background: rgba(118,118,128,.09);
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .search-box input:focus {
+      box-shadow: inset 0 0 0 2px rgba(0,122,255,.18);
+      background: rgba(118,118,128,.07);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 17px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted-2);
+      pointer-events: none;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 0;
+      background: rgba(118,118,128,.20);
+      color: white;
+      display: none;
+      place-items: center;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .search-clear.show {
+      display: grid;
+    }
+
+    .filter-area {
+      margin-top: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .filter-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-trigger {
+      border: 1px solid var(--line);
+      background: var(--surface-solid);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 13px;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: .18s ease;
+    }
+
+    .filter-trigger:hover,
+    .filter-trigger.active {
+      border-color: rgba(0,122,255,.32);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .filter-trigger .count {
+      margin-left: 5px;
+      color: var(--accent);
+    }
+
+    .filter-drawer {
+      display: none;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(118,118,128,.07);
+    }
+
+    .filter-drawer.show {
+      display: block;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .check-chip {
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--surface-solid);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12.5px;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .check-chip.active {
+      color: white;
+      background: var(--accent);
+      box-shadow: none;
+    }
+
+    .escape-chip.active {
+      background: var(--text);
+    }
+
+    .active-filters {
+      display: none;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .active-filters.show {
+      display: flex;
+    }
+
+    .active-title {
+      color: var(--muted);
+      font-size: 12px;
+      margin-right: 2px;
+    }
+
+    .active-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(0,122,255,.10);
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .clear-all {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 7px 4px;
+    }
+
+    .index-toolbar {
+      margin-top: 38px;
+      padding: 0 2px 12px;
+      border-bottom: 1px solid var(--line-strong);
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .index-title h2 {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: 22px;
+    }
+
+    .index-title p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .primary-btn {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor: pointer;
+      box-shadow: 0 5px 18px rgba(0,122,255,.23);
+    }
+
+    .primary-btn:hover {
+      filter: brightness(.97);
+    }
+
+    .book-list {
+      display: grid;
+    }
+
+    .book-row {
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1fr) 140px;
+      gap: 18px;
+      padding: 24px 2px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .book-row:hover {
+      background: rgba(247,247,249,.42);
+    }
+
+    .book-index {
+      color: var(--muted-2);
+      font-size: 12px;
+      letter-spacing: .08em;
+      padding-top: 5px;
+    }
+
+    .book-main {
+      min-width: 0;
+    }
+
+    .book-title {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(20px, 2.4vw, 29px);
+      line-height: 1.35;
+      letter-spacing: -.02em;
+    }
+
+    .book-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .book-hook {
+      margin: 13px 0 0;
+      color: #3a3a3c;
+      font-size: 14px;
+      line-height: 1.8;
+      max-width: 760px;
+    }
+
+    .book-meta {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+    }
+
+    .author-link {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .system-tag {
+      border: 0;
+      background: rgba(118,118,128,.08);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 5px 8px;
+      cursor: pointer;
+      font-size: 11.5px;
+    }
+
+    .system-tag:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .book-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-連載中 {
+      background: rgba(0,122,255,.10);
+      color: var(--accent);
+    }
+
+    .status-已完結 {
+      background: rgba(52,199,89,.12);
+      color: #248a3d;
+    }
+
+    .status-停更中 {
+      background: rgba(255,159,10,.13);
+      color: #b26a00;
+    }
+
+    .row-arrow {
+      color: var(--muted-2);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .empty-state {
+      padding: 72px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-family: "Noto Serif TC", serif;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 26px 0 calc(30px + env(safe-area-inset-bottom));
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer-inner {
+      width: min(var(--content), calc(100% - 32px));
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-manage {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 6px;
+      font-size: 12px;
+    }
+
+    .footer-manage:hover {
+      color: var(--accent);
+    }
+
+    .footer-signature {
+      width: min(var(--content), calc(100% - 32px));
+      margin: 22px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      color: var(--muted-2);
+      font-family: "Noto Serif TC", serif;
+      font-size: 12px;
+      letter-spacing: .08em;
+    }
+
+    .footer-signature .en {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Noto Sans TC", sans-serif;
+      letter-spacing: .06em;
+    }
+
+    /* Drawer / Sheet */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 70;
+      background: rgba(0,0,0,.24);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+
+    .overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      z-index: 80;
+      top: 0;
+      right: 0;
+      width: min(560px, 92vw);
+      height: 100dvh;
+      transform: translateX(102%);
+      transition: transform .28s cubic-bezier(.22,.8,.24,1);
+      background: rgba(244,245,247,.97);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      box-shadow: -18px 0 50px rgba(0,0,0,.13);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .drawer.show {
+      transform: translateX(0);
+    }
+
+    .drawer-grabber {
+      display: none;
+    }
+
+    .drawer-header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(244,245,247,.88);
+      backdrop-filter: blur(20px);
+    }
+
+    .drawer-header-title {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(118,118,128,.10);
+      color: var(--text);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+
+    .drawer-body {
+      padding: 24px 24px 42px;
+      overflow: auto;
+    }
+
+    .detail-title {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(28px, 5vw, 40px);
+      line-height: 1.22;
+      letter-spacing: -.03em;
+    }
+
+    .detail-subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .detail-hook {
+      margin: 18px 0 0;
+      font-size: 16px;
+      line-height: 1.85;
+      color: #2c2c2e;
+      font-weight: 500;
+    }
+
+    .detail-section {
+      margin-top: 26px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+
+    .detail-copy {
+      margin: 0;
+      color: #3a3a3c;
+      font-size: 14px;
+      line-height: 1.95;
+      white-space: pre-wrap;
+    }
+
+    .detail-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .detail-line:last-child {
+      border-bottom: 0;
+    }
+
+    .detail-key {
+      color: var(--muted);
+      flex: 0 0 auto;
+    }
+
+    .detail-value {
+      text-align: right;
+      min-width: 0;
+    }
+
+    .detail-tag-wrap,
+    .custom-tag-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .detail-tag {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(0,122,255,.09);
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .custom-tag {
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(118,118,128,.08);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .link-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .work-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 13px 14px;
+      background: var(--surface-solid);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .work-link:hover {
+      border-color: rgba(0,122,255,.25);
+    }
+
+    .share-actions,
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .action-btn {
+      flex: 1 1 160px;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12.5px;
+      background: rgba(118,118,128,.09);
+      color: var(--text);
+    }
+
+    .action-btn.accent {
+      background: var(--accent);
+      color: white;
+    }
+
+    .action-btn.danger {
+      background: rgba(255,59,48,.10);
+      color: var(--danger);
+    }
+
+    /* Modal */
+    .modal-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.28);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-wrap.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(680px, 100%);
+      max-height: min(92dvh, 900px);
+      overflow: auto;
+      background: rgba(255,255,255,.98);
+      border-radius: 26px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.82);
+    }
+
+    .modal-card.small {
+      width: min(430px, 100%);
+    }
+
+    .modal-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px 14px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-family: "Noto Serif TC", serif;
+      font-size: 20px;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-section {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .form-section:first-child {
+      padding-top: 0;
+    }
+
+    .form-section:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .form-section-title {
+      margin: 0 0 13px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .05em;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .form-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 11px 12px;
+      outline: none;
+      background: rgba(118,118,128,.06);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .field textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: rgba(0,122,255,.35);
+      box-shadow: 0 0 0 3px rgba(0,122,255,.08);
+    }
+
+    .counter {
+      margin-top: 5px;
+      text-align: right;
+      font-size: 10.5px;
+      color: var(--muted);
+    }
+
+    .counter.over {
+      color: var(--danger);
+    }
+
+    .segmented {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .segment {
+      border: 1px solid var(--line);
+      background: var(--surface-solid);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .segment.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    .series-editor {
+      display: grid;
+      gap: 9px;
+    }
+
+    .series-block {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(118,118,128,.035);
+      overflow: hidden;
+    }
+
+    .series-toggle {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 12px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      color: var(--text);
+      font-size: 12.5px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .series-children {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 12px 12px;
+    }
+
+    .series-children.show {
+      display: flex;
+    }
+
+    .tag-entry {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tag-entry input {
+      flex: 1;
+    }
+
+    .small-btn {
+      flex: 0 0 auto;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 13px;
+      background: rgba(118,118,128,.10);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tag-edit-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 7px 8px 7px 10px;
+      background: rgba(118,118,128,.09);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tag-edit-chip button {
+      width: 20px;
+      height: 20px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(118,118,128,.18);
+      cursor: pointer;
+      color: white;
+      line-height: 1;
+    }
+
+    .link-editor-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .link-editor-row {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(118,118,128,.035);
+    }
+
+    .link-editor-grid {
+      display: grid;
+      grid-template-columns: minmax(110px, .7fr) minmax(0, 1.5fr);
+      gap: 8px;
+    }
+
+    .link-row-actions {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .mini-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 7px 9px;
+      background: rgba(118,118,128,.09);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .mini-btn.danger {
+      color: var(--danger);
+      background: rgba(255,59,48,.08);
+    }
+
+    .link-note {
+      color: var(--muted);
+      font-size: 10.5px;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+
+    .form-footer {
+      position: sticky;
+      bottom: 0;
+      z-index: 3;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--line);
+    }
+
+    .ghost-btn {
+      border: 1px solid var(--line);
+      background: var(--surface-solid);
+      color: var(--text);
+      border-radius: 13px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .save-btn {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      border-radius: 13px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .save-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .login-note {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,159,10,.10);
+    }
+
+    .error-text {
+      margin-top: 10px;
+      color: var(--danger);
+      font-size: 11px;
+      min-height: 16px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 120;
+      left: 50%;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(29,29,31,.92);
+      color: white;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 12px;
+      transition: .2s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,.16);
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(100% - 24px, var(--content));
+        padding-top: 28px;
+      }
+
+      .topbar-inner,
+      .footer-inner {
+        width: min(100% - 24px, var(--content));
+      }
+
+      .hero {
+        padding-top: 14px;
+      }
+
+      .hero p {
+        font-size: 14px;
+      }
+
+      .search-panel {
+        border-radius: 22px;
+        padding: 10px;
+      }
+
+      .book-row {
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 12px;
+        padding: 20px 2px;
+      }
+
+      .book-side {
+        grid-column: 2;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .index-toolbar {
+        align-items: center;
+      }
+
+      .drawer {
+        top: auto;
+        bottom: 0;
+        width: 100%;
+        height: min(92dvh, 850px);
+        border-radius: 26px 26px 0 0;
+        transform: translateY(102%);
+      }
+
+      .drawer.show {
+        transform: translateY(0);
+      }
+
+      .drawer-grabber {
+        display: block;
+        width: 42px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(118,118,128,.28);
+        margin: 8px auto 0;
+      }
+
+      .drawer-header {
+        padding-top: 8px;
+      }
+
+      .drawer-body {
+        padding: 20px 18px 36px;
+      }
+
+      .form-grid.two {
+        grid-template-columns: 1fr;
+      }
+
+      .link-editor-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .brand-kicker {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 42px;
+      }
+
+      .hero p {
+        margin-top: 10px;
+      }
+
+      .filter-strip {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+
+      .filter-strip::-webkit-scrollbar {
+        display: none;
+      }
+
+      .filter-trigger {
+        flex: 0 0 auto;
+      }
+
+      .index-toolbar {
+        margin-top: 28px;
+      }
+
+      .book-index {
+        font-size: 10px;
+      }
+
+      .book-title {
+        font-size: 22px;
+      }
+
+      .book-hook {
+        font-size: 13.5px;
+      }
+
+      .modal-wrap {
+        padding: 8px;
+        align-items: flex-end;
+      }
+
+      .modal-card,
+      .modal-card.small {
+        width: 100%;
+        max-height: 94dvh;
+        border-radius: 24px 24px 0 0;
+      }
+
+      .share-actions,
+      .admin-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-text">
+          <div class="brand-title">作品探索</div>
+          <div class="brand-kicker">Fiction Index</div>
+        </div>
+      </div>
+
+      <div id="adminPill" class="admin-pill">
+        <span class="dot"></span>
+        <span>管理中</span>
+        <button type="button" onclick="logoutAdmin()">登出</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-eyebrow">Discover your next story</div>
+      <h1>作品探索</h1>
+      <p>從作者、創作類型與題材分類開始，找到下一個想讀的故事。作品散落在不同平台，這裡只負責把入口整理好。</p>
+
+      <div class="search-panel">
+        <div class="search-box">
+          <span class="search-icon">⌕</span>
+          <input id="searchInput" type="search" placeholder="搜尋書名、作者、副標題或一句話簡介" autocomplete="off">
+          <button id="searchClear" class="search-clear" type="button" aria-label="清除搜尋">×</button>
+        </div>
+
+        <div class="filter-area">
+          <div id="creationTypeOptions" class="filter-options"></div>
+          <div id="seriesTriggers" class="filter-strip"></div>
+          <div id="seriesDrawers"></div>
+
+          <div id="activeFilters" class="active-filters"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="index-toolbar">
+        <div class="index-title">
+          <h2>作品索引</h2>
+          <p id="resultCount">0 部作品</p>
+        </div>
+        <button id="addWorkBtn" class="primary-btn" type="button" style="display:none;">＋ 新增作品</button>
+      </div>
+
+      <div id="bookList" class="book-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>fiction_v2_0 · 單頁作品探索</span>
+      <button id="manageBtn" class="footer-manage" type="button">管理</button>
+    </div>
+    <div class="footer-signature">慢 慢 <span class="en">| stillness by slowly</span></div>
+  </footer>
+</div>
+
+<div id="detailOverlay" class="overlay" onclick="closeDetail()"></div>
+<aside id="detailDrawer" class="drawer" aria-hidden="true">
+  <div class="drawer-grabber"></div>
+  <div class="drawer-header">
+    <span class="drawer-header-title">作品詳情</span>
+    <button class="icon-btn" type="button" onclick="closeDetail()" aria-label="關閉">×</button>
+  </div>
+  <div id="detailBody" class="drawer-body"></div>
+</aside>
+
+<div id="modalWrap" class="modal-wrap" onclick="handleModalBackdrop(event)">
+  <div id="modalCard" class="modal-card"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+   fiction_v2_0
+   完整純前端單檔版
+   localStorage key 與檔名一致
+========================================================= */
+
+const STORAGE_KEY = "fiction_v2_0";
+
+const CREATION_TYPES = ["原創", "同人", "改編"];
+
+const SERIES = [
+  { id: "romance", label: "戀愛系列", options: ["耽美", "言情", "百合"] },
+  { id: "fantasy", label: "奇幻系列", options: ["東方奇幻", "西方奇幻", "現代奇幻"] },
+  { id: "xuanhuan", label: "玄幻系列", options: ["東方玄幻", "現代玄幻", "架空玄幻"] },
+  { id: "wuxia", label: "武俠仙俠系列", options: ["武俠", "仙俠"] },
+  { id: "mystery", label: "推理系列", options: ["一般推理", "特殊設定推理"] },
+  { id: "crime", label: "刑偵系列", options: ["犯罪懸疑", "調查辦案"] },
+  { id: "supernatural", label: "靈異系列", options: ["靈異", "恐怖"] },
+  { id: "transmigration", label: "穿越系列", options: ["穿越", "重生", "穿書"] },
+  { id: "scifi", label: "科幻系列", options: ["一般科幻", "未來科技", "星際宇宙"] },
+  { id: "history", label: "歷史系列", options: ["真實歷史", "架空歷史"] },
+  { id: "game", label: "遊戲系列", options: ["電競", "網遊"] }
+];
+
+const ESCAPE_TAG = "我也不知道怎麼分類";
+const STATUS_OPTIONS = ["連載中", "已完結", "停更中"];
+const MAX_HOOK = 30;
+const MAX_CUSTOM_TAG = 16;
+
+/*
+  純前端階段的管理登入只是 UI / 操作流程測試。
+  真正上線時會換成 Supabase Auth + RLS。
+  目前任何非空白 Email + 密碼都可進入管理模式。
+*/
+const ADMIN_SESSION_KEY = "fiction_v2_0_admin_preview";
+
+const SAMPLE_WORKS = [
+  {
+    id: cryptoRandomId(),
+    author: "我",
+    title: "字數統計？",
+    subtitle: "——江郎才盡的我，穿越次元當AI",
+    hook: "落魄作家被AI判成AI，穿越文字次元後一路寫成神。",
+    copy: "一個叫才盡的落魄作家，交出的新稿被 AI 檢測器判定高度由 AI 生成。被退稿後，他意外掉進文字生成伺服器具現化的異次元，只能靠寫字換取積分、權限與生存資格。",
+    status: "已完結",
+    lastPublishedAt: "",
+    creationTypes: ["原創"],
+    categories: ["穿越", "一般科幻", "未來科技"],
+    escape: false,
+    customTags: ["AI", "後設", "黑色幽默"],
+    links: [
+      { label: "示範作品頁", url: "https://example.com/" }
+    ],
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: cryptoRandomId(),
+    author: "我",
+    title: "新編烏盆記",
+    subtitle: "",
+    hook: "刑警在追思會聽見無人彈奏的琴聲，琴裡卻住著兩個靈魂。",
+    copy: "現代刑偵、靈異規則與古典包公案母題交錯。當證據、冤魂、借命與法律各自指向不同答案，真正需要被判決的也許不是活人。",
+    status: "連載中",
+    lastPublishedAt: "",
+    creationTypes: ["原創", "改編"],
+    categories: ["現代奇幻", "特殊設定推理", "犯罪懸疑", "調查辦案", "靈異"],
+    escape: false,
+    customTags: ["後設", "古典新編"],
+    links: [],
+    createdAt: new Date(Date.now() - 86400000).toISOString()
+  }
+];
+
+let works = [];
+let searchText = "";
+let selectedCreationTypes = new Set();
+let selectedCategories = new Set();
+let selectedAuthor = "";
+let escapeFilter = false;
+let openSeriesId = "";
+let activeDetailId = null;
+let isAdmin = false;
+
+let formState = null;
+
+/* -------------------- 工具 -------------------- */
+
+function cryptoRandomId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return "w-" + Date.now() + "-" + Math.random().toString(36).slice(2, 9);
+}
+
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeAttr(value) {
+  return escapeHTML(value).replace(/`/g, "&#096;");
+}
+
+function normalizeWork(raw) {
+  return {
+    id: raw.id || cryptoRandomId(),
+    author: String(raw.author || "").trim(),
+    title: String(raw.title || "").trim(),
+    subtitle: String(raw.subtitle || "").trim(),
+    hook: String(raw.hook || "").slice(0, MAX_HOOK),
+    copy: String(raw.copy || ""),
+    status: STATUS_OPTIONS.includes(raw.status) ? raw.status : "連載中",
+    lastPublishedAt: raw.status === "停更中" ? String(raw.lastPublishedAt || "") : "",
+    creationTypes: Array.isArray(raw.creationTypes)
+      ? raw.creationTypes.filter(x => CREATION_TYPES.includes(x))
+      : [],
+    categories: Array.isArray(raw.categories)
+      ? raw.categories.filter(isValidCategory)
+      : [],
+    escape: Boolean(raw.escape),
+    customTags: Array.isArray(raw.customTags)
+      ? raw.customTags
+          .map(x => String(x).trim().slice(0, MAX_CUSTOM_TAG))
+          .filter(Boolean)
+      : [],
+    links: Array.isArray(raw.links)
+      ? raw.links
+          .map(link => ({
+            label: String(link?.label || "").trim(),
+            url: String(link?.url || "").trim()
+          }))
+          .filter(link => link.label || link.url)
+      : [],
+    createdAt: raw.createdAt || new Date().toISOString()
+  };
+}
+
+function isValidCategory(value) {
+  return SERIES.some(group => group.options.includes(value));
+}
+
+function loadWorks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      works = SAMPLE_WORKS.map(normalizeWork);
+      persistWorks();
+      return;
+    }
+    const parsed = JSON.parse(raw);
+    works = Array.isArray(parsed) ? parsed.map(normalizeWork) : [];
+  } catch (error) {
+    console.error(error);
+    works = SAMPLE_WORKS.map(normalizeWork);
+    showToast("讀取資料失敗，已載入範例資料");
+  }
+}
+
+function persistWorks() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(works));
+}
+
+function findWork(id) {
+  return works.find(work => work.id === id) || null;
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 2100);
+}
+
+function getAllSystemTags(work) {
+  return [...(work.creationTypes || []), ...(work.categories || [])];
+}
+
+function filterWorks() {
+  const q = searchText.trim().toLocaleLowerCase("zh-Hant");
+
+  return works.filter(work => {
+    const searchBlob = [
+      work.title,
+      work.subtitle,
+      work.author,
+      work.hook,
+      work.copy
+    ].join(" ").toLocaleLowerCase("zh-Hant");
+
+    const searchOk = !q || searchBlob.includes(q);
+    const authorOk = !selectedAuthor || work.author === selectedAuthor;
+
+    /* 創作類型 / 系統分類採 AND：選越多，結果越精準 */
+    const creationOk =
+      selectedCreationTypes.size === 0 ||
+      [...selectedCreationTypes].every(tag => work.creationTypes.includes(tag));
+
+    const categoriesOk =
+      selectedCategories.size === 0 ||
+      [...selectedCategories].every(tag => work.categories.includes(tag));
+
+    const escapeOk = !escapeFilter || work.escape;
+
+    return searchOk && authorOk && creationOk && categoriesOk && escapeOk;
+  });
+}
+
+/* -------------------- 篩選 UI -------------------- */
+
+function renderFilters() {
+  const creationContainer = document.getElementById("creationTypeOptions");
+  creationContainer.innerHTML = [
+    ...CREATION_TYPES.map(type => `
+      <button
+        type="button"
+        class="check-chip ${selectedCreationTypes.has(type) ? "active" : ""}"
+        onclick="toggleCreationType('${escapeAttr(type)}')"
+      >${escapeHTML(type)}</button>
+    `),
+    `
+      <button
+        type="button"
+        class="check-chip escape-chip ${escapeFilter ? "active" : ""}"
+        onclick="toggleEscapeFilter()"
+      >${ESCAPE_TAG}</button>
+    `
+  ].join("");
+
+  const triggerContainer = document.getElementById("seriesTriggers");
+  triggerContainer.innerHTML = SERIES.map(group => {
+    const count = group.options.filter(option => selectedCategories.has(option)).length;
+    return `
+      <button
+        type="button"
+        class="filter-trigger ${openSeriesId === group.id || count ? "active" : ""}"
+        onclick="toggleSeries('${group.id}')"
+      >
+        ${escapeHTML(group.label)}
+        ${count ? `<span class="count">${count}</span>` : ""}
+      </button>
+    `;
+  }).join("");
+
+  const drawers = document.getElementById("seriesDrawers");
+  drawers.innerHTML = SERIES.map(group => `
+    <div class="filter-drawer ${openSeriesId === group.id ? "show" : ""}">
+      <div class="filter-options">
+        ${group.options.map(option => `
+          <button
+            type="button"
+            class="check-chip ${selectedCategories.has(option) ? "active" : ""}"
+            onclick="toggleCategory('${escapeAttr(option)}')"
+          >${escapeHTML(option)}</button>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  renderActiveFilters();
+}
+
+function renderActiveFilters() {
+  const box = document.getElementById("activeFilters");
+  const chips = [];
+
+  if (selectedAuthor) {
+    chips.push(`
+      <button class="active-chip" type="button" onclick="clearAuthorFilter()">
+        作者：${escapeHTML(selectedAuthor)} ×
+      </button>
+    `);
+  }
+
+  selectedCreationTypes.forEach(tag => {
+    chips.push(`
+      <button class="active-chip" type="button" onclick="toggleCreationType('${escapeAttr(tag)}')">
+        ${escapeHTML(tag)} ×
+      </button>
+    `);
+  });
+
+  selectedCategories.forEach(tag => {
+    chips.push(`
+      <button class="active-chip" type="button" onclick="toggleCategory('${escapeAttr(tag)}')">
+        ${escapeHTML(tag)} ×
+      </button>
+    `);
+  });
+
+  if (escapeFilter) {
+    chips.push(`
+      <button class="active-chip" type="button" onclick="toggleEscapeFilter()">
+        ${ESCAPE_TAG} ×
+      </button>
+    `);
+  }
+
+  const has = chips.length > 0;
+  box.classList.toggle("show", has);
+  box.innerHTML = has
+    ? `<span class="active-title">目前條件</span>${chips.join("")}<button class="clear-all" type="button" onclick="clearAllFilters()">清除全部</button>`
+    : "";
+}
+
+function toggleSeries(id) {
+  openSeriesId = openSeriesId === id ? "" : id;
+  renderFilters();
+}
+
+function toggleCreationType(type) {
+  selectedCreationTypes.has(type)
+    ? selectedCreationTypes.delete(type)
+    : selectedCreationTypes.add(type);
+  renderAll();
+}
+
+function toggleCategory(category) {
+  selectedCategories.has(category)
+    ? selectedCategories.delete(category)
+    : selectedCategories.add(category);
+  renderAll();
+}
+
+function toggleEscapeFilter() {
+  escapeFilter = !escapeFilter;
+  renderAll();
+}
+
+function setAuthorFilter(author) {
+  selectedAuthor = author;
+  closeDetail();
+  renderAll();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function clearAuthorFilter() {
+  selectedAuthor = "";
+  renderAll();
+}
+
+function clearAllFilters() {
+  selectedCreationTypes.clear();
+  selectedCategories.clear();
+  selectedAuthor = "";
+  escapeFilter = false;
+  searchText = "";
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchClear").classList.remove("show");
+  renderAll();
+}
+
+/* -------------------- 作品列表 -------------------- */
+
+function renderBookList() {
+  const list = document.getElementById("bookList");
+  const filtered = filterWorks();
+
+  document.getElementById("resultCount").textContent =
+    `${filtered.length} 部作品${works.length !== filtered.length ? `／共 ${works.length} 部` : ""}`;
+
+  if (!filtered.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <strong>目前沒有符合條件的作品</strong>
+        換個關鍵字或取消部分篩選看看。
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = filtered.map((work, index) => {
+    const systemTags = getAllSystemTags(work);
+    return `
+      <article class="book-row" onclick="openDetail('${work.id}')">
+        <div class="book-index">${String(index + 1).padStart(3, "0")}</div>
+
+        <div class="book-main">
+          <h3 class="book-title">${escapeHTML(work.title)}</h3>
+          ${work.subtitle ? `<div class="book-subtitle">${escapeHTML(work.subtitle)}</div>` : ""}
+          <p class="book-hook">${escapeHTML(work.hook || "尚未填寫一句話故事簡介。")}</p>
+
+          <div class="book-meta">
+            <button
+              class="author-link"
+              type="button"
+              onclick="event.stopPropagation(); setAuthorFilter('${escapeAttr(work.author)}')"
+            >${escapeHTML(work.author || "未署名")}</button>
+
+            ${systemTags.slice(0, 5).map(tag => `
+              <button
+                class="system-tag"
+                type="button"
+                onclick="event.stopPropagation(); applySystemTag('${escapeAttr(tag)}')"
+              >${escapeHTML(tag)}</button>
+            `).join("")}
+            ${systemTags.length > 5 ? `<span class="system-tag">＋${systemTags.length - 5}</span>` : ""}
+          </div>
+        </div>
+
+        <div class="book-side">
+          <span class="status-badge status-${escapeAttr(work.status)}">${escapeHTML(work.status)}</span>
+          <span class="row-arrow">›</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function applySystemTag(tag) {
+  if (CREATION_TYPES.includes(tag)) {
+    selectedCreationTypes.add(tag);
+  } else if (isValidCategory(tag)) {
+    selectedCategories.add(tag);
+  }
+  closeDetail();
+  renderAll();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* -------------------- 詳情 Sheet -------------------- */
+
+function openDetail(id, updateUrl = true) {
+  const work = findWork(id);
+  if (!work) return;
+
+  activeDetailId = id;
+
+  const drawer = document.getElementById("detailDrawer");
+  const overlay = document.getElementById("detailOverlay");
+  const body = document.getElementById("detailBody");
+
+  const systemTags = getAllSystemTags(work);
+
+  body.innerHTML = `
+    <h2 class="detail-title">${escapeHTML(work.title)}</h2>
+    ${work.subtitle ? `<div class="detail-subtitle">${escapeHTML(work.subtitle)}</div>` : ""}
+    <div class="detail-hook">${escapeHTML(work.hook || "尚未填寫一句話故事簡介。")}</div>
+
+    <section class="detail-section">
+      <div class="detail-line">
+        <span class="detail-key">作者</span>
+        <button class="author-link detail-value" type="button" onclick="setAuthorFilter('${escapeAttr(work.author)}')">
+          ${escapeHTML(work.author || "未署名")} ›
+        </button>
+      </div>
+      <div class="detail-line">
+        <span class="detail-key">狀態</span>
+        <span class="detail-value">
+          <span class="status-badge status-${escapeAttr(work.status)}">${escapeHTML(work.status)}</span>
+        </span>
+      </div>
+      ${work.status === "停更中" && work.lastPublishedAt ? `
+        <div class="detail-line">
+          <span class="detail-key">最後發布日期</span>
+          <span class="detail-value">${escapeHTML(formatDate(work.lastPublishedAt))}</span>
+        </div>
+      ` : ""}
+    </section>
+
+    ${work.copy ? `
+      <section class="detail-section">
+        <div class="detail-label">文案</div>
+        <p class="detail-copy">${escapeHTML(work.copy)}</p>
+      </section>
+    ` : ""}
+
+    <section class="detail-section">
+      <div class="detail-label">作品分類</div>
+      <div class="detail-tag-wrap">
+        ${systemTags.map(tag => `
+          <button class="detail-tag" type="button" onclick="applySystemTag('${escapeAttr(tag)}')">${escapeHTML(tag)}</button>
+        `).join("")}
+        ${work.escape ? `<span class="custom-tag">${ESCAPE_TAG}</span>` : ""}
+      </div>
+    </section>
+
+    ${work.customTags.length ? `
+      <section class="detail-section">
+        <div class="detail-label">自由標籤</div>
+        <div class="custom-tag-wrap">
+          ${work.customTags.map(tag => `<span class="custom-tag">${escapeHTML(tag)}</span>`).join("")}
+        </div>
+      </section>
+    ` : ""}
+
+    <section class="detail-section">
+      <div class="detail-label">作品連結</div>
+      <div class="link-list">
+        ${work.links.length
+          ? work.links.map(link => `
+              <a
+                class="work-link"
+                href="${escapeAttr(safeUrl(link.url))}"
+                target="_blank"
+                rel="noopener noreferrer"
+                onclick="event.stopPropagation()"
+              >
+                <span>${escapeHTML(link.label || "作品連結")}</span>
+                <span>↗</span>
+              </a>
+            `).join("")
+          : `<div class="detail-copy" style="color:var(--muted);">目前沒有提供外部作品連結。</div>`
+        }
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <div class="detail-label">分享</div>
+      <div class="share-actions">
+        <button class="action-btn accent" type="button" onclick="downloadShareCard('${work.id}')">下載分享書卡</button>
+        <button class="action-btn" type="button" onclick="shareWork('${work.id}')">分享作品</button>
+      </div>
+    </section>
+
+    ${isAdmin ? `
+      <section class="detail-section">
+        <div class="detail-label">管理</div>
+        <div class="admin-actions">
+          <button class="action-btn" type="button" onclick="openWorkForm('${work.id}')">編輯作品</button>
+          <button class="action-btn danger" type="button" onclick="deleteWork('${work.id}')">刪除作品</button>
+        </div>
+      </section>
+    ` : ""}
+  `;
+
+  drawer.classList.add("show");
+  overlay.classList.add("show");
+  drawer.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  if (updateUrl) {
+    const url = new URL(location.href);
+    url.searchParams.set("work", id);
+    history.replaceState(null, "", url);
+  }
+}
+
+function closeDetail(updateUrl = true) {
+  document.getElementById("detailDrawer").classList.remove("show");
+  document.getElementById("detailOverlay").classList.remove("show");
+  document.getElementById("detailDrawer").setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+  activeDetailId = null;
+
+  if (updateUrl) {
+    const url = new URL(location.href);
+    url.searchParams.delete("work");
+    history.replaceState(null, "", url);
+  }
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const d = new Date(value + "T00:00:00");
+  if (Number.isNaN(d.getTime())) return value;
+  return new Intl.DateTimeFormat("zh-Hant", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(d);
+}
+
+function safeUrl(url) {
+  const value = String(url || "").trim();
+  if (/^https?:\/\//i.test(value)) return value;
+  return "#";
+}
+
+/* -------------------- 分享 -------------------- */
+
+function getWorkShareUrl(work) {
+  const url = new URL(location.href);
+  url.searchParams.set("work", work.id);
+  return url.toString();
+}
+
+async function shareWork(id) {
+  const work = findWork(id);
+  if (!work) return;
+
+  const shareUrl = getWorkShareUrl(work);
+  const shareData = {
+    title: work.title,
+    text: [work.title, work.subtitle, work.hook].filter(Boolean).join("\n"),
+    url: shareUrl
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(shareUrl);
+      showToast("作品連結已複製");
+    } else {
+      window.prompt("複製作品連結", shareUrl);
+    }
+  } catch (error) {
+    if (error?.name !== "AbortError") {
+      console.error(error);
+      showToast("分享沒有完成");
+    }
+  }
+}
+
+async function downloadShareCard(id) {
+  const work = findWork(id);
+  if (!work) return;
+
+  const width = 1080;
+  const height = 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+
+  /* 背景 */
+  ctx.fillStyle = "#F5F5F7";
+  ctx.fillRect(0, 0, width, height);
+
+  /* 主卡 */
+  roundedRect(ctx, 72, 70, width - 144, height - 140, 46);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fill();
+
+  /* 裝飾 */
+  ctx.fillStyle = "#1D1D1F";
+  roundedRect(ctx, 110, 108, 76, 76, 22);
+  ctx.fill();
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = '700 30px "Noto Serif TC", serif';
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("文", 148, 146);
+
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+
+  /* 標題 */
+  ctx.fillStyle = "#1D1D1F";
+  ctx.font = '700 64px "Noto Serif TC", serif';
+  let y = 280;
+  y = drawWrappedText(ctx, work.title, 112, y, 750, 82, 2);
+
+  if (work.subtitle) {
+    ctx.fillStyle = "#6E6E73";
+    ctx.font = '500 31px "Noto Sans TC", sans-serif';
+    y += 22;
+    y = drawWrappedText(ctx, work.subtitle, 112, y, 760, 48, 2);
+  }
+
+  ctx.fillStyle = "#2C2C2E";
+  ctx.font = '500 34px "Noto Sans TC", sans-serif';
+  y += 54;
+  y = drawWrappedText(ctx, work.hook || "尚未填寫一句話故事簡介。", 112, y, 760, 56, 3);
+
+  /* 作者 */
+  y += 54;
+  ctx.fillStyle = "#8E8E93";
+  ctx.font = '600 24px "Noto Sans TC", sans-serif';
+  ctx.fillText("作者", 112, y);
+  ctx.fillStyle = "#1D1D1F";
+  ctx.font = '700 30px "Noto Sans TC", sans-serif';
+  ctx.fillText(work.author || "未署名", 190, y);
+
+  /* 分類 */
+  const tags = getAllSystemTags(work).slice(0, 6);
+  y += 66;
+  ctx.fillStyle = "#6E6E73";
+  ctx.font = '500 25px "Noto Sans TC", sans-serif';
+  y = drawWrappedText(ctx, tags.join("  ·  "), 112, y, 750, 44, 3);
+
+  /* footer */
+  const footerY = height - 180;
+  ctx.strokeStyle = "rgba(60,60,67,.14)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(112, footerY - 56);
+  ctx.lineTo(width - 112, footerY - 56);
+  ctx.stroke();
+
+  ctx.fillStyle = "#1D1D1F";
+  ctx.font = '700 28px "Noto Serif TC", serif';
+  ctx.fillText("作品探索", 112, footerY);
+
+  ctx.fillStyle = "#8E8E93";
+  ctx.font = '500 21px "Noto Sans TC", sans-serif';
+  ctx.fillText("fiction_v2_0", 112, footerY + 40);
+
+  /* QR：回到本站這部作品的專屬入口 */
+  const workShareUrl = getWorkShareUrl(work);
+  if (workShareUrl && window.QRCode) {
+    try {
+      const qrDataUrl = await QRCode.toDataURL(workShareUrl, {
+        width: 250,
+        margin: 1,
+        errorCorrectionLevel: "M"
+      });
+
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = qrDataUrl;
+      });
+
+      const qrSize = 170;
+      const qrX = width - 112 - qrSize;
+      const qrY = footerY - 10;
+
+      ctx.drawImage(img, qrX, qrY - 90, qrSize, qrSize);
+      ctx.fillStyle = "#6E6E73";
+      ctx.font = '600 18px "Noto Sans TC", sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText("掃碼回到作品探索", qrX + qrSize / 2, qrY + 104);
+      ctx.textAlign = "left";
+    } catch (error) {
+      console.error("QR 產生失敗", error);
+    }
+  }
+
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+  if (!blob) {
+    showToast("分享書卡產生失敗");
+    return;
+  }
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${sanitizeFilename(work.title || "作品")}_分享書卡.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function roundedRect(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = Infinity) {
+  const chars = [...String(text || "")];
+  let line = "";
+  let lines = [];
+
+  for (const ch of chars) {
+    const test = line + ch;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = ch;
+      if (lines.length >= maxLines) break;
+    } else {
+      line = test;
+    }
+  }
+
+  if (line && lines.length < maxLines) lines.push(line);
+
+  if (lines.length === maxLines && chars.join("") !== lines.join("")) {
+    let last = lines[lines.length - 1];
+    while (ctx.measureText(last + "…").width > maxWidth && last.length) {
+      last = last.slice(0, -1);
+    }
+    lines[lines.length - 1] = last + "…";
+  }
+
+  lines.forEach((lineText, index) => {
+    ctx.fillText(lineText, x, y + index * lineHeight);
+  });
+
+  return y + Math.max(0, lines.length - 1) * lineHeight;
+}
+
+function sanitizeFilename(name) {
+  return String(name).replace(/[\\/:*?"<>|]/g, "_").trim() || "作品";
+}
+
+/* -------------------- 管理登入（前端模擬） -------------------- */
+
+function openLogin() {
+  if (isAdmin) {
+    showToast("目前已在管理模式");
+    return;
+  }
+
+  openModal(`
+    <div class="modal-head">
+      <h3>管理者登入</h3>
+      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Email</label>
+          <input id="loginEmail" type="email" autocomplete="username" placeholder="管理用 Email">
+        </div>
+        <div class="field">
+          <label>密碼</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="管理用密碼">
+        </div>
+      </div>
+
+      <div class="login-note">
+        目前是純前端測試版：只要 Email 與密碼皆有輸入即可進入管理模式。正式接 Supabase 後，這裡會改成真正的管理者驗證與 RLS 權限。
+      </div>
+
+      <div id="loginError" class="error-text"></div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+        <button class="ghost-btn" type="button" onclick="closeModal()">取消</button>
+        <button class="save-btn" type="button" onclick="loginAdmin()">登入</button>
+      </div>
+    </div>
+  `, true);
+
+  setTimeout(() => document.getElementById("loginEmail")?.focus(), 50);
+}
+
+function loginAdmin() {
+  const email = document.getElementById("loginEmail")?.value.trim() || "";
+  const password = document.getElementById("loginPassword")?.value || "";
+  const error = document.getElementById("loginError");
+
+  if (!email || !password) {
+    error.textContent = "請輸入 Email 與密碼。";
+    return;
+  }
+
+  isAdmin = true;
+  sessionStorage.setItem(ADMIN_SESSION_KEY, "1");
+  closeModal();
+  renderAdminState();
+  renderBookList();
+  if (activeDetailId) openDetail(activeDetailId, false);
+  showToast("已進入管理模式");
+}
+
+function logoutAdmin() {
+  isAdmin = false;
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  closeDetail();
+  renderAdminState();
+  renderBookList();
+  showToast("已登出");
+}
+
+function renderAdminState() {
+  document.getElementById("adminPill").classList.toggle("show", isAdmin);
+  document.getElementById("addWorkBtn").style.display = isAdmin ? "inline-flex" : "none";
+  document.getElementById("manageBtn").textContent = isAdmin ? "管理中" : "管理";
+}
+
+/* -------------------- 新增 / 編輯作品 -------------------- */
+
+function createEmptyFormState() {
+  return {
+    id: "",
+    author: "",
+    title: "",
+    subtitle: "",
+    hook: "",
+    copy: "",
+    status: "連載中",
+    lastPublishedAt: "",
+    creationTypes: [],
+    categories: [],
+    escape: false,
+    customTags: [],
+    links: [{ label: "", url: "" }],
+    createdAt: new Date().toISOString()
+  };
+}
+
+function openWorkForm(id = "") {
+  if (!isAdmin) {
+    openLogin();
+    return;
+  }
+
+  closeDetail();
+
+  if (id) {
+    const work = findWork(id);
+    if (!work) return;
+    formState = JSON.parse(JSON.stringify(work));
+    if (!formState.links.length) formState.links = [{ label: "", url: "" }];
+  } else {
+    formState = createEmptyFormState();
+  }
+
+  renderWorkForm();
+}
+
+function renderWorkForm() {
+  const editing = Boolean(formState.id);
+
+  openModal(`
+    <div class="modal-head">
+      <h3>${editing ? "編輯作品" : "新增作品"}</h3>
+      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <section class="form-section">
+        <div class="form-section-title">基本資料</div>
+        <div class="form-grid">
+          <div class="form-grid two">
+            <div class="field">
+              <label>作者 *</label>
+              <input id="formAuthor" value="${escapeAttr(formState.author)}" placeholder="作者名稱">
+            </div>
+            <div class="field">
+              <label>書名 *</label>
+              <input id="formTitle" value="${escapeAttr(formState.title)}" placeholder="作品名稱">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>副標題（選填）</label>
+            <input id="formSubtitle" value="${escapeAttr(formState.subtitle)}" placeholder="例如：——江郎才盡的我，穿越次元當AI">
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">作品介紹</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>一句話故事簡介 *（最多 ${MAX_HOOK} 字）</label>
+            <input
+              id="formHook"
+              maxlength="${MAX_HOOK}"
+              value="${escapeAttr(formState.hook)}"
+              placeholder="讓讀者在一眼內知道這本在講什麼"
+              oninput="updateHookCounter()"
+            >
+            <div id="hookCounter" class="counter">${[...formState.hook].length} / ${MAX_HOOK}</div>
+          </div>
+
+          <div class="field">
+            <label>文案（選填）</label>
+            <textarea id="formCopy" placeholder="完整作品文案">${escapeHTML(formState.copy)}</textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">作品狀態</div>
+        <div id="statusSegments" class="segmented">
+          ${STATUS_OPTIONS.map(status => `
+            <button
+              class="segment ${formState.status === status ? "active" : ""}"
+              type="button"
+              onclick="setFormStatus('${status}')"
+            >${status}</button>
+          `).join("")}
+        </div>
+
+        <div id="lastPublishedField" class="field" style="margin-top:12px;${formState.status === "停更中" ? "" : "display:none;"}">
+          <label>最後發布日期（選填）</label>
+          <input id="formLastPublishedAt" type="date" value="${escapeAttr(formState.lastPublishedAt)}">
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">創作類型（可複選）</div>
+        <div class="segmented">
+          ${CREATION_TYPES.map(type => `
+            <button
+              class="segment ${formState.creationTypes.includes(type) ? "active" : ""}"
+              type="button"
+              onclick="toggleFormCreationType('${type}')"
+            >${type}</button>
+          `).join("")}
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">作品分類（可跨系列複選）</div>
+        <div class="series-editor">
+          ${SERIES.map(group => `
+            <div class="series-block">
+              <button
+                type="button"
+                class="series-toggle"
+                onclick="toggleFormSeries('${group.id}')"
+              >
+                <span>${group.label}</span>
+                <span>
+                  ${group.options.filter(option => formState.categories.includes(option)).length
+                    ? `${group.options.filter(option => formState.categories.includes(option)).length}`
+                    : "＋"}
+                </span>
+              </button>
+              <div id="formSeries-${group.id}" class="series-children">
+                ${group.options.map(option => `
+                  <button
+                    type="button"
+                    class="check-chip ${formState.categories.includes(option) ? "active" : ""}"
+                    onclick="toggleFormCategory('${option}')"
+                  >${option}</button>
+                `).join("")}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div style="margin-top:10px;">
+          <button
+            type="button"
+            class="check-chip escape-chip ${formState.escape ? "active" : ""}"
+            onclick="toggleFormEscape()"
+          >${ESCAPE_TAG}</button>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">自由標籤</div>
+        <div class="tag-entry">
+          <input
+            id="customTagInput"
+            class="field"
+            maxlength="${MAX_CUSTOM_TAG}"
+            placeholder="自訂標籤（最多 ${MAX_CUSTOM_TAG} 字）"
+            onkeydown="handleCustomTagKeydown(event)"
+            style="width:100%;border:1px solid var(--line);border-radius:13px;padding:11px 12px;background:rgba(118,118,128,.06);"
+          >
+          <button class="small-btn" type="button" onclick="addCustomTag()">新增</button>
+        </div>
+        <div class="link-note">自由標籤只展示，不參與搜尋與篩選。</div>
+        <div id="customTagPreview" class="tag-preview">
+          ${renderFormCustomTags()}
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">作品連結</div>
+        <div id="linkEditorList" class="link-editor-list">
+          ${renderLinkEditorRows()}
+        </div>
+        <button class="small-btn" style="margin-top:10px;padding:9px 12px;" type="button" onclick="addLinkRow()">＋ 新增作品連結</button>
+        <div class="link-note">
+          分享書卡的 QR Code 會回到本站這部作品的專屬入口；這裡的排序只決定作品詳情中的平台顯示順序。
+        </div>
+      </section>
+    </div>
+
+    <div class="form-footer">
+      <button class="ghost-btn" type="button" onclick="closeModal()">取消</button>
+      <button id="workSaveBtn" class="save-btn" type="button" onclick="saveWorkFromForm()">
+        ${editing ? "儲存變更" : "新增作品"}
+      </button>
+    </div>
+  `);
+
+  bindFormLiveFields();
+  updateWorkSaveButton();
+}
+
+function bindFormLiveFields() {
+  ["formAuthor", "formTitle", "formSubtitle", "formHook", "formCopy", "formLastPublishedAt"]
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("input", () => {
+        if (id === "formAuthor") formState.author = el.value;
+        if (id === "formTitle") formState.title = el.value;
+        if (id === "formSubtitle") formState.subtitle = el.value;
+        if (id === "formHook") formState.hook = [...el.value].slice(0, MAX_HOOK).join("");
+        if (id === "formCopy") formState.copy = el.value;
+        if (id === "formLastPublishedAt") formState.lastPublishedAt = el.value;
+        updateWorkSaveButton();
+      });
+    });
+}
+
+function updateHookCounter() {
+  const input = document.getElementById("formHook");
+  const counter = document.getElementById("hookCounter");
+  if (!input || !counter) return;
+  counter.textContent = `${[...input.value].length} / ${MAX_HOOK}`;
+}
+
+function updateWorkSaveButton() {
+  const btn = document.getElementById("workSaveBtn");
+  if (!btn) return;
+  btn.disabled =
+    !formState.author.trim() ||
+    !formState.title.trim() ||
+    !formState.hook.trim();
+}
+
+function setFormStatus(status) {
+  formState.status = status;
+  if (status !== "停更中") formState.lastPublishedAt = "";
+  renderWorkForm();
+}
+
+function toggleFormCreationType(type) {
+  const set = new Set(formState.creationTypes);
+  set.has(type) ? set.delete(type) : set.add(type);
+  formState.creationTypes = [...set];
+  renderWorkForm();
+}
+
+function toggleFormSeries(id) {
+  const el = document.getElementById(`formSeries-${id}`);
+  if (el) el.classList.toggle("show");
+}
+
+function toggleFormCategory(category) {
+  const set = new Set(formState.categories);
+  set.has(category) ? set.delete(category) : set.add(category);
+  formState.categories = [...set];
+
+  const btns = document.querySelectorAll(".series-children .check-chip");
+  btns.forEach(btn => {
+    if (btn.textContent.trim() === category) {
+      btn.classList.toggle("active", set.has(category));
+    }
+  });
+
+  /* 更新系列計數不必整張表單重畫，簡化操作 */
+  SERIES.forEach(group => {
+    const block = document.getElementById(`formSeries-${group.id}`)?.closest(".series-block");
+    const label = block?.querySelector(".series-toggle span:last-child");
+    if (label) {
+      const count = group.options.filter(option => set.has(option)).length;
+      label.textContent = count || "＋";
+    }
+  });
+}
+
+function toggleFormEscape() {
+  formState.escape = !formState.escape;
+  const btn = [...document.querySelectorAll(".escape-chip")]
+    .find(node => node.textContent.trim() === ESCAPE_TAG && document.getElementById("modalCard").contains(node));
+  if (btn) btn.classList.toggle("active", formState.escape);
+}
+
+function handleCustomTagKeydown(event) {
+  if (event.key === "Enter" || event.key === ",") {
+    event.preventDefault();
+    addCustomTag();
+  }
+}
+
+function addCustomTag() {
+  const input = document.getElementById("customTagInput");
+  if (!input) return;
+
+  const value = [...input.value.trim()].slice(0, MAX_CUSTOM_TAG).join("");
+  if (!value) return;
+
+  if (!formState.customTags.includes(value)) {
+    formState.customTags.push(value);
+  }
+
+  input.value = "";
+  document.getElementById("customTagPreview").innerHTML = renderFormCustomTags();
+}
+
+function renderFormCustomTags() {
+  return formState.customTags.map((tag, index) => `
+    <span class="tag-edit-chip">
+      ${escapeHTML(tag)}
+      <button type="button" onclick="removeCustomTag(${index})">×</button>
+    </span>
+  `).join("");
+}
+
+function removeCustomTag(index) {
+  formState.customTags.splice(index, 1);
+  document.getElementById("customTagPreview").innerHTML = renderFormCustomTags();
+}
+
+function renderLinkEditorRows() {
+  return formState.links.map((link, index) => `
+    <div class="link-editor-row">
+      <div class="link-editor-grid">
+        <div class="field">
+          <label>平台／網站名稱</label>
+          <input
+            value="${escapeAttr(link.label)}"
+            placeholder="例如：角角者"
+            oninput="updateLinkRow(${index}, 'label', this.value)"
+          >
+        </div>
+        <div class="field">
+          <label>作品網址</label>
+          <input
+            value="${escapeAttr(link.url)}"
+            placeholder="https://..."
+            oninput="updateLinkRow(${index}, 'url', this.value)"
+          >
+        </div>
+      </div>
+
+      <div class="link-row-actions">
+        <button class="mini-btn" type="button" onclick="moveLinkRow(${index}, -1)" ${index === 0 ? "disabled" : ""}>↑</button>
+        <button class="mini-btn" type="button" onclick="moveLinkRow(${index}, 1)" ${index === formState.links.length - 1 ? "disabled" : ""}>↓</button>
+        <button class="mini-btn danger" type="button" onclick="removeLinkRow(${index})">刪除</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function updateLinkRow(index, field, value) {
+  if (!formState.links[index]) return;
+  formState.links[index][field] = value;
+}
+
+function addLinkRow() {
+  formState.links.push({ label: "", url: "" });
+  document.getElementById("linkEditorList").innerHTML = renderLinkEditorRows();
+}
+
+function removeLinkRow(index) {
+  formState.links.splice(index, 1);
+  if (!formState.links.length) formState.links.push({ label: "", url: "" });
+  document.getElementById("linkEditorList").innerHTML = renderLinkEditorRows();
+}
+
+function moveLinkRow(index, direction) {
+  const target = index + direction;
+  if (target < 0 || target >= formState.links.length) return;
+
+  const copy = [...formState.links];
+  [copy[index], copy[target]] = [copy[target], copy[index]];
+  formState.links = copy;
+  document.getElementById("linkEditorList").innerHTML = renderLinkEditorRows();
+}
+
+function saveWorkFromForm() {
+  if (!isAdmin) return;
+
+  /* 先同步畫面欄位，以免某些瀏覽器最後一次 input 尚未觸發 */
+  formState.author = document.getElementById("formAuthor")?.value.trim() || formState.author.trim();
+  formState.title = document.getElementById("formTitle")?.value.trim() || formState.title.trim();
+  formState.subtitle = document.getElementById("formSubtitle")?.value.trim() || "";
+  formState.hook = [...(document.getElementById("formHook")?.value.trim() || "")].slice(0, MAX_HOOK).join("");
+  formState.copy = document.getElementById("formCopy")?.value.trim() || "";
+  if (formState.status === "停更中") {
+    formState.lastPublishedAt = document.getElementById("formLastPublishedAt")?.value || "";
+  } else {
+    formState.lastPublishedAt = "";
+  }
+
+  if (!formState.author || !formState.title || !formState.hook) {
+    showToast("作者、書名與一句話簡介為必填");
+    return;
+  }
+
+  const cleanLinks = formState.links
+    .map(link => ({
+      label: String(link.label || "").trim(),
+      url: String(link.url || "").trim()
+    }))
+    .filter(link => link.label || link.url);
+
+  const payload = normalizeWork({
+    ...formState,
+    links: cleanLinks,
+    id: formState.id || cryptoRandomId(),
+    createdAt: formState.createdAt || new Date().toISOString()
+  });
+
+  const existingIndex = works.findIndex(work => work.id === payload.id);
+
+  if (existingIndex >= 0) {
+    works[existingIndex] = payload;
+    showToast("作品已更新");
+  } else {
+    works.unshift(payload);
+    showToast("作品已新增");
+  }
+
+  persistWorks();
+  closeModal();
+  renderAll();
+}
+
+function deleteWork(id) {
+  if (!isAdmin) return;
+
+  const work = findWork(id);
+  if (!work) return;
+
+  const ok = confirm(`確定要刪除《${work.title}》嗎？\n\n刪除後無法復原。`);
+  if (!ok) return;
+
+  works = works.filter(item => item.id !== id);
+  persistWorks();
+  closeDetail();
+  renderAll();
+  showToast("作品已刪除");
+}
+
+/* -------------------- Modal -------------------- */
+
+function openModal(html, small = false) {
+  const wrap = document.getElementById("modalWrap");
+  const card = document.getElementById("modalCard");
+  card.className = `modal-card${small ? " small" : ""}`;
+  card.innerHTML = html;
+  wrap.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  document.getElementById("modalWrap").classList.remove("show");
+  document.getElementById("modalCard").innerHTML = "";
+  document.body.style.overflow = activeDetailId ? "hidden" : "";
+}
+
+function handleModalBackdrop(event) {
+  if (event.target.id === "modalWrap") closeModal();
+}
+
+/* -------------------- 搜尋 -------------------- */
+
+document.getElementById("searchInput").addEventListener("input", event => {
+  searchText = event.target.value;
+  document.getElementById("searchClear").classList.toggle("show", Boolean(searchText));
+  renderBookList();
+});
+
+document.getElementById("searchClear").addEventListener("click", () => {
+  searchText = "";
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchClear").classList.remove("show");
+  renderBookList();
+});
+
+document.getElementById("manageBtn").addEventListener("click", openLogin);
+document.getElementById("addWorkBtn").addEventListener("click", () => openWorkForm());
+
+/* -------------------- 總渲染 -------------------- */
+
+function renderAll() {
+  renderFilters();
+  renderBookList();
+  renderAdminState();
+}
+
+/* -------------------- 啟動 -------------------- */
+
+function init() {
+  loadWorks();
+  isAdmin = sessionStorage.getItem(ADMIN_SESSION_KEY) === "1";
+  renderAll();
+
+  const workIdFromUrl = new URL(location.href).searchParams.get("work");
+  if (workIdFromUrl && findWork(workIdFromUrl)) {
+    setTimeout(() => openDetail(workIdFromUrl, false), 60);
+  }
+}
+
+init();
+
+/*
+  開發時如果要清空本機資料：
+
+  localStorage.removeItem("fiction_v2_0");
+  location.reload();
+
+  會重新建立範例資料。
+*/
+</script>
+</body>
+</html>
