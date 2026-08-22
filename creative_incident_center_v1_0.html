@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>創作事故處理中心｜v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --page:#dce9eb;
+  --card:rgba(236,245,246,.87);
+  --ink:#1f2c30;
+  --ink-soft:#60747A;
+  --line:rgba(43,76,84,.14);
+  --line-soft:rgba(79,137,148,.12);
+  --deep:#1f2c30;
+  --ocean:#4f8994;
+  --sea:#4f8994;
+  --foam:#edf5f6;
+  --wave:rgba(79,137,148,.12);
+  --danger:#ff3b30;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  background:
+    radial-gradient(circle at 10% -10%, rgba(79,137,148,.11), transparent 28rem),
+    linear-gradient(180deg, #e8f2f3 0%, var(--page) 36%, #d6e5e8 100%);
+  color:var(--ink);
+  font-family:
+    "Noto Sans TC",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    sans-serif;
+}
+
+button,input,textarea,select{
+  font:inherit;
+}
+
+button{
+  -webkit-tap-highlight-color:transparent;
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:rgba(220,233,235,.85);
+  color:var(--ink);
+  padding:28px 20px 24px;
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid var(--line);
+}
+
+.header-inner{
+  max-width:900px;
+  margin:auto;
+}
+
+header h1{
+  margin:0 0 8px;
+  font-family:"Noto Serif TC","Noto Serif SC",serif;
+  font-size:28px;
+}
+
+header p{
+  margin:0;
+  color:var(--ink-soft);
+  line-height:1.7;
+  font-size:14px;
+}
+
+main{
+  max-width:900px;
+  margin:auto;
+  padding:24px 16px 60px;
+}
+
+.panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:28px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:0 10px 35px rgba(0,0,0,.08);
+  backdrop-filter:blur(24px) saturate(170%);
+  -webkit-backdrop-filter:blur(24px) saturate(170%);
+}
+
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.panel h2{
+  margin:0;
+  font-family:"Noto Serif TC","Noto Serif SC",serif;
+  font-size:18px;
+}
+
+.panel-desc{
+  margin:5px 0 0;
+  color:var(--ink-soft);
+  font-size:12.5px;
+  line-height:1.7;
+}
+
+.department-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.department-card{
+  width:100%;
+  text-align:left;
+  background:#edf5f6;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:16px;
+  cursor:pointer;
+  color:var(--ink);
+  transition:.15s ease;
+}
+
+.department-card:hover{
+  border-color:rgba(79,137,148,.40);
+  transform:translateY(-1px);
+}
+
+.department-no{
+  color:var(--ink-soft);
+  font-size:11px;
+  margin-bottom:5px;
+}
+
+.department-name{
+  font-family:"Noto Serif TC","Noto Serif SC",serif;
+  font-weight:700;
+  font-size:15px;
+  margin-bottom:5px;
+}
+
+.department-alias{
+  color:var(--ink-soft);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.empty{
+  color:var(--ink-soft);
+  font-size:13px;
+  padding:8px 0;
+}
+
+.case-list{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.case{
+  border:1px solid var(--line);
+  background:#edf5f6;
+  border-radius:14px;
+  padding:14px 15px;
+  cursor:pointer;
+}
+
+.case-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.case-title{
+  font-weight:700;
+  margin-bottom:4px;
+}
+
+.case-meta{
+  color:var(--ink-soft);
+  font-size:11.5px;
+  line-height:1.5;
+}
+
+.case-arrow{
+  color:var(--ink-soft);
+  font-size:22px;
+}
+
+.back-btn,
+.secondary,
+.primary,
+.danger{
+  border:none;
+  border-radius:8px;
+  padding:9px 15px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.back-btn,
+.secondary{
+  background:rgba(72,101,108,.09);
+  color:var(--ink);
+}
+
+.primary{
+  background:var(--ocean);
+  color:white;
+}
+
+.danger{
+  background:rgba(255,59,48,.10);
+  color:var(--danger);
+}
+
+.form-title-wrap{
+  margin-bottom:18px;
+}
+
+.form-kicker{
+  color:var(--ink-soft);
+  font-size:11px;
+  letter-spacing:.08em;
+  margin-bottom:5px;
+}
+
+.form-title{
+  font-family:"Noto Serif TC","Noto Serif SC",serif;
+  font-size:21px;
+  font-weight:700;
+}
+
+.form-alias{
+  color:var(--ink-soft);
+  font-size:12px;
+  margin-top:5px;
+}
+
+.field{
+  margin-bottom:16px;
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  color:var(--ink-soft);
+  margin-bottom:6px;
+}
+
+input,textarea,select{
+  width:100%;
+  border:1px solid var(--line);
+  background:rgba(72,101,108,.06);
+  border-radius:13px;
+  padding:10px 12px;
+  color:var(--ink);
+  outline:none;
+}
+
+textarea{
+  min-height:92px;
+  resize:vertical;
+  line-height:1.65;
+}
+
+input:focus,textarea:focus,select:focus{
+  border-color:rgba(79,137,148,.40);
+}
+
+.checks{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.check-item{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin:0;
+  background:#edf5f6;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:7px 11px;
+  font-size:12px;
+  font-weight:500;
+  color:var(--ink);
+  cursor:pointer;
+}
+
+.check-item input{
+  width:auto;
+  margin:0;
+}
+
+.actions{
+  display:flex;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:20px;
+}
+
+/* Modal */
+.modal-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,.28);
+  backdrop-filter:blur(8px);
+  padding:16px;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-backdrop.open{
+  display:flex;
+}
+
+.case-modal{
+  width:100%;
+  max-width:760px;
+  max-height:92vh;
+  overflow-y:auto;
+  background:rgba(234,243,245,.97);
+  border:1px solid rgba(255,255,255,.58);
+  border-radius:26px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+
+.modal-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:22px 24px 16px;
+  border-bottom:1px solid var(--line);
+}
+
+.modal-small{
+  color:var(--ink-soft);
+  font-size:11px;
+  letter-spacing:.08em;
+  margin-bottom:4px;
+}
+
+.modal-top h2{
+  margin:0;
+  font-family:"Noto Serif TC","Noto Serif SC",serif;
+  font-size:20px;
+}
+
+.close-button{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:50%;
+  background:rgba(72,101,108,.09);
+  color:var(--ink);
+  font-size:24px;
+  cursor:pointer;
+}
+
+#caseReport{
+  padding:24px;
+}
+
+.detail-department{
+  display:inline-block;
+  margin-bottom:18px;
+  background:rgba(72,101,108,.09);
+  color:var(--ink);
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:11px;
+  font-weight:700;
+}
+
+.detail-section{
+  margin-bottom:22px;
+}
+
+.detail-label{
+  color:var(--ink-soft);
+  font-size:11px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.detail-value{
+  font-size:15px;
+  line-height:1.75;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+
+.detail-verdict{
+  background:var(--ocean);
+  color:white;
+  border-radius:10px;
+  padding:18px;
+  margin-top:26px;
+}
+
+.detail-verdict .detail-label{
+  color:var(--muted, #60747A);
+}
+
+.detail-verdict .detail-value{
+  color:#fff;
+  font-size:19px;
+  font-weight:700;
+}
+
+.detail-result{
+  margin-top:9px;
+  color:#F3EFE5;
+  font-size:13px;
+  line-height:1.7;
+  white-space:pre-wrap;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:16px 24px 22px;
+  border-top:1px solid var(--line);
+}
+
+/* PNG 保持事故報告海洋藍 */
+#reportCard{
+  position:fixed;
+  left:-99999px;
+  top:0;
+  width:1080px;
+  min-height:1080px;
+  background:#EAF7F7;
+  color:#16343F;
+  padding:80px;
+  font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+
+.report-header{
+  border-bottom:8px solid #176B87;
+  padding-bottom:28px;
+  margin-bottom:45px;
+}
+
+.report-header h1{
+  color:#123B52;
+  font-size:52px;
+  margin:0 0 12px;
+}
+
+.report-header p{
+  color:#66838B;
+  font-size:24px;
+  margin:0;
+}
+
+.report-department{
+  display:inline-block;
+  margin-bottom:35px;
+  background:#D3EEEE;
+  color:#123B52;
+  padding:10px 18px;
+  border-radius:999px;
+  font-size:20px;
+  font-weight:700;
+}
+
+.report-section{
+  margin-bottom:32px;
+}
+
+.report-label{
+  color:#176B87;
+  font-size:21px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.report-value{
+  font-size:29px;
+  line-height:1.55;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+
+.report-verdict{
+  margin-top:42px;
+  background:#123B52;
+  color:white;
+  padding:28px;
+  border-radius:18px;
+}
+
+.report-footer{
+  margin-top:48px;
+  color:#66838B;
+  font-size:20px;
+  text-align:right;
+}
+
+
+.view-tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:18px;
+  padding:5px;
+  width:max-content;
+  max-width:100%;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(236,245,246,.72);
+}
+.view-tab{
+  border:0;
+  border-radius:999px;
+  padding:9px 15px;
+  background:transparent;
+  color:var(--muted);
+  font-size:12.5px;
+  font-weight:700;
+  cursor:pointer;
+}
+.view-tab.active{
+  background:var(--accent);
+  color:white;
+  box-shadow:0 5px 18px rgba(79,137,148,.20);
+}
+.home-section{display:none}
+.home-section.active{display:block}
+.pagination{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  margin-top:20px;
+}
+.page-btn{
+  min-width:36px;
+  height:36px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--surface-solid);
+  color:var(--muted);
+  cursor:pointer;
+  font-weight:700;
+  font-size:12px;
+}
+.page-btn.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:white;
+}
+.page-btn:disabled{
+  opacity:.35;
+  cursor:default;
+}
+
+
+.site-footer{
+  margin-top:34px;
+  padding:26px 0 calc(30px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);
+  text-align:center;
+  color:var(--muted-2);
+}
+.site-footer .version{
+  margin-bottom:18px;
+  font-family:"Noto Sans TC",sans-serif;
+  font-size:11px;
+  letter-spacing:.05em;
+}
+.site-footer .signature{
+  font-family:"Noto Serif TC",serif;
+  font-size:12px;
+  letter-spacing:.08em;
+}
+.site-footer .signature .en{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Noto Sans TC",sans-serif;
+  letter-spacing:.06em;
+}
+
+@media(max-width:680px){
+  .department-grid{grid-template-columns:1fr}
+  .modal-actions button,.actions button{flex:1 1 auto}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>創作事故處理中心</h1>
+    <p>您好，這裡是創作分局。<br>請通報你的創作事故。</p>
+    <div style="margin-top:10px;font-size:12px;color:var(--muted);font-weight:600;">創作分局業務增加中</div>
+  </div>
+</header>
+
+<main>
+
+  <div id="homeView">
+
+    <div class="view-tabs" role="tablist" aria-label="創作分局功能">
+      <button id="businessTab" class="view-tab active" type="button" onclick="switchHomeTab('business')">業務通報</button>
+      <button id="recordsTab" class="view-tab" type="button" onclick="switchHomeTab('records')">案件紀錄</button>
+    </div>
+
+    <section id="businessSection" class="panel home-section active">
+      <div class="panel-head">
+        <div>
+          <h2>業務科別</h2>
+          <p class="panel-desc">請依事故內容選擇承辦單位。</p>
+        </div>
+      </div>
+      <div id="departmentGrid" class="department-grid"></div>
+      <div id="departmentPagination" class="pagination"></div>
+    </section>
+
+    <section id="recordsSection" class="panel home-section">
+      <div class="panel-head">
+        <div>
+          <h2>案件紀錄</h2>
+          <p class="panel-desc">所有案件統一列在這裡，點開可查看正式事故報告。</p>
+        </div>
+      </div>
+      <div id="caseList" class="case-list"></div>
+    </section>
+
+  </div>
+
+  <div id="formView" style="display:none">
+    <section class="panel">
+      <div style="margin-bottom:16px">
+        <button class="back-btn" type="button" onclick="showHome()">← 返回創作分局</button>
+      </div>
+
+      <div class="form-title-wrap">
+        <div id="formKicker" class="form-kicker"></div>
+        <div id="formTitle" class="form-title"></div>
+        <div id="formAlias" class="form-alias"></div>
+      </div>
+
+      <div class="field">
+        <label>作品名稱 *</label>
+        <input id="work" placeholder="哪一本作品出事了？">
+      </div>
+
+      <div id="dynamicFields"></div>
+
+      <div class="field">
+        <label>事故影響</label>
+        <div id="impactChecks" class="checks"></div>
+      </div>
+
+      <div class="field">
+        <label>最終裁決</label>
+        <select id="verdict">
+          <option value="角色／劇情勝訴">角色／劇情勝訴｜修改原案</option>
+          <option value="作者勝訴">作者勝訴｜維持原案</option>
+          <option value="雙方和解">雙方和解｜部分修改</option>
+          <option value="暫緩裁決">暫緩裁決｜尚待觀察</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>處理結果</label>
+        <textarea id="result" placeholder="最後決定怎麼處理？"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" type="button" onclick="clearForm()">清空</button>
+        <button class="primary" type="button" onclick="saveCase()">提交事故</button>
+      </div>
+
+    </section>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="version">creative_incident_center_v1_0</div>
+  <div class="signature">慢 慢 <span class="en">| stillness by slowly</span></div>
+</footer>
+
+
+<div id="caseModal" class="modal-backdrop" onclick="closeCase()">
+  <div class="case-modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div>
+        <div class="modal-small">創作事故處理中心</div>
+        <h2>事故報告</h2>
+      </div>
+      <button class="close-button" type="button" onclick="closeCase()">×</button>
+    </div>
+
+    <div id="caseReport"></div>
+
+    <div class="modal-actions">
+      <button class="secondary" type="button" onclick="closeCase()">返回</button>
+      <button class="danger" type="button" onclick="deleteCurrentCase()">刪除案件</button>
+      <button class="primary" type="button" onclick="downloadCurrentCasePNG()">下載 PNG</button>
+    </div>
+  </div>
+</div>
+
+<div id="reportCard">
+  <div class="report-header">
+    <h1>創作事故處理中心</h1>
+    <p>CREATIVE INCIDENT REPORT</p>
+  </div>
+
+  <div id="rDepartment" class="report-department"></div>
+  <div id="reportDynamic"></div>
+
+  <div class="report-verdict">
+    <div class="report-label" style="color:#D3EEEE">最終裁決</div>
+    <div class="report-value" id="rVerdict"></div>
+    <div class="report-value" id="rResult" style="font-size:24px;margin-top:15px"></div>
+  </div>
+
+  <div class="report-footer">
+    大綱之外發生的事，這裡處理。
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<script>
+/*
+  保留既有 key，舊版角色事故資料可繼續讀取。
+*/
+const STORAGE_KEY = "creative-incident-center-v1";
+
+const DEPARTMENTS = [
+  {
+    id:"character",
+    no:"第一科",
+    name:"角色行為異常處理",
+    alias:"俗稱：角色不聽話",
+    fields:[
+      {key:"character",label:"涉案角色",type:"input",placeholder:"是哪個角色開始不聽話？"},
+      {key:"planned",label:"原定行為",type:"textarea",placeholder:"你原本打算讓角色做什麼？"},
+      {key:"actual",label:"實際行為",type:"textarea",placeholder:"結果角色實際做了什麼？"},
+      {key:"reason",label:"角色抗辯理由",type:"textarea",placeholder:"為什麼角色拒絕照原定劇情走？"}
+    ]
+  },
+  {
+    id:"foreshadow",
+    no:"第二科",
+    name:"伏筆異常處理",
+    alias:"俗稱：伏筆不聽話",
+    fields:[
+      {key:"subject",label:"涉案伏筆",type:"input",placeholder:"是哪一條伏筆出事了？"},
+      {key:"planned",label:"原定埋設方式",type:"textarea",placeholder:"原本打算怎麼埋？"},
+      {key:"target",label:"預定回收位置",type:"input",placeholder:"原本預計在哪裡收線？"},
+      {key:"actual",label:"目前失控情形",type:"textarea",placeholder:"現在發生什麼事？"},
+      {key:"reason",label:"無法照原案原因",type:"textarea",placeholder:"為什麼這條伏筆開始不合作？"}
+    ]
+  },
+  {
+    id:"outline",
+    no:"第三科",
+    name:"劇情規劃異常處理",
+    alias:"俗稱：大綱不聽話",
+    fields:[
+      {key:"subject",label:"事故章節／區段",type:"input",placeholder:"從哪裡開始偏航？"},
+      {key:"planned",label:"原定劇情路線",type:"textarea",placeholder:"原本大綱怎麼走？"},
+      {key:"actual",label:"目前實際路線",type:"textarea",placeholder:"現在劇情跑去哪裡了？"},
+      {key:"reason",label:"偏航原因",type:"textarea",placeholder:"為什麼原定大綱開始失效？"}
+    ]
+  },
+  {
+    id:"ending",
+    no:"第四科",
+    name:"結局執行異常處理",
+    alias:"俗稱：結局不聽話",
+    fields:[
+      {key:"planned",label:"原定結局",type:"textarea",placeholder:"原本打算怎麼結束？"},
+      {key:"actual",label:"目前無法成立之處",type:"textarea",placeholder:"現在為什麼結不了？"},
+      {key:"alternative",label:"替代結局／新方向",type:"textarea",placeholder:"目前長出了什麼替代方案？"},
+      {key:"reason",label:"結局抗辯理由",type:"textarea",placeholder:"角色、劇情或世界觀為什麼拒絕原結局？"}
+    ]
+  },
+  {
+    id:"cp",
+    no:"第五科",
+    name:"CP關係異常處理",
+    alias:"俗稱：他們怎麼自己談起來了",
+    fields:[
+      {key:"subject",label:"涉案 CP",type:"input",placeholder:"哪兩個人突然有事？"},
+      {key:"planned",label:"原定關係",type:"textarea",placeholder:"原本你打算讓他們是什麼關係？"},
+      {key:"actual",label:"實際發展",type:"textarea",placeholder:"結果他們現在變成怎樣？"},
+      {key:"reason",label:"關係失控原因",type:"textarea",placeholder:"是哪一刻開始不對勁？"}
+    ]
+  },
+  {
+    id:"supporting",
+    no:"第六科",
+    name:"配角職權異常處理",
+    alias:"俗稱：涉嫌篡奪主角職權",
+    fields:[
+      {key:"character",label:"涉案配角",type:"input",placeholder:"是哪個配角開始越權？"},
+      {key:"planned",label:"原定職務",type:"textarea",placeholder:"原本只打算讓他負責什麼？"},
+      {key:"actual",label:"目前越權行為",type:"textarea",placeholder:"他現在搶走了什麼？"},
+      {key:"share",label:"目前戲份占用情形",type:"textarea",placeholder:"戲份、情緒高點、主線權重被吃掉多少？"},
+      {key:"reason",label:"篡位理由",type:"textarea",placeholder:"為什麼這個配角會越寫越重要？"}
+    ]
+  },
+  {
+    id:"wordcount",
+    no:"第七科",
+    name:"字數異常處理",
+    alias:"俗稱：字數不聽話",
+    fields:[
+      {key:"target",label:"原定字數",type:"input",placeholder:"原本預計多少字？"},
+      {key:"actual",label:"目前字數",type:"input",placeholder:"現在實際多少字？"},
+      {key:"direction",label:"異常方向",type:"input",placeholder:"字數偏多、偏少，或兩者都有可能？"},
+      {key:"reason",label:"字數失控原因",type:"textarea",placeholder:"為什麼篇幅開始偏離原定規劃？"},
+      {key:"plan",label:"處理方式",type:"textarea",placeholder:"打算刪減、補寫、拆章、合併，還是接受現況？"}
+    ]
+  }
+];
+
+const IMPACTS = ["劇情","角色關係","伏筆","世界觀","CP","節奏","結局","作者精神狀態"];
+
+let activeDepartmentId = null;
+let currentCaseId = null;
+let homeTab = "business";
+let departmentPage = 1;
+const DEPARTMENTS_PER_PAGE = 4;
+
+function getDepartment(id){
+  return DEPARTMENTS.find(d=>d.id===id) || DEPARTMENTS[0];
+}
+
+function switchHomeTab(tab){
+  homeTab = tab === "records" ? "records" : "business";
+  businessTab.classList.toggle("active", homeTab === "business");
+  recordsTab.classList.toggle("active", homeTab === "records");
+  businessSection.classList.toggle("active", homeTab === "business");
+  recordsSection.classList.toggle("active", homeTab === "records");
+  if(homeTab === "records") renderCases();
+}
+
+function renderDepartments(){
+  const totalPages = Math.max(1, Math.ceil(DEPARTMENTS.length / DEPARTMENTS_PER_PAGE));
+  departmentPage = Math.min(Math.max(1, departmentPage), totalPages);
+  const start = (departmentPage - 1) * DEPARTMENTS_PER_PAGE;
+  const pageItems = DEPARTMENTS.slice(start, start + DEPARTMENTS_PER_PAGE);
+
+  departmentGrid.innerHTML = pageItems.map(d=>`
+    <button class="department-card" type="button" onclick="openDepartment('${d.id}')">
+      <div class="department-no">${d.no}</div>
+      <div class="department-name">${d.name}</div>
+      <div class="department-alias">${d.alias}</div>
+    </button>
+  `).join("");
+
+  departmentPagination.innerHTML = `
+    <button class="page-btn" type="button" onclick="setDepartmentPage(${departmentPage-1})" ${departmentPage===1?"disabled":""}>‹</button>
+    ${Array.from({length:totalPages},(_,i)=>i+1).map(page=>`
+      <button class="page-btn ${page===departmentPage?"active":""}" type="button" onclick="setDepartmentPage(${page})">${page}</button>
+    `).join("")}
+    <button class="page-btn" type="button" onclick="setDepartmentPage(${departmentPage+1})" ${departmentPage===totalPages?"disabled":""}>›</button>
+  `;
+}
+
+function setDepartmentPage(page){
+  const totalPages = Math.max(1, Math.ceil(DEPARTMENTS.length / DEPARTMENTS_PER_PAGE));
+  if(page < 1 || page > totalPages) return;
+  departmentPage = page;
+  renderDepartments();
+  businessSection.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function openDepartment(id){
+  activeDepartmentId = id;
+  const d = getDepartment(id);
+
+  homeView.style.display = "none";
+  formView.style.display = "block";
+
+  formKicker.textContent = `${d.no} · 創作事故通報`;
+  formTitle.textContent = d.name;
+  formAlias.textContent = d.alias;
+
+  dynamicFields.innerHTML = d.fields.map(f=>`
+    <div class="field">
+      <label>${f.label}</label>
+      ${
+        f.type==="textarea"
+        ? `<textarea id="field_${f.key}" placeholder="${escapeHTML(f.placeholder)}"></textarea>`
+        : `<input id="field_${f.key}" placeholder="${escapeHTML(f.placeholder)}">`
+      }
+    </div>
+  `).join("");
+
+  impactChecks.innerHTML = IMPACTS.map(x=>`
+    <label class="check-item">
+      <input type="checkbox" value="${x}">
+      ${x}
+    </label>
+  `).join("");
+
+  clearForm();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function showHome(){
+  formView.style.display = "none";
+  homeView.style.display = "block";
+  activeDepartmentId = null;
+  renderDepartments();
+  renderCases();
+  switchHomeTab(homeTab);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function clearForm(){
+  work.value = "";
+  result.value = "";
+  verdict.value = "角色／劇情勝訴";
+
+  document.querySelectorAll("#dynamicFields input,#dynamicFields textarea").forEach(el=>el.value="");
+  document.querySelectorAll("#impactChecks input").forEach(el=>el.checked=false);
+}
+
+function getFormData(){
+  const d = getDepartment(activeDepartmentId);
+  const fields = {};
+
+  d.fields.forEach(f=>{
+    fields[f.key] = document.getElementById(`field_${f.key}`)?.value.trim() || "";
+  });
+
+  return {
+    id:Date.now(),
+    departmentId:d.id,
+    work:work.value.trim(),
+    fields,
+    impacts:[...document.querySelectorAll("#impactChecks input:checked")].map(x=>x.value),
+    verdict:verdict.value,
+    result:result.value.trim(),
+    createdAt:new Date().toISOString()
+  };
+}
+
+function loadCases(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    return raw.map(normalizeOldCase);
+  }catch{
+    return [];
+  }
+}
+
+/* 舊版只有角色事故，這裡自動轉成新格式 */
+function normalizeOldCase(item){
+  if(item && item.departmentId && item.fields){
+    return item;
+  }
+
+  return {
+    id:item.id || Date.now(),
+    departmentId:"character",
+    work:item.work || "",
+    fields:{
+      character:item.character || "",
+      planned:item.planned || "",
+      actual:item.actual || "",
+      reason:item.reason || ""
+    },
+    impacts:Array.isArray(item.impacts) ? item.impacts : [],
+    verdict:item.verdict || "暫緩裁決",
+    result:item.result || "",
+    createdAt:item.createdAt || new Date().toISOString()
+  };
+}
+
+function persistCases(cases){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(cases));
+}
+
+function saveCase(){
+  const data = getFormData();
+
+  if(!data.work){
+    alert("至少要填作品名稱哦！");
+    return;
+  }
+
+  const cases = loadCases();
+  cases.unshift(data);
+  persistCases(cases);
+
+  showHome();
+  setTimeout(()=>openCase(data.id),0);
+}
+
+function renderCases(){
+  const cases = loadCases();
+
+  if(!cases.length){
+    caseList.innerHTML = '<div class="empty">目前沒有事故。這很可疑。</div>';
+    return;
+  }
+
+  caseList.innerHTML = cases.map(item=>{
+    const d = getDepartment(item.departmentId);
+    const subject = item.fields.character || item.fields.subject || "";
+    return `
+      <div class="case" onclick="openCase(${item.id})">
+        <div class="case-row">
+          <div>
+            <div class="case-title">
+              ${escapeHTML(item.work)}
+              ${subject ? "｜"+escapeHTML(subject) : ""}
+            </div>
+            <div class="case-meta">
+              ${d.no} · ${d.alias.replace("俗稱：","")}
+              · ${escapeHTML(item.verdict)}
+              · ${new Date(item.createdAt).toLocaleString()}
+            </div>
+          </div>
+          <div class="case-arrow">›</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function openCase(id){
+  const item = loadCases().find(x=>x.id===id);
+  if(!item) return;
+
+  currentCaseId = id;
+  const d = getDepartment(item.departmentId);
+
+  const fieldHtml = d.fields.map(f=>`
+    <div class="detail-section">
+      <div class="detail-label">${f.label}</div>
+      <div class="detail-value">${escapeHTML(item.fields?.[f.key] || "未填")}</div>
+    </div>
+  `).join("");
+
+  caseReport.innerHTML = `
+    <div class="detail-department">${d.no}｜${d.name}</div>
+
+    <div class="detail-section">
+      <div class="detail-label">涉案作品</div>
+      <div class="detail-value">${escapeHTML(item.work)}</div>
+    </div>
+
+    ${fieldHtml}
+
+    <div class="detail-section">
+      <div class="detail-label">事故影響</div>
+      <div class="detail-value">
+        ${escapeHTML(item.impacts?.length ? item.impacts.join(" ・ ") : "未標記")}
+      </div>
+    </div>
+
+    <div class="detail-verdict">
+      <div class="detail-label">最終裁決</div>
+      <div class="detail-value">${escapeHTML(item.verdict || "未裁決")}</div>
+      ${item.result ? `<div class="detail-result">${escapeHTML(item.result)}</div>` : ""}
+    </div>
+  `;
+
+  caseModal.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeCase(){
+  caseModal.classList.remove("open");
+  document.body.style.overflow = "";
+  currentCaseId = null;
+}
+
+function deleteCurrentCase(){
+  if(currentCaseId===null) return;
+  if(!confirm("確定要刪除這筆事故紀錄嗎？")) return;
+
+  persistCases(loadCases().filter(i=>i.id!==currentCaseId));
+  closeCase();
+  renderCases();
+}
+
+function fillReportCard(item){
+  const d = getDepartment(item.departmentId);
+  rDepartment.textContent = `${d.no}｜${d.name}`;
+
+  reportDynamic.innerHTML = `
+    <div class="report-section">
+      <div class="report-label">涉案作品</div>
+      <div class="report-value">${escapeHTML(item.work || "未填")}</div>
+    </div>
+
+    ${d.fields.map(f=>`
+      <div class="report-section">
+        <div class="report-label">${f.label}</div>
+        <div class="report-value">${escapeHTML(item.fields?.[f.key] || "未填")}</div>
+      </div>
+    `).join("")}
+
+    <div class="report-section">
+      <div class="report-label">事故影響</div>
+      <div class="report-value">${escapeHTML(item.impacts?.length ? item.impacts.join(" · ") : "未標記")}</div>
+    </div>
+  `;
+
+  rVerdict.textContent = item.verdict || "未裁決";
+  rResult.textContent = item.result || "";
+}
+
+async function downloadCurrentCasePNG(){
+  const item = loadCases().find(i=>i.id===currentCaseId);
+  if(!item) return;
+
+  if(typeof html2canvas==="undefined"){
+    alert("PNG 產生器尚未載入，請確認網路連線。");
+    return;
+  }
+
+  fillReportCard(item);
+
+  const canvas = await html2canvas(reportCard,{
+    scale:1,
+    backgroundColor:"#EAF7F7"
+  });
+
+  const a = document.createElement("a");
+  const safeName = (item.work || "事故報告").replace(/[\\/:*?"<>|]/g,"_");
+  a.download = `${safeName}_創作事故報告.png`;
+  a.href = canvas.toDataURL("image/png");
+  a.click();
+}
+
+function escapeHTML(str){
+  return String(str || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && caseModal.classList.contains("open")){
+    closeCase();
+  }
+});
+
+renderDepartments();
+renderCases();
+</script>
+
+</body>
+</html>
