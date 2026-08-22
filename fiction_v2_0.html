@@ -10,7 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 
   <style>
     :root {
@@ -2008,8 +2007,45 @@ function safeUrl(url) {
 
 function getWorkShareUrl(work) {
   const url = new URL(location.href);
+  url.search = "";
+  url.hash = "";
   url.searchParams.set("work", work.id);
   return url.toString();
+}
+
+async function copyShareUrl(shareUrl) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(shareUrl);
+      showToast("作品連結已複製");
+      return true;
+    }
+  } catch (error) {
+    console.warn("Clipboard API 無法使用", error);
+  }
+
+  try {
+    const input = document.createElement("textarea");
+    input.value = shareUrl;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.appendChild(input);
+    input.select();
+    input.setSelectionRange(0, input.value.length);
+    const copied = document.execCommand("copy");
+    input.remove();
+
+    if (copied) {
+      showToast("作品連結已複製");
+      return true;
+    }
+  } catch (error) {
+    console.warn("備用複製方式無法使用", error);
+  }
+
+  window.prompt("複製作品連結", shareUrl);
+  return false;
 }
 
 async function shareWork(id) {
@@ -2023,21 +2059,19 @@ async function shareWork(id) {
     url: shareUrl
   };
 
-  try {
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(shareUrl);
-      showToast("作品連結已複製");
-    } else {
-      window.prompt("複製作品連結", shareUrl);
-    }
-  } catch (error) {
-    if (error?.name !== "AbortError") {
-      console.error(error);
-      showToast("分享沒有完成");
+  if (typeof navigator.share === "function") {
+    try {
+      if (!navigator.canShare || navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        return;
+      }
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      console.warn("系統分享失敗，改用複製連結", error);
     }
   }
+
+  await copyShareUrl(shareUrl);
 }
 
 async function downloadShareCard(id) {
@@ -2122,44 +2156,34 @@ async function downloadShareCard(id) {
   ctx.font = '500 20px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
   ctx.fillText(" | stillness by slowly", 112 + logoPrefixWidth + 6, footerY + 92);
 
-  /* QR：回到本站這部作品的專屬入口 */
-  const workShareUrl = getWorkShareUrl(work);
-  try {
-    if (!window.QRCode || typeof QRCode.toDataURL !== "function") {
-      throw new Error("QR Code library 尚未載入");
-    }
+  /* 作品網址：直接顯示第一個新增的有效作品網址 */
+  const firstWorkUrl =
+    work.links.find(link => /^https?:\/\//i.test(link.url || ""))?.url || "";
 
-    const qrDataUrl = await QRCode.toDataURL(workShareUrl, {
-      width: 320,
-      margin: 2,
-      errorCorrectionLevel: "M"
-    });
+  const urlBlockX = width - 430;
+  const urlBlockY = footerY - 34;
+  const urlBlockW = 318;
 
-    const img = new Image();
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = qrDataUrl;
-    });
+  ctx.fillStyle = "#6E6E73";
+  ctx.font = '600 18px "Noto Sans TC", sans-serif';
+  ctx.fillText("作品網址", urlBlockX, urlBlockY);
 
-    const qrSize = 190;
-    const qrX = width - 112 - qrSize;
-    const qrY = footerY - 94;
+  ctx.fillStyle = "#1D1D1F";
+  ctx.font = '500 18px "Noto Sans TC", sans-serif';
 
-    ctx.fillStyle = "#FFFFFF";
-    roundedRect(ctx, qrX - 12, qrY - 12, qrSize + 24, qrSize + 24, 18);
-    ctx.fill();
-    ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
-
-    ctx.fillStyle = "#6E6E73";
-    ctx.font = '600 18px "Noto Sans TC", sans-serif';
-    ctx.textAlign = "center";
-    ctx.fillText("掃碼回到作品探索", qrX + qrSize / 2, qrY + qrSize + 34);
-    ctx.textAlign = "left";
-  } catch (error) {
-    console.error("QR 產生失敗", error);
-    showToast("QR Code 載入失敗，請連網後再下載書卡");
-    return;
+  if (firstWorkUrl) {
+    drawWrappedText(
+      ctx,
+      firstWorkUrl,
+      urlBlockX,
+      urlBlockY + 34,
+      urlBlockW,
+      28,
+      3
+    );
+  } else {
+    ctx.fillStyle = "#8E8E93";
+    ctx.fillText("未提供作品網址", urlBlockX, urlBlockY + 34);
   }
 
   const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
@@ -2490,7 +2514,7 @@ function renderWorkForm() {
         </div>
         <button class="small-btn" style="margin-top:10px;padding:9px 12px;" type="button" onclick="addLinkRow()">＋ 新增作品連結</button>
         <div class="link-note">
-          分享書卡的 QR Code 會回到本站這部作品的專屬入口；這裡的排序只決定作品詳情中的平台顯示順序。
+          分享書卡會顯示第一個有效作品網址；這裡的排序也會決定作品詳情中的平台顯示順序。
         </div>
       </section>
     </div>
