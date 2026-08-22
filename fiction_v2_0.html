@@ -95,6 +95,13 @@
       align-items: center;
       gap: 10px;
       min-width: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
     }
 
     .brand-mark {
@@ -1349,12 +1356,12 @@
 <div class="app-shell">
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand">
+      <button class="brand" type="button" onclick="goHome()" aria-label="回到作品探索首頁">
         <div class="brand-text">
           <div class="brand-title">作品探索</div>
           <div class="brand-kicker">Fiction Index</div>
         </div>
-      </div>
+      </button>
 
       <div id="adminPill" class="admin-pill">
         <span class="dot"></span>
@@ -2117,34 +2124,42 @@ async function downloadShareCard(id) {
 
   /* QR：回到本站這部作品的專屬入口 */
   const workShareUrl = getWorkShareUrl(work);
-  if (workShareUrl && window.QRCode) {
-    try {
-      const qrDataUrl = await QRCode.toDataURL(workShareUrl, {
-        width: 250,
-        margin: 1,
-        errorCorrectionLevel: "M"
-      });
-
-      const img = new Image();
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = qrDataUrl;
-      });
-
-      const qrSize = 170;
-      const qrX = width - 112 - qrSize;
-      const qrY = footerY - 10;
-
-      ctx.drawImage(img, qrX, qrY - 90, qrSize, qrSize);
-      ctx.fillStyle = "#6E6E73";
-      ctx.font = '600 18px "Noto Sans TC", sans-serif';
-      ctx.textAlign = "center";
-      ctx.fillText("掃碼回到作品探索", qrX + qrSize / 2, qrY + 104);
-      ctx.textAlign = "left";
-    } catch (error) {
-      console.error("QR 產生失敗", error);
+  try {
+    if (!window.QRCode || typeof QRCode.toDataURL !== "function") {
+      throw new Error("QR Code library 尚未載入");
     }
+
+    const qrDataUrl = await QRCode.toDataURL(workShareUrl, {
+      width: 320,
+      margin: 2,
+      errorCorrectionLevel: "M"
+    });
+
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = qrDataUrl;
+    });
+
+    const qrSize = 190;
+    const qrX = width - 112 - qrSize;
+    const qrY = footerY - 94;
+
+    ctx.fillStyle = "#FFFFFF";
+    roundedRect(ctx, qrX - 12, qrY - 12, qrSize + 24, qrSize + 24, 18);
+    ctx.fill();
+    ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+
+    ctx.fillStyle = "#6E6E73";
+    ctx.font = '600 18px "Noto Sans TC", sans-serif';
+    ctx.textAlign = "center";
+    ctx.fillText("掃碼回到作品探索", qrX + qrSize / 2, qrY + qrSize + 34);
+    ctx.textAlign = "left";
+  } catch (error) {
+    console.error("QR 產生失敗", error);
+    showToast("QR Code 載入失敗，請連網後再下載書卡");
+    return;
   }
 
   const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
