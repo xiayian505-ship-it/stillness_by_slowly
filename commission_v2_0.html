@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#dce9eb">
+<title>委圖口袋本</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#dce9eb;--surface:#edf5f6;--surface-soft:rgba(237,245,246,.82);
+  --text:#1f2c30;--muted:#60747A;--muted2:#7d9196;--line:rgba(43,76,84,.14);
+  --line2:rgba(43,76,84,.22);--accent:#4f8994;--accent-soft:rgba(79,137,148,.12);
+  --danger:#d9534f;--warn:#b26a00;--success:#527d72;--shadow:0 10px 35px rgba(0,0,0,.08);
+  --content:1180px
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--text);background:
+radial-gradient(circle at 10% -10%,rgba(79,137,148,.11),transparent 28rem),
+linear-gradient(180deg,#e8f2f3 0%,var(--bg) 36%,#d6e5e8 100%);
+font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+button,input,textarea,select{font:inherit} button{-webkit-tap-highlight-color:transparent}
+button{cursor:pointer}.app-shell{min-height:100vh;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(220,233,235,.87);backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--line)}
+.topbar-inner{width:min(var(--content),calc(100% - 32px));min-height:64px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{border:0;background:transparent;color:inherit;padding:0;text-align:left}
+.brand-title{font:700 17px "Noto Serif TC",serif}.brand-kicker{margin-top:2px;color:var(--muted);font-size:11px}
+.manage-pill{display:none;align-items:center;gap:8px;border-radius:999px;padding:7px 11px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-size:12px}
+.manage-pill.show{display:flex}.manage-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--success)}
+main{flex:1;width:min(var(--content),calc(100% - 32px));margin:auto;padding:42px 0 72px}
+.hero{padding:16px 0 26px}.hero-eyebrow{font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:10px}
+.hero h1{margin:0;font:700 clamp(36px,6vw,64px)/1.05 "Noto Serif TC",serif;letter-spacing:-.04em}
+.hero p{margin:14px 0 0;color:var(--muted);font-size:15px;line-height:1.8;max-width:720px}
+.tabs{margin-top:26px;padding:7px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;border-radius:22px;background:rgba(234,243,245,.84);border:1px solid rgba(255,255,255,.6);box-shadow:var(--shadow);backdrop-filter:blur(22px)}
+.tab-btn{border:0;border-radius:16px;padding:12px 10px;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px}
+.tab-btn.active{background:var(--surface);color:var(--text);box-shadow:0 4px 14px rgba(0,0,0,.05)}
+.panel{display:none}.panel.active{display:block}
+.panel-head{margin-top:34px;padding:0 2px 12px;border-bottom:1px solid var(--line2);display:flex;align-items:end;justify-content:space-between;gap:14px}
+.panel-title h2{margin:0;font:700 22px "Noto Serif TC",serif}.panel-title p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.primary-btn{border:0;background:var(--accent);color:white;border-radius:999px;padding:10px 14px;font-weight:700;font-size:12.5px}
+.search-box{margin-top:18px;position:relative}.search-box input{width:100%;height:48px;border:0;outline:none;border-radius:16px;padding:0 44px;background:rgba(72,101,108,.08);color:var(--text)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted2)}
+.search-clear{position:absolute;right:13px;top:50%;transform:translateY(-50%);width:25px;height:25px;border:0;border-radius:50%;background:rgba(79,137,148,.22);color:#fff;display:none}.search-clear.show{display:grid;place-items:center}
+.list{display:grid}.row{display:grid;grid-template-columns:64px minmax(0,1fr) 150px;gap:18px;padding:22px 2px;border-bottom:1px solid var(--line);transition:.18s}
+.row:hover{background:rgba(247,247,249,.35)}.row-index{color:var(--muted2);font-size:11px;letter-spacing:.08em;padding-top:5px}
+.row-title{margin:0;font:700 clamp(19px,2.2vw,27px)/1.35 "Noto Serif TC",serif}.row-sub{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+.row-note{margin:11px 0 0;color:#3a3a3c;font-size:13.5px;line-height:1.7}
+.row-meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:7px}.tag{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;background:rgba(72,101,108,.08);color:var(--muted);font-size:11.5px}
+.row-side{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:10px}.arrow{font-size:22px;color:var(--muted2)}
+.status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.status:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.s-open,.s-done{background:rgba(93,149,132,.13);color:var(--success)}
+.s-queue,.s-progress{background:rgba(79,137,148,.12);color:var(--accent)}
+.s-stop,.s-cancel{background:rgba(255,159,10,.13);color:var(--warn)}
+.s-long,.s-planned{background:rgba(72,101,108,.10);color:var(--text)}
+.empty{padding:74px 20px;text-align:center;color:var(--muted)}.empty strong{display:block;margin-bottom:8px;color:var(--text);font:700 20px "Noto Serif TC",serif}
+.stats-grid{margin-top:26px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.stat-card{border:1px solid rgba(255,255,255,.6);background:rgba(234,243,245,.82);border-radius:24px;padding:24px;box-shadow:var(--shadow)}
+.stat-label{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.04em}.stat-number{margin-top:8px;font:700 clamp(42px,7vw,70px) "Noto Serif TC",serif;line-height:1}.stat-unit{font-size:16px;color:var(--muted);margin-left:6px}
+.stat-link{margin-top:14px;color:var(--accent);font-size:12px;font-weight:700}
+.month-list{margin-top:24px;border-top:1px solid var(--line)}.month-row{display:flex;justify-content:space-between;gap:14px;padding:14px 2px;border-bottom:1px solid var(--line);font-size:13px}.month-row span:last-child{font-weight:700}
+.overlay{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.24);opacity:0;pointer-events:none;transition:.2s}.overlay.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:80;top:0;right:0;width:min(560px,92vw);height:100dvh;transform:translateX(102%);transition:.28s;background:rgba(234,243,245,.98);box-shadow:-18px 0 50px rgba(0,0,0,.13);display:flex;flex-direction:column}
+.drawer.show{transform:translateX(0)}.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.drawer-head span{color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em}.icon-btn{width:36px;height:36px;border:0;border-radius:50%;background:rgba(72,101,108,.10)}
+.drawer-body{padding:24px;overflow:auto}.detail-title{margin:0;font:700 clamp(28px,5vw,40px)/1.22 "Noto Serif TC",serif}
+.detail-sub{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.7;overflow-wrap:anywhere}
+.detail-section{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}.detail-label{margin-bottom:10px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em}
+.detail-copy{margin:0;color:#3a3a3c;font-size:14px;line-height:1.9;white-space:pre-wrap}.chip-wrap{display:flex;flex-wrap:wrap;gap:8px}
+.link-card{display:flex;justify-content:space-between;gap:12px;text-decoration:none;border-radius:14px;padding:13px 14px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:13px}
+.detail-actions{display:flex;flex-wrap:wrap;gap:10px}.action-btn{flex:1 1 150px;border:0;border-radius:14px;padding:12px 14px;background:rgba(72,101,108,.09);font-weight:700;font-size:12px}
+.action-btn.accent{background:var(--accent);color:#fff}.action-btn.danger{background:rgba(217,83,79,.10);color:var(--danger)}
+.modal-wrap{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.28);backdrop-filter:blur(8px)}.modal-wrap.show{display:flex}
+.modal{width:min(720px,100%);max-height:92dvh;overflow:auto;border-radius:26px;background:rgba(255,255,255,.98);box-shadow:0 24px 80px rgba(0,0,0,.18)}
+.modal-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;background:rgba(255,255,255,.93);border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;font:700 20px "Noto Serif TC",serif}.modal-body{padding:20px}.form-section{padding:18px 0;border-bottom:1px solid var(--line)}.form-section:first-child{padding-top:0}.form-title{margin:0 0 12px;color:var(--muted);font-size:12px;font-weight:700}
+.form-grid{display:grid;gap:12px}.form-grid.two{grid-template-columns:1fr 1fr}.field label{display:block;margin-bottom:6px;color:var(--muted);font-size:11.5px;font-weight:700}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:13px;padding:11px 12px;outline:none;background:rgba(72,101,108,.06);color:var(--text)}
+.field textarea{min-height:105px;resize:vertical}.segments{display:flex;flex-wrap:wrap;gap:8px}.segment{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:600}
+.segment.active{background:var(--accent);border-color:var(--accent);color:white}.other-field{margin-top:10px}
+.modal-foot{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;background:rgba(255,255,255,.93);border-top:1px solid var(--line)}
+.ghost,.save{border-radius:13px;padding:10px 14px;font-size:12.5px;font-weight:700}.ghost{border:1px solid var(--line);background:var(--surface)}.save{border:0;background:var(--accent);color:white}
+.toast{position:fixed;z-index:120;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(29,29,31,.92);color:#fff;border-radius:999px;padding:10px 14px;font-size:12px;transition:.2s}.toast.show{transform:translate(-50%,0);opacity:1}
+footer{border-top:1px solid var(--line);padding:26px 0 30px;color:var(--muted);font-size:12px}.footer-inner{width:min(var(--content),calc(100% - 32px));margin:auto;display:flex;justify-content:space-between}.footer-inner button{border:0;background:transparent;color:var(--muted)}
+.footer-signature{width:min(var(--content),calc(100% - 32px));margin:22px auto 0;padding-top:20px;border-top:1px solid var(--line);text-align:center;color:var(--muted2);font:12px "Noto Serif TC",serif;letter-spacing:.08em}
+@media(max-width:760px){
+  main,.topbar-inner,.footer-inner,.footer-signature{width:min(100% - 24px,var(--content))}
+  .tabs{grid-template-columns:repeat(2,1fr)}.row{grid-template-columns:42px minmax(0,1fr);gap:12px}.row-side{grid-column:2;flex-direction:row;align-items:center}
+  .drawer{top:auto;bottom:0;width:100%;height:min(92dvh,850px);border-radius:26px 26px 0 0;transform:translateY(102%)}.drawer.show{transform:translateY(0)}
+  .form-grid.two{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){.hero h1{font-size:42px}.modal-wrap{padding:8px;align-items:flex-end}.modal{max-height:94dvh;border-radius:24px 24px 0 0}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="brand" onclick="goHome()">
+      <div class="brand-title">錢沒有花掉，只是變成快樂的樣子</div>
+      <div class="brand-kicker">Commission Pocketbook</div>
+    </button>
+    <div id="managePill" class="manage-pill"><span class="dot"></span><span>管理中</span></div>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="hero-eyebrow">For OC, commissions, and very reasonable financial decisions</div>
+  <h1>委圖口袋本</h1>
+  <p>心儀繪師、已花掉的快樂、下一場要搶的人，還有到底完成了幾次委託。</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="artists">心儀繪師</button>
+    <button class="tab-btn" data-tab="records">委託紀錄</button>
+    <button class="tab-btn" data-tab="chase">要搶繪師</button>
+    <button class="tab-btn" data-tab="stats">委託次數</button>
+  </div>
+</section>
+
+<section id="artistsPanel" class="panel active">
+  <div class="panel-head"><div class="panel-title"><h2>心儀繪師</h2><p id="artistCount">0 位</p></div><button class="primary-btn" onclick="openArtistForm()">＋ 新增繪師</button></div>
+  <div class="search-box"><span class="search-icon">⌕</span><input id="artistSearch" placeholder="搜尋繪師名稱或平台"><button class="search-clear" id="artistClear">×</button></div>
+  <div id="artistList" class="list"></div>
+</section>
+
+<section id="recordsPanel" class="panel">
+  <div class="panel-head"><div class="panel-title"><h2>委託紀錄</h2><p id="recordCount">0 筆</p></div><button class="primary-btn" onclick="openRecordForm()">＋ 新增紀錄</button></div>
+  <div class="search-box"><span class="search-icon">⌕</span><input id="recordSearch" placeholder="搜尋委託名稱、繪師或備註"><button class="search-clear" id="recordClear">×</button></div>
+  <div id="recordList" class="list"></div>
+</section>
+
+<section id="chasePanel" class="panel">
+  <div class="panel-head"><div class="panel-title"><h2>要搶繪師</h2><p id="chaseCount">0 筆</p></div><button class="primary-btn" onclick="openChaseForm()">＋ 新增開委</button></div>
+  <div class="search-box"><span class="search-icon">⌕</span><input id="chaseSearch" placeholder="搜尋繪師、平台或想委內容"><button class="search-clear" id="chaseClear">×</button></div>
+  <div id="chaseList" class="list"></div>
+</section>
+
+<section id="statsPanel" class="panel">
+  <div class="panel-head"><div class="panel-title"><h2>委託次數</h2><p>只算完成，不算花多少錢。</p></div></div>
+  <div class="stats-grid">
+    <button class="stat-card" onclick="openStatsDetail()"><div class="stat-label">本月完成</div><div><span id="monthDone" class="stat-number">0</span><span class="stat-unit">次</span></div><div class="stat-link">查看統計與分享卡 ›</div></button>
+    <button class="stat-card" onclick="openStatsDetail()"><div class="stat-label">累積完成</div><div><span id="totalDone" class="stat-number">0</span><span class="stat-unit">次</span></div><div class="stat-link">查看統計與分享卡 ›</div></button>
+  </div>
+  <div id="monthList" class="month-list"></div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner"><span>commission_v2_0 · 本機委圖紀錄</span><button onclick="toggleManage()">管理</button></div>
+  <div class="footer-signature">慢 慢 <span>| stillness by slowly</span></div>
+</footer>
+</div>
+
+<div id="overlay" class="overlay" onclick="closeDrawer()"></div>
+<aside id="drawer" class="drawer">
+  <div class="drawer-head"><span id="drawerLabel">詳情</span><button class="icon-btn" onclick="closeDrawer()">×</button></div>
+  <div id="drawerBody" class="drawer-body"></div>
+</aside>
+
+<div id="modalWrap" class="modal-wrap" onclick="if(event.target===this)closeModal()">
+  <div id="modal" class="modal"></div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const KEYS={
+  artists:"artist_20260823",
+  records:"commission_20260823",
+  chase:"commission_chase_20260823"
+};
+
+const COMMISSION_STATUS=["開放中","排單中","暫時不接","只接長期"];
+const RECORD_STATUS=["預約中","進行中","已完成","已取消"];
+const PAYMENT_METHODS=["銀行轉帳","PayPal","手機支付","第三方金流","平台幣","其他"];
+const CURRENCIES=["新台幣","美金","日幣","人民幣","港幣","其他"];
+const WORK_TYPES=["原創","二創","VTuber","遊戲","小說封面","其他"];
+
+let artists=[],records=[],chases=[],manageMode=false,activeTab="artists";
+let artistQuery="",recordQuery="",chaseQuery="";
+let drawerContext=null;
+
+function uid(prefix="x"){return crypto.randomUUID?.()||`${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function safeUrl(v){v=String(v||"").trim();return /^https?:\/\//i.test(v)?v:"#"}
+function load(key){try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v:[]}catch{return []}}
+function save(){localStorage.setItem(KEYS.artists,JSON.stringify(artists));localStorage.setItem(KEYS.records,JSON.stringify(records));localStorage.setItem(KEYS.chase,JSON.stringify(chases))}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),1800)}
+function labelStatus(s){
+  const m={"開放中":"s-open","排單中":"s-queue","暫時不接":"s-stop","只接長期":"s-long","預約中":"s-planned","進行中":"s-progress","已完成":"s-done","已取消":"s-cancel"};
+  return `<span class="status ${m[s]||"s-long"}">${esc(s)}</span>`
+}
+function showTab(name){
+  activeTab=name;
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById(name+"Panel").classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab-btn").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+
+function goHome(){showTab("artists");closeDrawer();window.scrollTo({top:0,behavior:"smooth"})}
+function toggleManage(){manageMode=!manageMode;document.getElementById("managePill").classList.toggle("show",manageMode);toast(manageMode?"已進入管理模式":"已結束管理模式");renderAll()}
+
+function tags(arr){return (arr||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join("")}
+function rowShell(i,title,sub,note,meta,status,onclick){
+  return `<article class="row" onclick="${onclick}"><div class="row-index">${String(i+1).padStart(3,"0")}</div><div><h3 class="row-title">${esc(title)}</h3>${sub?`<div class="row-sub">${esc(sub)}</div>`:""}${note?`<p class="row-note">${esc(note)}</p>`:""}${meta?`<div class="row-meta">${meta}</div>`:""}</div><div class="row-side">${status||""}<span class="arrow">›</span></div></article>`
+}
+
+function renderArtists(){
+  const q=artistQuery.trim().toLowerCase();
+  const list=artists.filter(a=>[a.name,a.platform,a.website].join(" ").toLowerCase().includes(q));
+  artistCount.textContent=`${list.length} 位${list.length!==artists.length?`／共 ${artists.length} 位`:""}`;
+  artistList.innerHTML=list.length?list.map((a,i)=>rowShell(i,a.name,a.platform||"",a.note||"",tags([...(a.currencies||[]),...(a.paymentMethods||[]),...(a.workTypes||[])].slice(0,4)),labelStatus(a.status||"開放中"),`openArtist('${a.id}')`)).join("")
+  :`<div class="empty"><strong>幹嘛？你沒錢委圖了嗎</strong>心儀的繪師先放進來，之後才找得到。</div>`;
+}
+function renderRecords(){
+  const q=recordQuery.trim().toLowerCase();
+  const list=records.filter(r=>[r.title,r.artist,r.note].join(" ").toLowerCase().includes(q));
+  recordCount.textContent=`${list.length} 筆${list.length!==records.length?`／共 ${records.length} 筆`:""}`;
+  recordList.innerHTML=list.length?list.map((r,i)=>rowShell(i,r.title,r.artist,r.note||"",tags([r.workType,r.currency,r.paymentMethod].filter(Boolean)),labelStatus(r.status||"進行中"),`openRecord('${r.id}')`)).join("")
+  :`<div class="empty"><strong>幹嘛？錢花掉忘記紀錄嗎</strong>完成、進行中、取消的委託都可以放這裡。</div>`;
+}
+function chaseTimeText(c){
+  if(!c.openAt)return c.platform||"";
+  const d=new Date(c.openAt),now=new Date(),diff=d-now;
+  const time=d.toLocaleString("zh-Hant",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+  if(diff>0){
+    const hrs=Math.floor(diff/3600000);
+    const days=Math.floor(hrs/24);
+    return `${time} 開委${days>0?`・還有 ${days} 天`:hrs>0?`・還有 ${hrs} 小時`:"・快到了"}`;
+  }
+  return `${time} 開委・時間已到`;
+}
+function renderChases(){
+  const q=chaseQuery.trim().toLowerCase();
+  const list=chases.filter(c=>[c.artist,c.platform,c.idea].join(" ").toLowerCase().includes(q)).sort((a,b)=>(a.openAt||"9999").localeCompare(b.openAt||"9999"));
+  chaseCount.textContent=`${list.length} 筆${list.length!==chases.length?`／共 ${chases.length} 筆`:""}`;
+  chaseList.innerHTML=list.length?list.map((c,i)=>rowShell(i,c.artist,chaseTimeText(c),c.idea||"",tags([c.currency,c.budget?`預算 ${c.budget}`:""].filter(Boolean)),`<span class="status s-planned">${c.openAt && new Date(c.openAt)<=new Date()?"時間到了":"準備中"}</span>`,`openChase('${c.id}')`)).join("")
+  :`<div class="empty"><strong>現在放棄的話，比賽就結束了喔</strong>把下次開委時間記下來，搶得到再說。</div>`;
+}
+function completedRecords(){return records.filter(r=>r.status==="已完成")}
+function renderStats(){
+  const done=completedRecords();
+  const now=new Date(),ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  const monthly={};
+  done.forEach(r=>{
+    const d=r.completedAt||r.date||r.createdAt;
+    if(!d)return;
+    const x=new Date(d); if(Number.isNaN(x.getTime()))return;
+    const key=`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}`;
+    monthly[key]=(monthly[key]||0)+1;
+  });
+  monthDone.textContent=monthly[ym]||0; totalDone.textContent=done.length;
+  const rows=Object.entries(monthly).sort((a,b)=>b[0].localeCompare(a[0]));
+  monthList.innerHTML=rows.length?rows.map(([m,n])=>`<div class="month-row"><span>${m.replace("-"," 年 ")} 月</span><span>${n} 次</span></div>`).join("")
+  :`<div class="empty"><strong>0 次也算一種統計</strong>完成一筆委託後，這裡就會開始長。</div>`;
+}
+
+function chipSection(title,arr){return arr&&arr.length?`<section class="detail-section"><div class="detail-label">${title}</div><div class="chip-wrap">${tags(arr)}</div></section>`:""}
+function openDrawer(label,html,ctx){drawerLabel.textContent=label;drawerBody.innerHTML=html;drawer.classList.add("show");overlay.classList.add("show");document.body.style.overflow="hidden";drawerContext=ctx}
+function closeDrawer(){drawer.classList.remove("show");overlay.classList.remove("show");document.body.style.overflow="";drawerContext=null}
+function manageActions(kind,id){
+  if(!manageMode)return "";
+  return `<section class="detail-section"><div class="detail-label">管理</div><div class="detail-actions"><button class="action-btn" onclick="editEntry('${kind}','${id}')">編輯</button><button class="action-btn danger" onclick="deleteEntry('${kind}','${id}')">刪除</button></div></section>`
+}
+function openArtist(id){
+  const a=artists.find(x=>x.id===id);if(!a)return;
+  openDrawer("心儀繪師",`<h2 class="detail-title">${esc(a.name)}</h2><div class="detail-sub">${esc(a.platform||"")}</div>
+  <section class="detail-section"><div class="detail-label">委託狀態</div>${labelStatus(a.status||"開放中")}</section>
+  ${chipSection("接受幣別",a.currencies)}${chipSection("付款方式",a.paymentMethods)}${chipSection("作品類型",a.workTypes)}
+  ${a.website?`<section class="detail-section"><div class="detail-label">平台／網站</div><a class="link-card" target="_blank" rel="noopener noreferrer" href="${esc(safeUrl(a.website))}"><span>${esc(a.platform||"個人網站")}</span><span>↗</span></a></section>`:""}
+  ${a.note?`<section class="detail-section"><div class="detail-label">備註</div><p class="detail-copy">${esc(a.note)}</p></section>`:""}${manageActions("artist",id)}`,{kind:"artist",id});
+}
+function openRecord(id){
+  const r=records.find(x=>x.id===id);if(!r)return;
+  openDrawer("委託紀錄",`<h2 class="detail-title">${esc(r.title)}</h2><div class="detail-sub">${esc(r.artist||"")}</div>
+  <section class="detail-section"><div class="detail-label">狀態</div>${labelStatus(r.status||"進行中")}</section>
+  ${chipSection("資料",[r.workType,r.currency,r.paymentMethod].filter(Boolean))}
+  ${r.date?`<section class="detail-section"><div class="detail-label">委託日期</div><p class="detail-copy">${esc(r.date)}</p></section>`:""}
+  ${r.completedAt?`<section class="detail-section"><div class="detail-label">完成日期</div><p class="detail-copy">${esc(r.completedAt)}</p></section>`:""}
+  ${r.note?`<section class="detail-section"><div class="detail-label">備註</div><p class="detail-copy">${esc(r.note)}</p></section>`:""}${manageActions("record",id)}`,{kind:"record",id});
+}
+function openChase(id){
+  const c=chases.find(x=>x.id===id);if(!c)return;
+  openDrawer("要搶繪師",`<h2 class="detail-title">${esc(c.artist)}</h2><div class="detail-sub">${esc(c.platform||"")}</div>
+  ${c.openAt?`<section class="detail-section"><div class="detail-label">開委時間</div><p class="detail-copy">${esc(new Date(c.openAt).toLocaleString("zh-Hant"))}</p></section>`:""}
+  ${chipSection("準備資料",[c.currency,c.paymentMethod,c.workType,c.budget?`預算 ${c.budget}`:""].filter(Boolean))}
+  ${c.idea?`<section class="detail-section"><div class="detail-label">想委內容</div><p class="detail-copy">${esc(c.idea)}</p></section>`:""}
+  ${c.url?`<section class="detail-section"><div class="detail-label">開委平台</div><a class="link-card" target="_blank" rel="noopener noreferrer" href="${esc(safeUrl(c.url))}"><span>${esc(c.platform||"開委連結")}</span><span>↗</span></a></section>`:""}
+  ${c.note?`<section class="detail-section"><div class="detail-label">備註</div><p class="detail-copy">${esc(c.note)}</p></section>`:""}${manageActions("chase",id)}`,{kind:"chase",id});
+}
+function openStatsDetail(){
+  const done=completedRecords();
+  const now=new Date(),ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  const month=done.filter(r=>{
+    const d=new Date(r.completedAt||r.date||r.createdAt); if(Number.isNaN(d))return false;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`===ym
+  }).length;
+  openDrawer("委託次數",`<h2 class="detail-title">快樂統計</h2><div class="detail-sub">不換算匯率，不算花多少，只算你完成了幾次。</div>
+  <section class="detail-section"><div class="detail-label">本月完成</div><p class="detail-copy" style="font-size:34px;font-family:'Noto Serif TC',serif;font-weight:700">${month} 次</p></section>
+  <section class="detail-section"><div class="detail-label">累積完成</div><p class="detail-copy" style="font-size:34px;font-family:'Noto Serif TC',serif;font-weight:700">${done.length} 次</p></section>
+  <section class="detail-section"><div class="detail-label">分享</div><div class="detail-actions"><button class="action-btn accent" onclick="downloadStatsCard()">下載分享卡</button></div></section>`,{kind:"stats"});
+}
+
+function multiButtons(key,options,selected){
+  return `<div class="segments">${options.map(o=>`<button type="button" class="segment ${selected.includes(o)?"active":""}" onclick="toggleModalMulti('${key}','${esc(o)}')">${esc(o)}</button>`).join("")}</div>
+  ${selected.includes("其他")?`<div class="other-field field"><input id="${key}Other" placeholder="輸入其他內容" value="${esc(window.formState?.[key+"Other"]||"")}"></div>`:""}`
+}
+window.formState=null;
+function openModal(title,body,saveLabel,saveFn){
+  modal.innerHTML=`<div class="modal-head"><h3>${title}</h3><button class="icon-btn" onclick="closeModal()">×</button></div><div class="modal-body">${body}</div><div class="modal-foot"><button class="ghost" onclick="closeModal()">取消</button><button class="save" onclick="${saveFn}">${saveLabel}</button></div>`;
+  modalWrap.classList.add("show");document.body.style.overflow="hidden";
+}
+function closeModal(){modalWrap.classList.remove("show");modal.innerHTML="";document.body.style.overflow=drawerContext?"hidden":""}
+function readOther(key){const el=document.getElementById(key+"Other");if(el)formState[key+"Other"]=el.value}
+function syncCommon(ids){ids.forEach(([id,key])=>{const el=document.getElementById(id);if(el)formState[key]=el.value})}
+function toggleModalMulti(key,val){
+  syncCurrentForm();
+  const s=new Set(formState[key]||[]);s.has(val)?s.delete(val):s.add(val);formState[key]=[...s];
+  rerenderCurrentForm();
+}
+function syncCurrentForm(){
+  if(!formState)return;
+  syncCommon([["fName","name"],["fPlatform","platform"],["fWebsite","website"],["fNote","note"],["fTitle","title"],["fArtist","artist"],["fDate","date"],["fCompletedAt","completedAt"],["fOpenAt","openAt"],["fIdea","idea"],["fBudget","budget"],["fUrl","url"]]);
+  ["paymentMethods","currencies","workTypes"].forEach(readOther);
+  ["paymentMethod","currency","workType"].forEach(k=>{const e=document.getElementById("f"+k[0].toUpperCase()+k.slice(1));if(e)formState[k]=e.value});
+}
+function rerenderCurrentForm(){
+  if(formState?._kind==="artist")renderArtistForm();
+  if(formState?._kind==="record")renderRecordForm();
+  if(formState?._kind==="chase")renderChaseForm();
+}
+function setSingle(key,val){syncCurrentForm();formState[key]=val;rerenderCurrentForm()}
+
+function openArtistForm(id=""){
+  const old=id?artists.find(x=>x.id===id):null;
+  formState=old?JSON.parse(JSON.stringify(old)):{id:"",name:"",platform:"",website:"",status:"開放中",paymentMethods:[],currencies:[],workTypes:[],note:""};
+  formState._kind="artist";renderArtistForm();
+}
+function renderArtistForm(){
+  const edit=!!formState.id;
+  openModal(edit?"編輯心儀繪師":"新增心儀繪師",`
+  <section class="form-section"><div class="form-title">基本資料</div><div class="form-grid two">
+    <div class="field"><label>繪師名稱 *</label><input id="fName" value="${esc(formState.name)}"></div>
+    <div class="field"><label>使用平台</label><input id="fPlatform" value="${esc(formState.platform||"")}" placeholder="X / Plurk / VGen..."></div>
+  </div><div class="form-grid" style="margin-top:12px"><div class="field"><label>網站／平台網址</label><input id="fWebsite" value="${esc(formState.website||"")}" placeholder="https://..."></div><div class="field"><label>備註</label><textarea id="fNote">${esc(formState.note||"")}</textarea></div></div></section>
+  <section class="form-section"><div class="form-title">委託狀態</div><div class="segments">${COMMISSION_STATUS.map(s=>`<button type="button" class="segment ${formState.status===s?"active":""}" onclick="setSingle('status','${s}')">${s}</button>`).join("")}</div></section>
+  <section class="form-section"><div class="form-title">付款方式（可複選）</div>${multiButtons("paymentMethods",PAYMENT_METHODS,formState.paymentMethods)}</section>
+  <section class="form-section"><div class="form-title">幣別（可複選）</div>${multiButtons("currencies",CURRENCIES,formState.currencies)}</section>
+  <section class="form-section"><div class="form-title">作品類型（可複選）</div>${multiButtons("workTypes",WORK_TYPES,formState.workTypes)}</section>`,
+  edit?"儲存變更":"新增繪師","saveArtistForm()");
+}
+function applyOther(arr,key){if(!arr.includes("其他"))return arr;const v=(formState[key+"Other"]||"").trim();return arr.filter(x=>x!=="其他").concat(v?[v]:["其他"])}
+function saveArtistForm(){
+  syncCurrentForm();formState.name=(formState.name||"").trim();if(!formState.name){toast("請輸入繪師名稱");return}
+  const obj={...formState,id:formState.id||uid("a"),paymentMethods:applyOther(formState.paymentMethods,"paymentMethods"),currencies:applyOther(formState.currencies,"currencies"),workTypes:applyOther(formState.workTypes,"workTypes")};
+  delete obj._kind;["paymentMethodsOther","currenciesOther","workTypesOther"].forEach(k=>delete obj[k]);
+  const i=artists.findIndex(x=>x.id===obj.id);i>=0?artists[i]=obj:artists.unshift(obj);save();closeModal();renderAll();toast(i>=0?"繪師資料已更新":"已加入心儀繪師");
+}
+
+function openRecordForm(id=""){
+  const old=id?records.find(x=>x.id===id):null;
+  formState=old?JSON.parse(JSON.stringify(old)):{id:"",title:"",artist:"",status:"進行中",date:"",completedAt:"",workType:"",currency:"",paymentMethod:"",note:"",createdAt:new Date().toISOString()};
+  formState._kind="record";renderRecordForm();
+}
+function optionSelect(id,label,options,val){
+  return `<div class="field"><label>${label}</label><select id="${id}"><option value="">未填</option>${options.map(o=>`<option ${val===o?"selected":""}>${o}</option>`).join("")}</select></div>`
+}
+function renderRecordForm(){
+  const edit=!!formState.id;
+  openModal(edit?"編輯委託紀錄":"新增委託紀錄",`
+  <section class="form-section"><div class="form-title">基本資料</div><div class="form-grid two">
+    <div class="field"><label>委託名稱 *</label><input id="fTitle" value="${esc(formState.title||"")}"></div>
+    <div class="field"><label>繪師 *</label><input id="fArtist" value="${esc(formState.artist||"")}"></div>
+    <div class="field"><label>委託日期</label><input id="fDate" type="date" value="${esc(formState.date||"")}"></div>
+    <div class="field"><label>完成日期</label><input id="fCompletedAt" type="date" value="${esc(formState.completedAt||"")}"></div>
+  </div><div class="field" style="margin-top:12px"><label>備註</label><textarea id="fNote">${esc(formState.note||"")}</textarea></div></section>
+  <section class="form-section"><div class="form-title">狀態</div><div class="segments">${RECORD_STATUS.map(s=>`<button type="button" class="segment ${formState.status===s?"active":""}" onclick="setSingle('status','${s}')">${s}</button>`).join("")}</div></section>
+  <section class="form-section"><div class="form-title">分類</div><div class="form-grid two">${optionSelect("fWorkType","作品類型",WORK_TYPES,formState.workType)}${optionSelect("fCurrency","幣別",CURRENCIES,formState.currency)}${optionSelect("fPaymentMethod","付款方式",PAYMENT_METHODS,formState.paymentMethod)}</div></section>`,
+  edit?"儲存變更":"新增紀錄","saveRecordForm()");
+}
+function saveRecordForm(){
+  syncCurrentForm();formState.title=(formState.title||"").trim();formState.artist=(formState.artist||"").trim();if(!formState.title||!formState.artist){toast("委託名稱與繪師為必填");return}
+  if(formState.status==="已完成"&&!formState.completedAt)formState.completedAt=new Date().toISOString().slice(0,10);
+  const obj={...formState,id:formState.id||uid("r")};delete obj._kind;
+  const i=records.findIndex(x=>x.id===obj.id);i>=0?records[i]=obj:records.unshift(obj);save();closeModal();renderAll();toast(i>=0?"委託紀錄已更新":"已新增委託紀錄");
+}
+
+function openChaseForm(id=""){
+  const old=id?chases.find(x=>x.id===id):null;
+  formState=old?JSON.parse(JSON.stringify(old)):{id:"",artist:"",platform:"",url:"",openAt:"",budget:"",currency:"",paymentMethod:"",workType:"",idea:"",note:""};
+  formState._kind="chase";renderChaseForm();
+}
+function renderChaseForm(){
+  const edit=!!formState.id;
+  openModal(edit?"編輯要搶繪師":"新增要搶繪師",`
+  <section class="form-section"><div class="form-title">開委資訊</div><div class="form-grid two">
+    <div class="field"><label>繪師 *</label><input id="fArtist" value="${esc(formState.artist||"")}"></div>
+    <div class="field"><label>平台</label><input id="fPlatform" value="${esc(formState.platform||"")}"></div>
+    <div class="field"><label>開委時間</label><input id="fOpenAt" type="datetime-local" value="${esc(formState.openAt||"")}"></div>
+    <div class="field"><label>預算</label><input id="fBudget" value="${esc(formState.budget||"")}" placeholder="例如：3000"></div>
+  </div><div class="form-grid" style="margin-top:12px"><div class="field"><label>開委網址</label><input id="fUrl" value="${esc(formState.url||"")}" placeholder="https://..."></div><div class="field"><label>想委內容</label><textarea id="fIdea">${esc(formState.idea||"")}</textarea></div><div class="field"><label>備註</label><textarea id="fNote">${esc(formState.note||"")}</textarea></div></div></section>
+  <section class="form-section"><div class="form-title">準備資料</div><div class="form-grid two">${optionSelect("fCurrency","幣別",CURRENCIES,formState.currency)}${optionSelect("fPaymentMethod","付款方式",PAYMENT_METHODS,formState.paymentMethod)}${optionSelect("fWorkType","作品類型",WORK_TYPES,formState.workType)}</div></section>`,
+  edit?"儲存變更":"新增開委","saveChaseForm()");
+}
+function saveChaseForm(){
+  syncCurrentForm();formState.artist=(formState.artist||"").trim();if(!formState.artist){toast("請輸入繪師名稱");return}
+  const obj={...formState,id:formState.id||uid("c")};delete obj._kind;
+  const i=chases.findIndex(x=>x.id===obj.id);i>=0?chases[i]=obj:chases.unshift(obj);save();closeModal();renderAll();toast(i>=0?"開委資訊已更新":"已加入要搶繪師");
+}
+
+function editEntry(kind,id){closeDrawer();if(kind==="artist")openArtistForm(id);if(kind==="record")openRecordForm(id);if(kind==="chase")openChaseForm(id)}
+function deleteEntry(kind,id){
+  const map={artist:["心儀繪師",artists],record:["委託紀錄",records],chase:["開委資訊",chases]};
+  if(!confirm(`確定要刪除這筆${map[kind][0]}嗎？\n\n刪除後無法復原。`))return;
+  if(kind==="artist")artists=artists.filter(x=>x.id!==id);
+  if(kind==="record")records=records.filter(x=>x.id!==id);
+  if(kind==="chase")chases=chases.filter(x=>x.id!==id);
+  save();closeDrawer();renderAll();toast("已刪除");
+}
+
+function downloadStatsCard(){
+  const done=completedRecords(),now=new Date(),ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  const month=done.filter(r=>{
+    const d=new Date(r.completedAt||r.date||r.createdAt);if(Number.isNaN(d))return false;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`===ym;
+  }).length;
+  const canvas=document.createElement("canvas");canvas.width=820;canvas.height=450;const c=canvas.getContext("2d");
+  c.fillStyle="#D9E8EB";c.fillRect(0,0,820,450);c.fillStyle="#EDF5F6";roundRect(c,24,24,772,402,28);c.fill();
+  c.fillStyle="#1F2C30";c.font='700 38px "Noto Serif TC", serif';c.fillText("錢沒有花掉，只是變成快樂的樣子",58,92);
+  c.fillStyle="#60747A";c.font='600 17px "Noto Sans TC", sans-serif';c.fillText("本月完成",58,160);c.fillText("累積完成",420,160);
+  c.fillStyle="#1F2C30";c.font='700 76px "Noto Serif TC", serif';c.fillText(String(month),58,250);c.fillText(String(done.length),420,250);
+  c.fillStyle="#60747A";c.font='600 18px "Noto Sans TC", sans-serif';c.fillText("次",130,250);c.fillText("次",492,250);
+  c.strokeStyle="rgba(43,76,84,.14)";c.beginPath();c.moveTo(58,330);c.lineTo(762,330);c.stroke();
+  c.fillStyle="#7D9196";c.font='600 16px "Noto Serif TC", serif';c.fillText("慢 慢 | stillness by slowly",58,382);
+  canvas.toBlob(blob=>{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=`委託次數_${ym}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)},"image/png");
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+
+function wireSearch(inputId,clearId,setter,renderFn){
+  const i=document.getElementById(inputId),c=document.getElementById(clearId);
+  i.addEventListener("input",e=>{setter(e.target.value);c.classList.toggle("show",!!e.target.value);renderFn()});
+  c.addEventListener("click",()=>{i.value="";setter("");c.classList.remove("show");renderFn()});
+}
+wireSearch("artistSearch","artistClear",v=>artistQuery=v,renderArtists);
+wireSearch("recordSearch","recordClear",v=>recordQuery=v,renderRecords);
+wireSearch("chaseSearch","chaseClear",v=>chaseQuery=v,renderChases);
+
+function renderAll(){renderArtists();renderRecords();renderChases();renderStats();document.getElementById("managePill").classList.toggle("show",manageMode)}
+artists=load(KEYS.artists);records=load(KEYS.records);chases=load(KEYS.chase);renderAll();
+</script>
+</body>
+</html>
