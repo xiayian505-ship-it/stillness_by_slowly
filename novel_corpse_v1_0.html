@@ -83,6 +83,10 @@
 <div id="toast" class="toast"></div>
 <script>
 const STORAGE_KEY="novel_corpse_20260824";
+const STORAGE_BACKUP_KEY="novel_corpse_20260824_backup";
+const STORAGE_DB_NAME="novel_corpse_20260824_db";
+const STORAGE_DB_STORE="snapshots";
+const STORAGE_DB_RECORD="latest";
 const DATA_VERSION="1.0";
 const PAGE_SIZE=12;
 const FILTER_GROUPS=[
@@ -98,8 +102,109 @@ function escapeAttr(v){return escapeHTML(v).replace(/`/g,"&#096;")}
 function safeUrl(v){v=String(v||"").trim();return /^https?:\/\//i.test(v)?v:"#"}
 function asArray(v){return Array.isArray(v)?v.map(x=>String(x??"")).filter(Boolean):[]}
 function normalizeWork(raw={}){return{id:raw.id||randomId(),title:String(raw.title||"").trim(),workingTitle:String(raw.workingTitle||"").trim(),wordCount:String(raw.wordCount||"").trim(),description:String(raw.description||""),publicStatus:["有公開","沒有公開"].includes(raw.publicStatus)?raw.publicStatus:"",lifeStatuses:asArray(raw.lifeStatuses),corpseStatuses:asArray(raw.corpseStatuses),setupStatuses:asArray(raw.setupStatuses),authorStatuses:asArray(raw.authorStatuses),customLife:asArray(raw.customLife),customCorpse:asArray(raw.customCorpse),customSetup:asArray(raw.customSetup),customAuthor:asArray(raw.customAuthor),scene:String(raw.scene||""),locations:Array.isArray(raw.locations)?raw.locations.map(x=>String(x||"")).filter(x=>x.trim()):[],platforms:Array.isArray(raw.platforms)?raw.platforms.map(p=>({name:String(p?.name||""),url:String(p?.url||""),lastUpdate:String(p?.lastUpdate||""),note:String(p?.note||"")})).filter(p=>p.name.trim()||p.url.trim()||p.lastUpdate.trim()||p.note.trim()):[],startedAt:String(raw.startedAt||""),lastTouchedAt:String(raw.lastTouchedAt||""),revivedAt:String(raw.revivedAt||""),completedAt:String(raw.completedAt||""),causeOfDeath:String(raw.causeOfDeath||""),note:String(raw.note||""),createdAt:raw.createdAt||new Date().toISOString(),updatedAt:raw.updatedAt||new Date().toISOString()}}
-function loadWorks(){try{const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");works=Array.isArray(p)?p.map(normalizeWork):Array.isArray(p?.works)?p.works.map(normalizeWork):[]}catch{works=[]}}
-function persistWorks(){localStorage.setItem(STORAGE_KEY,JSON.stringify(works))}
+function parseStoredSnapshot(value,source="unknown"){
+  if(!value)return null;
+  try{
+    const parsed=typeof value==="string"?JSON.parse(value):value;
+    if(Array.isArray(parsed)){
+      return{source,updatedAt:"",works:parsed.map(normalizeWork)};
+    }
+    if(parsed&&Array.isArray(parsed.works)){
+      return{source,updatedAt:String(parsed.updatedAt||parsed.savedAt||parsed.exportedAt||""),works:parsed.works.map(normalizeWork)};
+    }
+  }catch(error){console.warn(`讀取 ${source} 儲存資料失敗`,error)}
+  return null;
+}
+function snapshotTime(snapshot){
+  if(!snapshot?.updatedAt)return 0;
+  const t=Date.parse(snapshot.updatedAt);
+  return Number.isFinite(t)?t:0;
+}
+function openStorageDb(){
+  return new Promise((resolve,reject)=>{
+    if(!("indexedDB" in window)){resolve(null);return}
+    const request=indexedDB.open(STORAGE_DB_NAME,1);
+    request.onupgradeneeded=()=>{
+      const db=request.result;
+      if(!db.objectStoreNames.contains(STORAGE_DB_STORE))db.createObjectStore(STORAGE_DB_STORE);
+    };
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+async function readIndexedSnapshot(){
+  try{
+    const db=await openStorageDb();
+    if(!db)return null;
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORAGE_DB_STORE,"readonly");
+      const req=tx.objectStore(STORAGE_DB_STORE).get(STORAGE_DB_RECORD);
+      req.onsuccess=()=>resolve(parseStoredSnapshot(req.result,"IndexedDB"));
+      req.onerror=()=>reject(req.error);
+      tx.oncomplete=()=>db.close();
+    });
+  }catch(error){console.warn("IndexedDB 備援讀取失敗",error);return null}
+}
+async function writeIndexedSnapshot(snapshot){
+  try{
+    const db=await openStorageDb();
+    if(!db)return false;
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORAGE_DB_STORE,"readwrite");
+      tx.objectStore(STORAGE_DB_STORE).put(snapshot,STORAGE_DB_RECORD);
+      tx.oncomplete=()=>{db.close();resolve(true)};
+      tx.onerror=()=>{db.close();reject(tx.error)};
+      tx.onabort=()=>{db.close();reject(tx.error)};
+    });
+  }catch(error){console.warn("IndexedDB 備援寫入失敗",error);return false}
+}
+function buildStorageSnapshot(){
+  return{version:DATA_VERSION,updatedAt:new Date().toISOString(),works:works.map(normalizeWork)};
+}
+function writeLocalSnapshot(snapshot){
+  const text=JSON.stringify(snapshot);
+  let ok=false;
+  try{
+    localStorage.setItem(STORAGE_KEY,text);
+    localStorage.setItem(STORAGE_BACKUP_KEY,text);
+    ok=localStorage.getItem(STORAGE_KEY)===text;
+  }catch(error){console.warn("localStorage 寫入失敗",error)}
+  return ok;
+}
+async function loadWorks(){
+  const candidates=[];
+  try{
+    const primary=parseStoredSnapshot(localStorage.getItem(STORAGE_KEY),"localStorage 主資料");
+    const backup=parseStoredSnapshot(localStorage.getItem(STORAGE_BACKUP_KEY),"localStorage 備份");
+    if(primary)candidates.push(primary);
+    if(backup)candidates.push(backup);
+  }catch(error){console.warn("localStorage 讀取失敗",error)}
+
+  const indexed=await readIndexedSnapshot();
+  if(indexed)candidates.push(indexed);
+
+  if(!candidates.length){works=[];return}
+
+  candidates.sort((a,b)=>{
+    const timeDiff=snapshotTime(b)-snapshotTime(a);
+    if(timeDiff!==0)return timeDiff;
+    return b.works.length-a.works.length;
+  });
+
+  works=candidates[0].works.map(normalizeWork);
+
+  // 啟動後立刻把最新資料回寫到兩套儲存，修補單一來源遺失。
+  const repaired=buildStorageSnapshot();
+  writeLocalSnapshot(repaired);
+  void writeIndexedSnapshot(repaired);
+}
+function persistWorks(){
+  const snapshot=buildStorageSnapshot();
+  const localOk=writeLocalSnapshot(snapshot);
+  void writeIndexedSnapshot(snapshot);
+  if(!localOk)console.warn("localStorage 驗證失敗，已啟用 IndexedDB 備援");
+  return localOk;
+}
 function findWork(id){return works.find(w=>String(w.id)===String(id))||null}
 function displayTitle(w){return w.title||w.workingTitle||"未命名屍體"}
 function showToast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove("show"),1900)}
@@ -162,7 +267,14 @@ function importJsonFile(file){if(!file)return;const r=new FileReader();r.onload=
 function clearAllData(){if(!works.length){showToast("目前沒有資料可以清除");return}if(!confirm("確定要清除全部小說紀錄嗎？"))return;if(!confirm("最後確認：這不是棄坑，是把整間停屍間清空。"))return;works=[];persistWorks();currentPage=1;renderAll();showToast("全部資料已清除")}
 function formatDate(v){if(!v)return"";const d=new Date(v+"T00:00:00");if(Number.isNaN(d.getTime()))return v;return new Intl.DateTimeFormat("zh-Hant",{year:"numeric",month:"2-digit",day:"2-digit"}).format(d)}
 function renderAll(){renderFilters();renderBookList();renderReport();renderStats()}
-searchInput.addEventListener("input",e=>{searchText=e.target.value;currentPage=1;searchClear.classList.toggle("show",!!searchText);renderBookList()});searchClear.addEventListener("click",()=>{searchText="";currentPage=1;searchInput.value="";searchClear.classList.remove("show");renderBookList()});jsonFileInput.addEventListener("change",e=>importJsonFile(e.target.files?.[0]));loadWorks();renderAll();
+searchInput.addEventListener("input",e=>{searchText=e.target.value;currentPage=1;searchClear.classList.toggle("show",!!searchText);renderBookList()});searchClear.addEventListener("click",()=>{searchText="";currentPage=1;searchInput.value="";searchClear.classList.remove("show");renderBookList()});jsonFileInput.addEventListener("change",e=>importJsonFile(e.target.files?.[0]));
+window.addEventListener("pagehide",()=>{if(works.length)persistWorks()});
+async function init(){
+  try{await navigator.storage?.persist?.()}catch(error){console.warn("無法要求持久儲存",error)}
+  await loadWorks();
+  renderAll();
+}
+init();
 </script>
 </body>
 </html>
