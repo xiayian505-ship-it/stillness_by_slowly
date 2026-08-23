@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#dce9eb">
+<title>個人委圖記錄</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#dce9eb;
+  --surface-solid:#edf5f6;
+  --text:#1f2c30;
+  --muted:#60747A;
+  --muted-2:#7d9196;
+  --line:rgba(43,76,84,.14);
+  --line-strong:rgba(43,76,84,.22);
+  --accent:#4f8994;
+  --accent-soft:rgba(79,137,148,.12);
+  --danger:#ff3b30;
+  --warning:#ff9f0a;
+  --success:#5d9584;
+  --shadow:0 10px 35px rgba(0,0,0,.08);
+  --content:1180px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 10% -10%,rgba(79,137,148,.11),transparent 28rem),
+    linear-gradient(180deg,#e8f2f3 0%,var(--bg) 36%,#d6e5e8 100%);
+  font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif
+}
+button,input,textarea,select{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+a{color:inherit}
+.app-shell{min-height:100vh;display:flex;flex-direction:column}
+
+.topbar{
+  position:sticky;top:0;z-index:30;
+  background:rgba(220,233,235,.85);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid var(--line)
+}
+.topbar-inner{
+  width:min(var(--content),calc(100% - 32px));
+  margin:auto;min-height:64px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px
+}
+.brand{border:0;background:transparent;color:inherit;padding:0;cursor:pointer;text-align:left}
+.brand-title{font:700 17px "Noto Serif TC",serif}
+.brand-kicker{color:var(--muted);font-size:11px;margin-top:2px}
+.admin-pill{
+  display:none;align-items:center;gap:8px;border-radius:999px;
+  padding:7px 10px 7px 12px;background:var(--surface-solid);
+  border:1px solid var(--line);font-size:12px;color:var(--muted)
+}
+.admin-pill.show{display:inline-flex}
+.admin-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--success)}
+.admin-pill button{border:0;background:transparent;color:var(--accent);cursor:pointer}
+
+main{
+  flex:1;width:min(var(--content),calc(100% - 32px));
+  margin:auto;padding:46px 0 72px
+}
+.hero{padding:20px 0 30px}
+.hero-eyebrow{font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:10px}
+.hero h1{margin:0;font:700 clamp(36px,6vw,68px)/1.05 "Noto Serif TC",serif;letter-spacing:-.04em}
+.hero p{margin:14px 0 0;max-width:720px;color:var(--muted);font-size:15px;line-height:1.8}
+
+.search-panel{
+  margin-top:26px;padding:14px;border-radius:28px;
+  background:rgba(234,243,245,.81);
+  border:1px solid rgba(255,255,255,.58);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(24px) saturate(170%)
+}
+.search-box{position:relative}
+.search-box input{
+  width:100%;height:52px;padding:0 46px;
+  border:0;border-radius:18px;outline:none;
+  background:rgba(72,101,108,.09);color:var(--text);font-size:15px
+}
+.search-icon{position:absolute;left:17px;top:50%;transform:translateY(-50%);color:var(--muted-2);pointer-events:none}
+.search-clear{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;border-radius:50%;border:0;
+  background:rgba(79,137,148,.28);color:#fff;display:none;place-items:center;cursor:pointer
+}
+.search-clear.show{display:grid}
+
+.filter-area{margin-top:18px;display:grid;gap:12px}
+.filter-options,.filter-strip,.active-filters,.chip-wrap,.segmented{display:flex;flex-wrap:wrap;gap:8px}
+.filter-trigger,.check-chip,.segment{
+  border:1px solid var(--line);background:var(--surface-solid);color:var(--muted);
+  border-radius:999px;padding:8px 12px;cursor:pointer;font-size:12.5px;font-weight:600
+}
+.filter-trigger{color:var(--text);padding:9px 13px}
+.filter-trigger.active,.check-chip.active,.segment.active{
+  background:var(--accent);color:#fff;border-color:var(--accent)
+}
+.filter-drawer{display:none;padding:14px;border-radius:18px;background:rgba(72,101,108,.07)}
+.filter-drawer.show{display:block}
+.active-filters{display:none;align-items:center}
+.active-filters.show{display:flex}
+.active-title{color:var(--muted);font-size:12px}
+.active-chip{
+  border:0;border-radius:999px;padding:7px 10px;
+  background:var(--accent-soft);color:var(--accent);cursor:pointer;font-size:12px
+}
+.clear-all{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:12px}
+
+.index-toolbar{
+  margin-top:38px;padding:0 2px 12px;border-bottom:1px solid var(--line-strong);
+  display:flex;align-items:end;justify-content:space-between;gap:16px
+}
+.index-title h2{margin:0;font:700 22px "Noto Serif TC",serif}
+.index-title p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.primary-btn{
+  border:0;background:var(--accent);color:#fff;border-radius:999px;
+  padding:10px 14px;font-weight:700;font-size:12.5px;cursor:pointer;
+  box-shadow:0 5px 18px rgba(79,137,148,.24)
+}
+
+.commission-row{
+  display:grid;grid-template-columns:70px minmax(0,1fr) 155px;
+  gap:18px;padding:24px 2px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:.18s ease
+}
+.commission-row:hover{background:rgba(247,247,249,.42)}
+.commission-index{color:var(--muted-2);font-size:12px;letter-spacing:.08em;padding-top:5px}
+.commission-title{margin:0;font:700 clamp(20px,2.4vw,29px)/1.35 "Noto Serif TC",serif}
+.commission-subtitle{margin:7px 0 0;color:var(--accent);font-size:13px}
+.commission-note{margin:13px 0 0;color:#3a3a3c;font-size:14px;line-height:1.8}
+.commission-meta{margin-top:15px;display:flex;flex-wrap:wrap;gap:8px 10px}
+.system-tag,.custom-tag{
+  background:rgba(72,101,108,.08);color:var(--muted);
+  border-radius:999px;padding:5px 8px;font-size:11.5px
+}
+.commission-side{
+  display:flex;flex-direction:column;align-items:flex-end;
+  justify-content:space-between;gap:12px
+}
+.status-badge{
+  display:inline-flex;align-items:center;gap:6px;border-radius:999px;
+  padding:6px 9px;font-size:11.5px;font-weight:700;white-space:nowrap
+}
+.status-badge:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.status-詢價中{background:rgba(72,101,108,.10);color:var(--muted)}
+.status-已排單{background:rgba(79,137,148,.12);color:var(--accent)}
+.status-草稿中{background:rgba(255,159,10,.13);color:#b26a00}
+.status-修改中{background:rgba(255,159,10,.13);color:#9b6500}
+.status-完稿待付款{background:rgba(79,137,148,.12);color:#467d86}
+.status-已完成{background:rgba(93,149,132,.13);color:#527d72}
+.status-已取消{background:rgba(255,59,48,.10);color:var(--danger)}
+.row-arrow{color:var(--muted-2);font-size:22px}
+
+.empty-state{padding:72px 20px;text-align:center;color:var(--muted)}
+.empty-state strong{display:block;color:var(--text);font:700 20px "Noto Serif TC",serif;margin-bottom:8px}
+
+#pagination{margin-top:22px;display:flex;align-items:center;justify-content:center;gap:8px}
+#pagination button{
+  border:1px solid var(--line);background:var(--surface-solid);color:var(--text);
+  border-radius:999px;padding:9px 13px;cursor:pointer;font-size:12.5px;font-weight:600
+}
+#pagination button:disabled{opacity:.4;cursor:default}
+#pagination span{color:var(--muted);font-size:12.5px;font-weight:600}
+
+footer{
+  border-top:1px solid var(--line);
+  padding:26px 0 calc(30px + env(safe-area-inset-bottom));
+  color:var(--muted);font-size:12px
+}
+.footer-inner,.footer-signature{width:min(var(--content),calc(100% - 32px));margin:auto}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-manage{border:0;background:transparent;color:var(--muted);cursor:pointer}
+.footer-signature{
+  margin-top:22px;padding-top:20px;border-top:1px solid var(--line);
+  text-align:center;color:var(--muted-2);font:12px "Noto Serif TC",serif;letter-spacing:.08em
+}
+
+.overlay{
+  position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.24);
+  opacity:0;pointer-events:none;transition:.2s
+}
+.overlay.show{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;z-index:80;top:0;right:0;width:min(560px,92vw);height:100dvh;
+  transform:translateX(102%);transition:.28s;background:rgba(234,243,245,.97);
+  box-shadow:-18px 0 50px rgba(0,0,0,.13);display:flex;flex-direction:column
+}
+.drawer.show{transform:translateX(0)}
+.drawer-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--line)
+}
+.drawer-header-title,.detail-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em}
+.icon-btn{width:36px;height:36px;border:0;border-radius:50%;background:rgba(72,101,108,.10);cursor:pointer}
+.drawer-body{padding:24px;overflow:auto}
+.detail-title{margin:0;font:700 clamp(28px,5vw,40px)/1.22 "Noto Serif TC",serif}
+.detail-subtitle{margin:8px 0 0;color:var(--muted);font-size:14px}
+.detail-section{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+.detail-copy{margin:0;color:#3a3a3c;font-size:14px;line-height:1.95;white-space:pre-wrap}
+.detail-line{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.detail-key{color:var(--muted)}
+.detail-value{text-align:right}
+.site-link{
+  display:flex;justify-content:space-between;gap:12px;text-decoration:none;
+  border-radius:14px;padding:13px 14px;background:var(--surface-solid);
+  border:1px solid var(--line);font-size:13px;margin-top:9px
+}
+.admin-actions{display:flex;flex-wrap:wrap;gap:10px}
+.action-btn{
+  flex:1 1 160px;border:0;border-radius:14px;padding:12px 14px;
+  cursor:pointer;font-weight:700;font-size:12.5px;background:rgba(72,101,108,.09)
+}
+.action-btn.danger{background:rgba(255,59,48,.10);color:var(--danger)}
+
+.modal-wrap{
+  position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+  padding:18px;background:rgba(0,0,0,.28);backdrop-filter:blur(8px)
+}
+.modal-wrap.show{display:flex}
+.modal-card{
+  width:min(720px,100%);max-height:92dvh;overflow:auto;
+  background:rgba(255,255,255,.98);border-radius:26px;
+  box-shadow:0 24px 80px rgba(0,0,0,.18)
+}
+.modal-head{
+  position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;
+  padding:18px 20px 14px;background:rgba(255,255,255,.92);border-bottom:1px solid var(--line)
+}
+.modal-head h3{margin:0;font:700 20px "Noto Serif TC",serif}
+.modal-body{padding:20px}
+.form-section{padding:18px 0;border-bottom:1px solid var(--line)}
+.form-section:first-child{padding-top:0}
+.form-section:last-child{border-bottom:0}
+.form-section-title{margin:0 0 13px;font-size:12px;color:var(--muted);font-weight:700}
+.form-grid{display:grid;gap:12px}
+.form-grid.two{grid-template-columns:1fr 1fr}
+.field label{display:block;margin-bottom:6px;color:var(--muted);font-size:11.5px;font-weight:700}
+.field input,.field textarea,.field select{
+  width:100%;border:1px solid var(--line);border-radius:13px;
+  padding:11px 12px;outline:none;background:rgba(72,101,108,.06);font-size:13px;color:var(--text)
+}
+.field textarea{min-height:110px;resize:vertical;line-height:1.7}
+.form-footer{
+  position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;
+  padding:14px 20px;background:rgba(255,255,255,.92);border-top:1px solid var(--line)
+}
+.ghost-btn,.save-btn{border-radius:13px;padding:10px 14px;cursor:pointer;font-size:12.5px;font-weight:700}
+.ghost-btn{border:1px solid var(--line);background:var(--surface-solid)}
+.save-btn{border:0;background:var(--accent);color:#fff}
+.save-btn:disabled{opacity:.45}
+.inline-note{margin-top:8px;color:var(--muted);font-size:10.5px;line-height:1.6}
+
+.toast{
+  position:fixed;z-index:120;left:50%;bottom:24px;transform:translate(-50%,20px);
+  opacity:0;pointer-events:none;background:rgba(29,29,31,.92);color:#fff;
+  border-radius:999px;padding:10px 14px;font-size:12px;transition:.2s
+}
+.toast.show{transform:translate(-50%,0);opacity:1}
+
+@media(max-width:760px){
+  main{width:min(100% - 24px,var(--content));padding-top:28px}
+  .topbar-inner,.footer-inner,.footer-signature{width:min(100% - 24px,var(--content))}
+  .commission-row{grid-template-columns:42px minmax(0,1fr);gap:12px;padding:20px 2px}
+  .commission-side{grid-column:2;flex-direction:row;align-items:center;justify-content:space-between}
+  .drawer{
+    top:auto;bottom:0;width:100%;height:min(92dvh,850px);
+    border-radius:26px 26px 0 0;transform:translateY(102%)
+  }
+  .drawer.show{transform:translateY(0)}
+  .form-grid.two{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .brand-kicker{display:none}
+  .hero h1{font-size:42px}
+  .filter-strip{flex-wrap:nowrap;overflow-x:auto}
+  .filter-trigger{flex:0 0 auto}
+  .modal-wrap{padding:8px;align-items:flex-end}
+  .modal-card{width:100%;max-height:94dvh;border-radius:24px 24px 0 0}
+}
+</style>
+</head>
+
+<body>
+<div class="app-shell">
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="brand" type="button" onclick="goHome()">
+      <div class="brand-title">個人委圖記錄</div>
+      <div class="brand-kicker">Commission Archive</div>
+    </button>
+
+    <div id="adminPill" class="admin-pill">
+      <span class="dot"></span>
+      <span>管理中</span>
+      <button type="button" onclick="toggleAdmin()">結束管理</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="hero-eyebrow">Keep every commission in one place</div>
+  <h1>委圖記錄</h1>
+  <p>記錄每一次委託、付款、排單與交稿進度，也順便記住哪些繪師值得再找一次。</p>
+
+  <div class="search-panel">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input id="searchInput" type="search" placeholder="搜尋委託名稱、繪師、角色或備註" autocomplete="off">
+      <button id="searchClear" class="search-clear" type="button">×</button>
+    </div>
+
+    <div class="filter-area">
+      <div id="statusOptions" class="filter-options"></div>
+      <div id="filterTriggers" class="filter-strip"></div>
+      <div id="filterDrawers"></div>
+      <div id="activeFilters" class="active-filters"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="index-toolbar">
+    <div class="index-title">
+      <h2>委託索引</h2>
+      <p id="resultCount">0 筆委託</p>
+    </div>
+    <button id="addCommissionBtn" class="primary-btn" type="button" style="display:none">＋ 新增委託</button>
+  </div>
+
+  <div id="commissionList"></div>
+  <div id="pagination"></div>
+</section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>commission_v1_0 · 本機個人委圖記錄</span>
+    <button id="manageBtn" class="footer-manage" type="button">管理</button>
+  </div>
+  <div class="footer-signature">慢 慢 <span class="en">| stillness by slowly</span></div>
+</footer>
+</div>
+
+<div id="detailOverlay" class="overlay" onclick="closeDetail()"></div>
+<aside id="detailDrawer" class="drawer" aria-hidden="true">
+  <div class="drawer-header">
+    <span class="drawer-header-title">委託詳情</span>
+    <button class="icon-btn" type="button" onclick="closeDetail()">×</button>
+  </div>
+  <div id="detailBody" class="drawer-body"></div>
+</aside>
+
+<div id="modalWrap" class="modal-wrap" onclick="handleModalBackdrop(event)">
+  <div id="modalCard" class="modal-card"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORAGE_KEY = "commission_20260823";
+
+const STATUS_OPTIONS = ["詢價中","已排單","草稿中","修改中","完稿待付款","已完成","已取消"];
+const PAYMENT_METHODS = ["銀行轉帳","PayPal","Line Pay","第三方金流","平台幣"];
+const CURRENCIES = ["新台幣","美金","日幣"];
+const COMMISSION_TYPES = ["單人立繪","雙人／CP","多人","頭像","半身","全身","Q版","小說封面","VTuber","其他"];
+const RECOMMISSION_OPTIONS = ["會再委","看情況","不會再委"];
+const PAYMENT_STATES = ["未付款","已付訂金","已付清"];
+
+const FILTER_GROUPS = [
+  {id:"payment",label:"付款方式",key:"paymentMethod",options:PAYMENT_METHODS,single:true},
+  {id:"currency",label:"幣別",key:"currency",options:CURRENCIES,single:true},
+  {id:"type",label:"委託類型",key:"commissionType",options:COMMISSION_TYPES,single:true},
+  {id:"recommission",label:"再委意願",key:"recommission",options:RECOMMISSION_OPTIONS,single:true}
+];
+
+const PAGE_SIZE = 12;
+
+let commissions = [];
+let searchText = "";
+let selectedStatuses = new Set();
+let selectedFilters = {
+  paymentMethod:new Set(),
+  currency:new Set(),
+  commissionType:new Set(),
+  recommission:new Set()
+};
+let openFilterId = "";
+let currentPage = 1;
+let activeDetailId = null;
+let isAdmin = false;
+let formState = null;
+
+function makeId(){
+  return crypto.randomUUID?.() || "c-" + Date.now() + "-" + Math.random().toString(36).slice(2,9);
+}
+
+function esc(v){
+  return String(v ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function safeUrl(v){
+  v = String(v || "").trim();
+  return /^https?:\/\//i.test(v) ? v : "#";
+}
+
+function normalizeCommission(c){
+  return {
+    id:c.id || makeId(),
+    title:String(c.title || "").trim(),
+    artist:String(c.artist || "").trim(),
+    characters:String(c.characters || "").trim(),
+    commissionType:COMMISSION_TYPES.includes(c.commissionType) ? c.commissionType : "其他",
+    status:STATUS_OPTIONS.includes(c.status) ? c.status : "詢價中",
+    amount:Number.isFinite(Number(c.amount)) ? Number(c.amount) : 0,
+    currency:CURRENCIES.includes(c.currency) ? c.currency : "新台幣",
+    paymentMethod:PAYMENT_METHODS.includes(c.paymentMethod) ? c.paymentMethod : "銀行轉帳",
+    paymentState:PAYMENT_STATES.includes(c.paymentState) ? c.paymentState : "未付款",
+    commissionDate:String(c.commissionDate || ""),
+    queueDate:String(c.queueDate || ""),
+    expectedDate:String(c.expectedDate || ""),
+    deliveredDate:String(c.deliveredDate || ""),
+    artistUrl:String(c.artistUrl || "").trim(),
+    commissionUrl:String(c.commissionUrl || "").trim(),
+    resultUrl:String(c.resultUrl || "").trim(),
+    satisfaction:Math.min(5,Math.max(0,Number(c.satisfaction)||0)),
+    recommission:RECOMMISSION_OPTIONS.includes(c.recommission) ? c.recommission : "看情況",
+    note:String(c.note || "").trim(),
+    createdAt:c.createdAt || new Date().toISOString()
+  };
+}
+
+function loadCommissions(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    commissions = Array.isArray(raw) ? raw.map(normalizeCommission) : [];
+  }catch{
+    commissions = [];
+  }
+}
+
+function saveCommissions(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(commissions));
+}
+
+function findCommission(id){
+  return commissions.find(c => String(c.id) === String(id)) || null;
+}
+
+function toast(message){
+  const el = document.getElementById("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+function formatAmount(c){
+  const symbol = c.currency === "新台幣" ? "NT$" : c.currency === "美金" ? "US$" : "¥";
+  const amount = Number(c.amount || 0);
+  return amount ? `${symbol}${amount.toLocaleString()}` : "未記錄金額";
+}
+
+function formatDate(v){
+  if(!v) return "未記錄";
+  const d = new Date(v + "T00:00:00");
+  if(Number.isNaN(d.getTime())) return v;
+  return new Intl.DateTimeFormat("zh-Hant",{year:"numeric",month:"2-digit",day:"2-digit"}).format(d);
+}
+
+function filterCommissions(){
+  const q = searchText.trim().toLowerCase();
+
+  return commissions.filter(c => {
+    const blob = [c.title,c.artist,c.characters,c.note,c.commissionType].join(" ").toLowerCase();
+    const qOk = !q || blob.includes(q);
+    const statusOk = !selectedStatuses.size || selectedStatuses.has(c.status);
+
+    const groupOk = FILTER_GROUPS.every(g => {
+      const set = selectedFilters[g.key];
+      return !set.size || set.has(c[g.key]);
+    });
+
+    return qOk && statusOk && groupOk;
+  });
+}
+
+function renderFilters(){
+  statusOptions.innerHTML = STATUS_OPTIONS.map(s => `
+    <button class="check-chip ${selectedStatuses.has(s) ? "active" : ""}" type="button" onclick="toggleStatus('${s}')">${s}</button>
+  `).join("");
+
+  filterTriggers.innerHTML = FILTER_GROUPS.map(g => `
+    <button class="filter-trigger ${openFilterId === g.id || selectedFilters[g.key].size ? "active" : ""}" type="button" onclick="toggleDrawer('${g.id}')">
+      ${g.label}${selectedFilters[g.key].size ? ` <span class="count">${selectedFilters[g.key].size}</span>` : ""}
+    </button>
+  `).join("");
+
+  filterDrawers.innerHTML = FILTER_GROUPS.map(g => `
+    <div class="filter-drawer ${openFilterId === g.id ? "show" : ""}">
+      <div class="filter-options">
+        ${g.options.map(o => `
+          <button class="check-chip ${selectedFilters[g.key].has(o) ? "active" : ""}" type="button" onclick="toggleFilter('${g.key}','${o}')">${o}</button>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  renderActiveFilters();
+}
+
+function renderActiveFilters(){
+  let chips = [];
+
+  selectedStatuses.forEach(v => {
+    chips.push(`<button class="active-chip" type="button" onclick="toggleStatus('${v}')">${v} ×</button>`);
+  });
+
+  FILTER_GROUPS.forEach(g => {
+    selectedFilters[g.key].forEach(v => {
+      chips.push(`<button class="active-chip" type="button" onclick="toggleFilter('${g.key}','${v}')">${v} ×</button>`);
+    });
+  });
+
+  activeFilters.classList.toggle("show", !!chips.length);
+  activeFilters.innerHTML = chips.length
+    ? `<span class="active-title">目前條件</span>${chips.join("")}<button class="clear-all" type="button" onclick="clearAll()">清除全部</button>`
+    : "";
+}
+
+function toggleStatus(v){
+  selectedStatuses.has(v) ? selectedStatuses.delete(v) : selectedStatuses.add(v);
+  currentPage = 1;
+  renderAll();
+}
+
+function toggleDrawer(id){
+  openFilterId = openFilterId === id ? "" : id;
+  renderFilters();
+}
+
+function toggleFilter(key,v){
+  const set = selectedFilters[key];
+  set.has(v) ? set.delete(v) : set.add(v);
+  currentPage = 1;
+  renderAll();
+}
+
+function clearAll(){
+  selectedStatuses.clear();
+  FILTER_GROUPS.forEach(g => selectedFilters[g.key].clear());
+  searchText = "";
+  openFilterId = "";
+  currentPage = 1;
+  searchInput.value = "";
+  searchClear.classList.remove("show");
+  renderAll();
+}
+
+function renderList(){
+  const filtered = filterCommissions();
+  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  if(currentPage > pages) currentPage = pages;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  resultCount.textContent = `${filtered.length} 筆委託${filtered.length !== commissions.length ? `／共 ${commissions.length} 筆` : ""}`;
+
+  pagination.innerHTML = pages <= 1 ? "" : `
+    <button type="button" onclick="changePage(-1)" ${currentPage===1 ? "disabled" : ""}>上一頁</button>
+    <span>${currentPage} / ${pages}</span>
+    <button type="button" onclick="changePage(1)" ${currentPage===pages ? "disabled" : ""}>下一頁</button>
+  `;
+
+  commissionList.innerHTML = !filtered.length
+    ? `<div class="empty-state"><strong>${commissions.length ? "目前沒有符合條件的委託" : "目前還沒有委託記錄"}</strong>${commissions.length ? "換個條件看看。" : "進入管理模式後，可以新增第一筆委託。"}</div>`
+    : page.map((c,i) => {
+        const tags = [c.commissionType,c.currency,c.paymentMethod,c.paymentState,c.recommission].filter(Boolean);
+        return `
+          <article class="commission-row" onclick="openDetail('${c.id}')">
+            <div class="commission-index">${String(start+i+1).padStart(3,"0")}</div>
+            <div>
+              <h3 class="commission-title">${esc(c.title || c.characters || "未命名委託")}</h3>
+              <div class="commission-subtitle">${esc(c.artist || "未填繪師")} · ${esc(formatAmount(c))}</div>
+              ${c.characters ? `<p class="commission-note">${esc(c.characters)}</p>` : ""}
+              <div class="commission-meta">
+                ${tags.map(t => `<span class="system-tag">${esc(t)}</span>`).join("")}
+              </div>
+            </div>
+            <div class="commission-side">
+              <span class="status-badge status-${esc(c.status)}">${esc(c.status)}</span>
+              <span class="row-arrow">›</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+}
+
+function changePage(direction){
+  const pages = Math.max(1,Math.ceil(filterCommissions().length/PAGE_SIZE));
+  const next = currentPage + direction;
+  if(next < 1 || next > pages) return;
+  currentPage = next;
+  renderAll();
+  document.querySelector(".index-toolbar")?.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function infoLine(key,value){
+  return `<div class="detail-line"><span class="detail-key">${esc(key)}</span><span class="detail-value">${esc(value)}</span></div>`;
+}
+
+function openDetail(id){
+  const c = findCommission(id);
+  if(!c) return;
+
+  activeDetailId = id;
+
+  detailBody.innerHTML = `
+    <h2 class="detail-title">${esc(c.title || c.characters || "未命名委託")}</h2>
+    <div class="detail-subtitle">${esc(c.artist || "未填繪師")}</div>
+
+    <section class="detail-section">
+      <div class="detail-label">委託狀態</div>
+      <span class="status-badge status-${esc(c.status)}">${esc(c.status)}</span>
+    </section>
+
+    <section class="detail-section">
+      <div class="detail-label">基本資料</div>
+      ${infoLine("角色／CP", c.characters || "未記錄")}
+      ${infoLine("委託類型", c.commissionType)}
+      ${infoLine("委託日期", formatDate(c.commissionDate))}
+      ${infoLine("排單日期", formatDate(c.queueDate))}
+      ${infoLine("預計交稿", formatDate(c.expectedDate))}
+      ${infoLine("實際交稿", formatDate(c.deliveredDate))}
+    </section>
+
+    <section class="detail-section">
+      <div class="detail-label">付款</div>
+      ${infoLine("金額", formatAmount(c))}
+      ${infoLine("付款方式", c.paymentMethod)}
+      ${infoLine("付款狀態", c.paymentState)}
+    </section>
+
+    <section class="detail-section">
+      <div class="detail-label">私人評價</div>
+      ${infoLine("滿意度", c.satisfaction ? `${"★".repeat(c.satisfaction)}${"☆".repeat(5-c.satisfaction)}` : "未評分")}
+      ${infoLine("再委意願", c.recommission)}
+    </section>
+
+    ${c.note ? `
+      <section class="detail-section">
+        <div class="detail-label">私人備註</div>
+        <p class="detail-copy">${esc(c.note)}</p>
+      </section>
+    ` : ""}
+
+    ${(c.artistUrl || c.commissionUrl || c.resultUrl) ? `
+      <section class="detail-section">
+        <div class="detail-label">連結</div>
+        ${c.artistUrl ? `<a class="site-link" href="${esc(safeUrl(c.artistUrl))}" target="_blank" rel="noopener noreferrer"><span>繪師網站</span><span>↗</span></a>` : ""}
+        ${c.commissionUrl ? `<a class="site-link" href="${esc(safeUrl(c.commissionUrl))}" target="_blank" rel="noopener noreferrer"><span>委託說明／表單</span><span>↗</span></a>` : ""}
+        ${c.resultUrl ? `<a class="site-link" href="${esc(safeUrl(c.resultUrl))}" target="_blank" rel="noopener noreferrer"><span>成品連結</span><span>↗</span></a>` : ""}
+      </section>
+    ` : ""}
+
+    ${isAdmin ? `
+      <section class="detail-section">
+        <div class="detail-label">管理</div>
+        <div class="admin-actions">
+          <button class="action-btn" type="button" onclick="openCommissionForm('${c.id}')">編輯委託</button>
+          <button class="action-btn danger" type="button" onclick="deleteCommission('${c.id}')">刪除委託</button>
+        </div>
+      </section>
+    ` : ""}
+  `;
+
+  detailDrawer.classList.add("show");
+  detailOverlay.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeDetail(){
+  detailDrawer.classList.remove("show");
+  detailOverlay.classList.remove("show");
+  document.body.style.overflow = "";
+  activeDetailId = null;
+}
+
+function toggleAdmin(){
+  isAdmin = !isAdmin;
+  if(!isAdmin) closeDetail();
+  renderAll();
+  toast(isAdmin ? "已進入本機管理模式" : "已結束管理模式");
+}
+
+function renderAdmin(){
+  adminPill.classList.toggle("show",isAdmin);
+  addCommissionBtn.style.display = isAdmin ? "inline-flex" : "none";
+  manageBtn.textContent = isAdmin ? "管理中" : "管理";
+}
+
+function emptyForm(){
+  return {
+    id:"",
+    title:"",
+    artist:"",
+    characters:"",
+    commissionType:"單人立繪",
+    status:"詢價中",
+    amount:"",
+    currency:"新台幣",
+    paymentMethod:"銀行轉帳",
+    paymentState:"未付款",
+    commissionDate:"",
+    queueDate:"",
+    expectedDate:"",
+    deliveredDate:"",
+    artistUrl:"",
+    commissionUrl:"",
+    resultUrl:"",
+    satisfaction:0,
+    recommission:"看情況",
+    note:"",
+    createdAt:new Date().toISOString()
+  };
+}
+
+function openCommissionForm(id=""){
+  if(!isAdmin) toggleAdmin();
+  closeDetail();
+
+  const found = id ? findCommission(id) : null;
+  formState = found ? JSON.parse(JSON.stringify(found)) : emptyForm();
+
+  renderForm();
+}
+
+function optionButtons(options,value,handler){
+  return options.map(v => `
+    <button class="segment ${value===v ? "active" : ""}" type="button" onclick="${handler}('${v}')">${v}</button>
+  `).join("");
+}
+
+function renderForm(){
+  const editing = !!formState.id;
+
+  modalCard.innerHTML = `
+    <div class="modal-head">
+      <h3>${editing ? "編輯委託" : "新增委託"}</h3>
+      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <section class="form-section">
+        <div class="form-section-title">基本資料</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>委託名稱 *</label>
+            <input id="formTitle" value="${esc(formState.title)}" placeholder="例如：生日賀圖／A×B 雙人圖">
+          </div>
+
+          <div class="form-grid two">
+            <div class="field">
+              <label>繪師名稱 *</label>
+              <input id="formArtist" value="${esc(formState.artist)}" placeholder="繪師名稱">
+            </div>
+            <div class="field">
+              <label>角色／CP</label>
+              <input id="formCharacters" value="${esc(formState.characters)}" placeholder="角色名、CP、OC 等">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>委託類型</label>
+            <select id="formCommissionType">
+              ${COMMISSION_TYPES.map(v => `<option value="${esc(v)}" ${formState.commissionType===v ? "selected" : ""}>${esc(v)}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">進度</div>
+        <div class="segmented">
+          ${optionButtons(STATUS_OPTIONS,formState.status,"setFormStatus")}
+        </div>
+
+        <div class="form-grid two" style="margin-top:12px">
+          <div class="field">
+            <label>委託日期</label>
+            <input id="formCommissionDate" type="date" value="${esc(formState.commissionDate)}">
+          </div>
+          <div class="field">
+            <label>排單日期</label>
+            <input id="formQueueDate" type="date" value="${esc(formState.queueDate)}">
+          </div>
+          <div class="field">
+            <label>預計交稿</label>
+            <input id="formExpectedDate" type="date" value="${esc(formState.expectedDate)}">
+          </div>
+          <div class="field">
+            <label>實際交稿</label>
+            <input id="formDeliveredDate" type="date" value="${esc(formState.deliveredDate)}">
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">付款</div>
+        <div class="form-grid two">
+          <div class="field">
+            <label>金額</label>
+            <input id="formAmount" type="number" min="0" step="1" value="${esc(formState.amount)}" placeholder="0">
+          </div>
+          <div class="field">
+            <label>幣別</label>
+            <select id="formCurrency">
+              ${CURRENCIES.map(v => `<option value="${esc(v)}" ${formState.currency===v ? "selected" : ""}>${esc(v)}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label>付款方式</label>
+            <select id="formPaymentMethod">
+              ${PAYMENT_METHODS.map(v => `<option value="${esc(v)}" ${formState.paymentMethod===v ? "selected" : ""}>${esc(v)}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label>付款狀態</label>
+            <select id="formPaymentState">
+              ${PAYMENT_STATES.map(v => `<option value="${esc(v)}" ${formState.paymentState===v ? "selected" : ""}>${esc(v)}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">連結</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>繪師網站</label>
+            <input id="formArtistUrl" value="${esc(formState.artistUrl)}" placeholder="https://...">
+          </div>
+          <div class="field">
+            <label>委託說明／表單</label>
+            <input id="formCommissionUrl" value="${esc(formState.commissionUrl)}" placeholder="https://...">
+          </div>
+          <div class="field">
+            <label>成品連結</label>
+            <input id="formResultUrl" value="${esc(formState.resultUrl)}" placeholder="https://...">
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">私人評價</div>
+
+        <div class="field">
+          <label>滿意度</label>
+          <select id="formSatisfaction">
+            <option value="0" ${Number(formState.satisfaction)===0 ? "selected" : ""}>未評分</option>
+            <option value="1" ${Number(formState.satisfaction)===1 ? "selected" : ""}>★☆☆☆☆</option>
+            <option value="2" ${Number(formState.satisfaction)===2 ? "selected" : ""}>★★☆☆☆</option>
+            <option value="3" ${Number(formState.satisfaction)===3 ? "selected" : ""}>★★★☆☆</option>
+            <option value="4" ${Number(formState.satisfaction)===4 ? "selected" : ""}>★★★★☆</option>
+            <option value="5" ${Number(formState.satisfaction)===5 ? "selected" : ""}>★★★★★</option>
+          </select>
+        </div>
+
+        <div style="margin-top:14px">
+          <div class="field"><label>再委意願</label></div>
+          <div class="segmented">
+            ${optionButtons(RECOMMISSION_OPTIONS,formState.recommission,"setFormRecommission")}
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label>私人備註</label>
+          <textarea id="formNote" placeholder="回覆速度、修改習慣、價格感受、下次注意事項……">${esc(formState.note)}</textarea>
+        </div>
+      </section>
+    </div>
+
+    <div class="form-footer">
+      <button class="ghost-btn" type="button" onclick="closeModal()">取消</button>
+      <button class="save-btn" type="button" onclick="saveForm()">${editing ? "儲存變更" : "新增委託"}</button>
+    </div>
+  `;
+
+  modalWrap.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function syncFields(){
+  const map = [
+    ["formTitle","title"],
+    ["formArtist","artist"],
+    ["formCharacters","characters"],
+    ["formCommissionType","commissionType"],
+    ["formCommissionDate","commissionDate"],
+    ["formQueueDate","queueDate"],
+    ["formExpectedDate","expectedDate"],
+    ["formDeliveredDate","deliveredDate"],
+    ["formAmount","amount"],
+    ["formCurrency","currency"],
+    ["formPaymentMethod","paymentMethod"],
+    ["formPaymentState","paymentState"],
+    ["formArtistUrl","artistUrl"],
+    ["formCommissionUrl","commissionUrl"],
+    ["formResultUrl","resultUrl"],
+    ["formSatisfaction","satisfaction"],
+    ["formNote","note"]
+  ];
+
+  map.forEach(([id,key]) => {
+    const el = document.getElementById(id);
+    if(el) formState[key] = el.value;
+  });
+}
+
+function setFormStatus(v){
+  syncFields();
+  formState.status = v;
+  renderForm();
+}
+
+function setFormRecommission(v){
+  syncFields();
+  formState.recommission = v;
+  renderForm();
+}
+
+function saveForm(){
+  syncFields();
+
+  formState.title = formState.title.trim();
+  formState.artist = formState.artist.trim();
+  formState.characters = formState.characters.trim();
+  formState.artistUrl = formState.artistUrl.trim();
+  formState.commissionUrl = formState.commissionUrl.trim();
+  formState.resultUrl = formState.resultUrl.trim();
+  formState.note = formState.note.trim();
+
+  if(!formState.title || !formState.artist){
+    toast("委託名稱與繪師名稱為必填");
+    return;
+  }
+
+  const normalized = normalizeCommission(formState);
+  const index = commissions.findIndex(c => String(c.id) === String(normalized.id));
+
+  if(index >= 0){
+    commissions[index] = normalized;
+    toast("委託資料已更新");
+  }else{
+    normalized.id = makeId();
+    commissions.unshift(normalized);
+    currentPage = 1;
+    toast("委託已新增");
+  }
+
+  saveCommissions();
+  closeModal();
+  renderAll();
+}
+
+function deleteCommission(id){
+  const c = findCommission(id);
+  if(!c) return;
+
+  if(!confirm(`確定要刪除「${c.title}」嗎？\n\n刪除後無法復原。`)) return;
+
+  commissions = commissions.filter(x => String(x.id) !== String(id));
+  saveCommissions();
+  closeDetail();
+  renderAll();
+  toast("委託已刪除");
+}
+
+function closeModal(){
+  modalWrap.classList.remove("show");
+  modalCard.innerHTML = "";
+  document.body.style.overflow = activeDetailId ? "hidden" : "";
+}
+
+function handleModalBackdrop(event){
+  if(event.target === modalWrap) closeModal();
+}
+
+function goHome(){
+  closeDetail();
+  selectedStatuses.clear();
+  FILTER_GROUPS.forEach(g => selectedFilters[g.key].clear());
+  searchText = "";
+  openFilterId = "";
+  currentPage = 1;
+  searchInput.value = "";
+  searchClear.classList.remove("show");
+  renderAll();
+  scrollTo({top:0,behavior:"smooth"});
+}
+
+searchInput.addEventListener("input",event => {
+  searchText = event.target.value;
+  currentPage = 1;
+  searchClear.classList.toggle("show", !!searchText);
+  renderList();
+});
+
+searchClear.addEventListener("click",() => {
+  searchText = "";
+  currentPage = 1;
+  searchInput.value = "";
+  searchClear.classList.remove("show");
+  renderList();
+});
+
+manageBtn.addEventListener("click",toggleAdmin);
+addCommissionBtn.addEventListener("click",() => openCommissionForm());
+
+function renderAll(){
+  renderFilters();
+  renderList();
+  renderAdmin();
+}
+
+loadCommissions();
+renderAll();
+</script>
+</body>
+</html>
