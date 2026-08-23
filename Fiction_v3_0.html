@@ -420,6 +420,44 @@
     .book-list {
       display: grid;
     }
+    
+    #pagination {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#pagination button {
+  border: 1px solid var(--line);
+  background: var(--surface-solid);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 9px 13px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: .18s ease;
+}
+
+#pagination button:hover:not(:disabled) {
+  border-color: rgba(79,137,148,.40);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+#pagination button:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+#pagination span {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 0 4px;
+}
 
     .book-row {
       display: grid;
@@ -1404,6 +1442,7 @@
       </div>
 
       <div id="bookList" class="book-list"></div>
+      <div id="pagination"></div>
     </section>
   </main>
 
@@ -1494,7 +1533,9 @@ let escapeFilter = false;
 let openSeriesId = "";
 let activeDetailId = null;
 let isAdmin = false;
-
+/* -------------------- 分頁一次12本 -------------------- */
+const PAGE_SIZE = 12;
+let currentPage = 1;
 let formState = null;
 
 /* -------------------- 工具 -------------------- */
@@ -1723,6 +1764,7 @@ function goHome() {
   selectedAuthor = "";
   escapeFilter = false;
   openSeriesId = "";
+  currentPage = 1;
 
   const searchInput = document.getElementById("searchInput");
   if (searchInput) searchInput.value = "";
@@ -1843,6 +1885,7 @@ function toggleCreationType(type) {
   selectedCreationTypes.has(type)
     ? selectedCreationTypes.delete(type)
     : selectedCreationTypes.add(type);
+    currentPage = 1;
   renderAll();
 }
 
@@ -1850,16 +1893,19 @@ function toggleCategory(category) {
   selectedCategories.has(category)
     ? selectedCategories.delete(category)
     : selectedCategories.add(category);
+    currentPage = 1;
   renderAll();
 }
 
 function toggleEscapeFilter() {
   escapeFilter = !escapeFilter;
+  currentPage = 1;
   renderAll();
 }
 
 function setAuthorFilter(author) {
   selectedAuthor = author;
+  currentPage = 1;
   closeDetail();
   renderAll();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1867,6 +1913,7 @@ function setAuthorFilter(author) {
 
 function clearAuthorFilter() {
   selectedAuthor = "";
+  currentPage = 1;
   renderAll();
 }
 
@@ -1876,6 +1923,7 @@ function clearAllFilters() {
   selectedAuthor = "";
   escapeFilter = false;
   searchText = "";
+  currentPage = 1;
   document.getElementById("searchInput").value = "";
   document.getElementById("searchClear").classList.remove("show");
   renderAll();
@@ -1898,7 +1946,13 @@ function renderBookList() {
   }
 
   const filtered = filterWorks();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
+if (currentPage > totalPages) currentPage = totalPages;
+
+const startIndex = (currentPage - 1) * PAGE_SIZE;
+const pagedWorks = filtered.slice(startIndex, startIndex + PAGE_SIZE);
+renderPagination(totalPages);
   document.getElementById("resultCount").textContent =
     `${filtered.length} 部作品${works.length !== filtered.length ? `／共 ${works.length} 部` : ""}`;
 
@@ -1912,11 +1966,11 @@ function renderBookList() {
     return;
   }
 
-  list.innerHTML = filtered.map((work, index) => {
+  list.innerHTML = pagedWorks.map((work, index) => {
     const systemTags = getAllSystemTags(work);
     return `
       <article class="book-row" onclick="openDetail('${work.id}')">
-        <div class="book-index">${String(index + 1).padStart(3, "0")}</div>
+        <div class="book-index">${String(startIndex + index + 1).padStart(3, "0")}</div>
 
         <div class="book-main">
           <h3 class="book-title">${escapeHTML(work.title)}</h3>
@@ -1950,12 +2004,45 @@ function renderBookList() {
   }).join("");
 }
 
+function renderPagination(totalPages) {
+  const box = document.getElementById("pagination");
+
+  if (totalPages <= 1) {
+    box.innerHTML = "";
+    return;
+  }
+
+  box.innerHTML = `
+<button type="button" onclick="changePage(-1)" ${currentPage === 1 ? "disabled" : ""}>上一頁</button>
+  <span>${currentPage} / ${totalPages}</span>
+<button type="button" onclick="changePage(1)" ${currentPage === totalPages ? "disabled" : ""}>下一頁</button>
+`;
+}
+
+function changePage(direction) {
+  const nextPage = currentPage + direction;
+  const totalPages = Math.max(1, Math.ceil(filterWorks().length / PAGE_SIZE));
+
+  if (nextPage < 1 || nextPage > totalPages) return;
+
+  currentPage = nextPage;
+  renderAll();
+
+  document.querySelector(".index-toolbar")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
 function applySystemTag(tag) {
   if (CREATION_TYPES.includes(tag)) {
     selectedCreationTypes.add(tag);
   } else if (isValidCategory(tag)) {
     selectedCategories.add(tag);
   }
+
+  currentPage = 1;
+
   closeDetail();
   renderAll();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2904,6 +2991,7 @@ async function saveWorkFromForm() {
     } else {
       const saved = await insertWork(normalizeWork(formState));
       works.unshift(saved);
+      currentPage = 1;
       showToast("作品已新增");
     }
 
@@ -2968,12 +3056,14 @@ function handleModalBackdrop(event) {
 
 document.getElementById("searchInput").addEventListener("input", event => {
   searchText = event.target.value;
+  currentPage = 1;
   document.getElementById("searchClear").classList.toggle("show", Boolean(searchText));
   renderBookList();
 });
 
 document.getElementById("searchClear").addEventListener("click", () => {
   searchText = "";
+  currentPage = 1;
   document.getElementById("searchInput").value = "";
   document.getElementById("searchClear").classList.remove("show");
   renderBookList();
