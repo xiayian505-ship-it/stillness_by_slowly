@@ -1413,7 +1413,7 @@
     <section class="hero">
       <div class="hero-eyebrow">Discover your next story</div>
       <h1>作品探索</h1>
-      <p>從作者、創作類型與題材分類開始，找到下一個想讀的故事。作品散落在不同平台，這裡只負責把入口整理好。</p>
+      <p>想讀的故事，總是到處散落，希望來到這裡，可以找到你要的。</p>
 
       <div class="search-panel">
         <div class="search-box">
@@ -1448,7 +1448,17 @@
 
   <footer>
     <div class="footer-inner">
-      <span>fiction_v3_0 · 單頁作品探索</span>
+<span>
+  <button
+    class="footer-manage"
+    type="button"
+    onclick="openChangelog()"
+    style="padding:0;"
+  >
+    fiction_v3_1
+  </button>
+· 查看版本更新日誌
+</span>
       <button id="manageBtn" class="footer-manage" type="button">管理</button>
     </div>
     <div class="footer-signature">慢 慢 <span class="en">| stillness by slowly</span></div>
@@ -1473,8 +1483,6 @@
 
 <script>
 /* =========================================================
-   fiction_v3_0
-   完整純前端單檔版
    Supabase 後端版
 ========================================================= */
 
@@ -2300,7 +2308,7 @@ async function downloadShareCard(id) {
   ctx.font = '700 40px "Noto Serif TC", serif';
   y = drawWrappedText(ctx, work.title, left, y, contentW, 58, 1);
 
-  /* 副標：最多 16 字，分享書卡不放一句話簡介 */
+  /* 副標 */
   if (work.subtitle) {
     ctx.fillStyle = "#60747A";
     ctx.font = '500 21px "Noto Sans TC", sans-serif';
@@ -2331,28 +2339,67 @@ async function downloadShareCard(id) {
   y += 48;
   ctx.fillStyle = "#60747A";
   ctx.font = '500 17px "Noto Sans TC", sans-serif';
-  y = drawWrappedText(ctx, tags.join("  ·  "), left, y, contentW, 30, 1);
+  y = drawWrappedText(
+    ctx,
+    tags.join("  ·  "),
+    left,
+    y,
+    contentW,
+    30,
+    1
+  );
 
-  /* 作品網址 */
-  const firstWorkUrl =
-    work.links.find(link => /^https?:\/\//i.test(link.url || ""))?.url || "";
+  /* 作品網址：最多顯示 3 個平台 */
+  const shareLinks = work.links
+    .filter(link => /^https?:\/\//i.test(link.url || ""))
+    .slice(0, 3);
 
-  y += 44;
+  y += 38;
+
   ctx.fillStyle = "#7D9196";
   ctx.font = '600 15px "Noto Sans TC", sans-serif';
   ctx.fillText("作品網址", left, y);
 
-  ctx.fillStyle = "#3D5055";
-  ctx.font = '500 15px "Noto Sans TC", sans-serif';
-  drawWrappedText(
-    ctx,
-    firstWorkUrl || "未提供作品網址",
-    left + 82,
-    y,
-    contentW - 82,
-    24,
-    1
-  );
+  if (shareLinks.length) {
+    shareLinks.forEach((link, index) => {
+      const linkY = y + index * 24;
+
+      /* 平台名稱 */
+      ctx.fillStyle = "#1F2C30";
+      ctx.font = '600 14px "Noto Sans TC", sans-serif';
+
+      const platformName = link.label || "作品連結";
+      ctx.fillText(platformName, left + 82, linkY);
+
+      /* 網址 */
+      const platformWidth = ctx.measureText(platformName).width;
+
+      ctx.fillStyle = "#60747A";
+      ctx.font = '500 13px "Noto Sans TC", sans-serif';
+
+      const urlX = left + 82 + platformWidth + 12;
+      const maxUrlWidth = contentW - (urlX - left);
+
+      let displayUrl = link.url;
+
+      while (
+        ctx.measureText(displayUrl).width > maxUrlWidth &&
+        displayUrl.length > 4
+      ) {
+        displayUrl = displayUrl.slice(0, -1);
+      }
+
+      if (displayUrl !== link.url) {
+        displayUrl = displayUrl.slice(0, -1) + "…";
+      }
+
+      ctx.fillText(displayUrl, urlX, linkY);
+    });
+  } else {
+    ctx.fillStyle = "#60747A";
+    ctx.font = '500 14px "Noto Sans TC", sans-serif';
+    ctx.fillText("未提供作品網址", left + 82, y);
+  }
 
   /* 底部品牌 */
   ctx.strokeStyle = "rgba(43,76,84,.14)";
@@ -2376,25 +2423,94 @@ async function downloadShareCard(id) {
   ctx.fillText("作品探索", width - 58, 398);
   ctx.textAlign = "left";
 
-  const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+  /* 產生 PNG */
+  const blob = await new Promise(resolve =>
+    canvas.toBlob(resolve, "image/png")
+  );
+
   if (!blob) {
     showToast("書卡產生失敗");
     return;
   }
 
+  const previewUrl = URL.createObjectURL(blob);
+
   const safeName = (work.title || "作品")
     .replace(/[\\/:*?"<>|]/g, "_")
     .trim();
 
-  const downloadUrl = URL.createObjectURL(blob);
+  /* 暫存圖片，等使用者確認後才下載 */
+  window.shareCardPreview = {
+    blob,
+    url: previewUrl,
+    filename: `${safeName}_分享書卡.png`
+  };
+
+  /* 開啟預覽 */
+  openModal(`
+    <div class="modal-head">
+      <h3>分享書卡預覽</h3>
+      <button
+        class="icon-btn"
+        type="button"
+        onclick="closeShareCardPreview()"
+      >×</button>
+    </div>
+
+    <div class="modal-body">
+      <img
+        src="${previewUrl}"
+        alt="${escapeAttr(work.title)} 分享書卡"
+        style="
+          display:block;
+          width:100%;
+          height:auto;
+          border-radius:16px;
+        "
+      >
+    </div>
+
+    <div class="form-footer">
+      <button
+        class="ghost-btn"
+        type="button"
+        onclick="closeShareCardPreview()"
+      >取消</button>
+
+      <button
+        class="save-btn"
+        type="button"
+        onclick="confirmShareCardDownload()"
+      >下載 PNG</button>
+    </div>
+  `);
+}
+
+function confirmShareCardDownload() {
+  const data = window.shareCardPreview;
+  if (!data) return;
+
   const a = document.createElement("a");
-  a.href = downloadUrl;
-  a.download = `${safeName}_分享書卡.png`;
+  a.href = data.url;
+  a.download = data.filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+
+  closeShareCardPreview();
 }
+
+function closeShareCardPreview() {
+  const data = window.shareCardPreview;
+
+  if (data?.url) {
+    URL.revokeObjectURL(data.url);
+  }
+
+  window.shareCardPreview = null;
+  closeModal();
+}
+
 function roundedRect(ctx, x, y, w, h, r) {
   const radius = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
@@ -2747,7 +2863,7 @@ function renderWorkForm() {
         </div>
         <button class="small-btn" style="margin-top:10px;padding:9px 12px;" type="button" onclick="addLinkRow()">＋ 新增作品連結</button>
         <div class="link-note">
-          分享書卡會顯示第一個有效作品網址；這裡的排序也會決定作品詳情中的平台顯示順序。
+分享書卡最多會顯示前 3 個有效作品網址。
         </div>
       </section>
     </div>
@@ -3016,12 +3132,55 @@ async function deleteWork(id) {
   const work = findWork(id);
   if (!work) return;
 
-  const ok = confirm(`確定要刪除《${work.title}》嗎？\n\n刪除後無法復原。`);
-  if (!ok) return;
+  openModal(`
+    <div class="modal-head">
+      <h3>刪除作品</h3>
+      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p style="margin:0;line-height:1.8;color:var(--text);">
+        確定要刪除《${escapeHTML(work.title)}》嗎？
+      </p>
+
+      <p style="margin:10px 0 0;line-height:1.8;color:var(--danger);font-size:12px;">
+        刪除後無法復原。
+      </p>
+    </div>
+
+    <div class="form-footer">
+      <button class="ghost-btn" type="button" onclick="closeModal()">取消</button>
+      <button
+        class="save-btn"
+        type="button"
+        onclick="confirmDeleteWork('${work.id}')"
+        style="background:var(--danger);"
+      >確定刪除</button>
+    </div>
+  `, true);
+}
+
+async function confirmDeleteWork(id) {
+  if (!isAdmin) {
+    closeModal();
+    showToast("請先登入管理者");
+    return;
+  }
+
+  const work = findWork(id);
+  if (!work) {
+    closeModal();
+    return;
+  }
 
   try {
     await deleteWorkFromDatabase(work.id);
-    works = works.filter(item => String(item.id) !== String(work.id));
+
+    works = works.filter(
+      item => String(item.id) !== String(work.id)
+    );
+
+    closeModal();
     closeDetail();
     renderAll();
     showToast("作品已刪除");
@@ -3029,6 +3188,43 @@ async function deleteWork(id) {
     console.error("刪除作品失敗", error);
     showToast("刪除作品失敗，請確認登入狀態");
   }
+}
+
+/* -------------------- 版本更新 -------------------- */
+
+function openChangelog() {
+  openModal(`
+    <div class="modal-head">
+      <h3>版本更新</h3>
+      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <section class="form-section">
+        <div class="form-section-title">v3_1</div>
+        <p class="detail-copy">
+新增作品列表分頁，每頁顯示 12 部作品。
+分享書卡最多顯示前 3 個有效作品網址。
+首頁說明文字調整。
+加入 PNG 分享書卡預覽。
+        </p>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">v3_0</div>
+        <p class="detail-copy">
+作品資料改用 Supabase 儲存。
+加入管理者登入。
+加入作品新增、編輯與刪除功能。
+加入作品分享功能。
+加入 PNG 分享書卡。
+加入作品分類與篩選功能。
+        </p>
+      </section>
+
+    </div>
+  `);
 }
 
 /* -------------------- Modal -------------------- */
@@ -3049,7 +3245,13 @@ function closeModal() {
 }
 
 function handleModalBackdrop(event) {
-  if (event.target.id === "modalWrap") closeModal();
+  if (event.target.id !== "modalWrap") return;
+
+  if (window.shareCardPreview) {
+    closeShareCardPreview();
+  } else {
+    closeModal();
+  }
 }
 
 /* -------------------- 搜尋 -------------------- */
