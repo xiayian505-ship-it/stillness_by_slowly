@@ -1455,7 +1455,7 @@
     onclick="openChangelog()"
     style="padding:0;"
   >
-    fiction_v3_1
+    fiction_v3_2
   </button>
 · 查看版本更新日誌
 </span>
@@ -1489,17 +1489,39 @@
 const CREATION_TYPES = ["原創", "同人", "改編"];
 
 const SERIES = [
-  { id: "romance", label: "戀愛系列", options: ["耽美", "言情", "百合"] },
-  { id: "fantasy", label: "奇幻系列", options: ["東方奇幻", "西方奇幻", "現代奇幻"] },
-  { id: "xuanhuan", label: "玄幻系列", options: ["東方玄幻", "現代玄幻", "架空玄幻"] },
-  { id: "wuxia", label: "武俠仙俠系列", options: ["武俠", "仙俠"] },
-  { id: "mystery", label: "推理系列", options: ["一般推理", "特殊設定推理"] },
-  { id: "crime", label: "刑偵系列", options: ["犯罪懸疑", "調查辦案"] },
-  { id: "supernatural", label: "靈異系列", options: ["靈異", "恐怖"] },
-  { id: "transmigration", label: "穿越系列", options: ["穿越", "重生", "穿書"] },
-  { id: "scifi", label: "科幻系列", options: ["一般科幻", "未來科技", "星際宇宙"] },
-  { id: "history", label: "歷史系列", options: ["真實歷史", "架空歷史"] },
-  { id: "game", label: "遊戲系列", options: ["電競", "網遊"] }
+  { id: "romance", label: "戀愛系列", options: ["戀愛系列", "戀愛", "耽美", "言情", "百合"] },
+
+  { id: "era", label: "時代背景", options: ["時代背景", "古風", "現代", "未來", "末日"] },
+
+  { id: "fantasy", label: "奇幻系列", options: ["奇幻系列", "東方奇幻", "西方奇幻", "現代奇幻"] },
+
+  { id: "xuanhuan", label: "玄幻系列", options: ["玄幻系列", "東方玄幻", "現代玄幻", "架空玄幻"] },
+
+  { id: "wuxia", label: "武俠仙俠系列", options: ["武俠仙俠系列", "武俠", "仙俠"] },
+
+  { id: "mystery", label: "推理系列", options: ["推理系列", "一般推理", "特殊設定推理"] },
+
+{ 
+  id: "crime", label: "犯罪系列", options: ["犯罪系列", "犯罪", "犯罪心理"] 
+},
+
+  { id: "investigation", label: "刑偵系列", options: ["刑偵系列", "刑偵", "調查辦案"] },
+
+  { id: "suspense", label: "懸疑系列", options: ["懸疑系列", "懸疑", "驚悚"] },
+
+  { id: "supernatural", label: "靈異系列", options: ["靈異系列", "靈異", "恐怖"] },
+
+  { id: "transmigration", label: "穿越系列", options: ["穿越系列", "穿越", "重生", "穿書"] },
+
+  { id: "scifi", label: "科幻系列", options: ["科幻系列", "一般科幻", "未來科技", "星際宇宙"] },
+
+  { id: "history", label: "歷史系列", options: ["歷史系列", "真實歷史", "架空歷史"] },
+
+  { id: "game", label: "遊戲系列", options: ["遊戲系列", "遊戲", "電競", "網遊"] },
+
+  { id: "military", label: "戰爭軍事系列", options: ["戰爭軍事系列", "戰爭軍事", "陸軍", "海軍", "空軍", "海軍陸戰隊"] },
+
+  { id: "worldview", label: "世界觀設定", options: ["世界觀設定", "ABO", "哨兵嚮導"] }
 ];
 
 const ESCAPE_TAG = "我也不知道怎麼分類";
@@ -3201,15 +3223,23 @@ function openChangelog() {
 
     <div class="modal-body">
 
-      <section class="form-section">
-        <div class="form-section-title">v3_1</div>
-        <p class="detail-copy">
+<section class="form-section">
+  <div class="form-section-title">v3_2</div>
+  <p class="detail-copy">
+新增犯罪系列、刑偵系列、懸疑系列、靈異系列、穿越系列、科幻系列、歷史系列、遊戲系列、戰爭軍事系列與世界觀設定分類。
+調整並擴充既有作品分類選項。
+  </p>
+</section>
+
+<section class="form-section">
+  <div class="form-section-title">v3_1</div>
+  <p class="detail-copy">
 新增作品列表分頁，每頁顯示 12 部作品。
 分享書卡最多顯示前 3 個有效作品網址。
 首頁說明文字調整。
 加入 PNG 分享書卡預覽。
-        </p>
-      </section>
+  </p>
+</section>
 
       <section class="form-section">
         <div class="form-section-title">v3_0</div>
