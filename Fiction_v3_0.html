@@ -1559,6 +1559,8 @@ let loadingWorks = true;
 const SAMPLE_WORKS = [];
 
 let works = [];
+let authors = [];
+let loadingAuthors = true;
 let searchText = "";
 let selectedCreationTypes = new Set();
 let selectedCategories = new Set();
@@ -1595,6 +1597,7 @@ function escapeAttr(value) {
 function normalizeWork(raw) {
   return {
     id: raw.id || cryptoRandomId(),
+    authorId: raw.authorId ?? null,
     author: String(raw.author || "").trim(),
     title: String(raw.title || "").trim(),
     subtitle: [...String(raw.subtitle || "").trim()].slice(0, MAX_SUBTITLE).join(""),
@@ -1633,6 +1636,7 @@ function isValidCategory(value) {
 function rowToWork(row) {
   return normalizeWork({
     id: row.id,
+    authorId: row.author_id,
     author: row.author,
     title: row.title,
     subtitle: row.subtitle,
@@ -1651,6 +1655,7 @@ function rowToWork(row) {
 
 function workToRow(work) {
   return {
+    author_id: work.authorId ?? null,
     author: work.author || "",
     title: work.title || "",
     subtitle: work.subtitle || "",
@@ -1675,6 +1680,28 @@ function workToRow(work) {
       ? work.links
       : []
   };
+}
+
+async function loadAuthors() {
+  loadingAuthors = true;
+
+  try {
+    const { data, error } =
+      await supabaseClient
+        .from("authors")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    authors = data || [];
+  } catch (error) {
+    console.error("讀取作者資料失敗", error);
+    authors = [];
+    showToast("作者資料讀取失敗");
+  } finally {
+    loadingAuthors = false;
+  }
 }
 
 async function loadWorks() {
@@ -1745,6 +1772,10 @@ async function deleteWorkFromDatabase(id) {
 
 function findWork(id) {
   return works.find(work => String(work.id) === String(id)) || null;
+}
+
+function findAuthorById(id) {
+  return authors.find(author => String(author.id) === String(id)) || null;
 }
 
 function showToast(message) {
@@ -2874,8 +2905,32 @@ function renderWorkForm() {
         <div class="form-grid">
           <div class="form-grid two">
             <div class="field">
-              <label>作者 *</label>
-              <input id="formAuthor" value="${escapeAttr(formState.author)}" placeholder="作者名稱">
+  <label>作者 *</label>
+  <select
+    id="formAuthorId"
+    onchange="setFormAuthor(this.value)"
+    style="
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:11px 12px;
+      outline:none;
+      background:rgba(72,101,108,.06);
+      color:var(--text);
+      font-size:13px;
+    "
+  >
+    <option value="">請選擇作者</option>
+    ${authors.map(author => `
+      <option
+        value="${escapeAttr(author.id)}"
+        ${String(formState.authorId || "") === String(author.id) ? "selected" : ""}
+      >
+        ${escapeHTML(author.name)}
+      </option>
+    `).join("")}
+  </select>
+</div>
             </div>
             <div class="field">
               <label>書名 *</label>
@@ -3033,12 +3088,12 @@ function renderWorkForm() {
 }
 
 function bindFormLiveFields() {
-  ["formAuthor", "formTitle", "formSubtitle", "formHook", "formCopy", "formLastPublishedAt"]
+["formTitle", "formSubtitle", "formHook", "formCopy", "formLastPublishedAt"]
     .forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.addEventListener("input", () => {
-        if (id === "formAuthor") formState.author = el.value;
+
         if (id === "formTitle") formState.title = el.value;
         if (id === "formSubtitle") formState.subtitle = [...el.value].slice(0, MAX_SUBTITLE).join("");
         if (id === "formHook") formState.hook = [...el.value].slice(0, MAX_HOOK).join("");
@@ -3070,6 +3125,15 @@ function updateWorkSaveButton() {
     !formState.author.trim() ||
     !formState.title.trim() ||
     !formState.hook.trim();
+}
+
+function setFormAuthor(authorId) {
+  const author = findAuthorById(authorId);
+
+  formState.authorId = author ? author.id : null;
+  formState.author = author ? author.name : "";
+
+  updateWorkSaveButton();
 }
 
 function setFormStatus(status) {
@@ -3219,7 +3283,7 @@ async function saveWorkFromForm() {
     return;
   }
 
-  formState.author = document.getElementById("formAuthor")?.value.trim() || formState.author.trim();
+  
   formState.title = document.getElementById("formTitle")?.value.trim() || formState.title.trim();
   formState.subtitle = [...(document.getElementById("formSubtitle")?.value.trim() || "")].slice(0, MAX_SUBTITLE).join("");
   formState.hook = [...(document.getElementById("formHook")?.value.trim() || "")].slice(0, MAX_HOOK).join("");
@@ -3473,8 +3537,9 @@ async function init() {
   }
 
   renderAdminState();
-  renderFilters();
-  await loadWorks();
+renderFilters();
+await loadAuthors();
+await loadWorks();
 }
 
 supabaseClient.auth.onAuthStateChange((event, session) => {
