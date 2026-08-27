@@ -403,6 +403,31 @@
     .primary-btn:hover {
       filter: brightness(.97);
     }
+    
+    .sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sort-btn {
+  border: 1px solid var(--line);
+  background: var(--surface-solid);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.sort-btn:hover,
+.sort-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
 
     .book-list {
       display: grid;
