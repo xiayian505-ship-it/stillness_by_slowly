@@ -1838,11 +1838,12 @@ function openAuthorEditForm(authorId) {
         >${escapeHTML(author.bio || "")}</textarea>
       </div>
     </div>
-    <div class="field">
+<div class="field" style="margin-top:12px;">
   <label>個人網站</label>
   <input
-    id="newAuthorWebsite"
+    id="editAuthorWebsite"
     type="url"
+    value="${escapeAttr(author.website || "")}"
     placeholder="https://..."
   >
 </div>
@@ -1915,19 +1916,25 @@ async function saveAuthorEdit(authorId) {
     btn.textContent = "儲存中…";
   }
 
+console.log("準備儲存作者", { name, bio, website });
+
   try {
     /* 更新 authors 資料表 */
-    const { error: authorError } =
-      await supabaseClient
-        .from("authors")
-.update({
-  name,
-  bio: bio || null,
-  website: website || null
-})
-        .eq("id", authorId);
+const { data: updatedAuthor, error: authorError } =
+  await supabaseClient
+    .from("authors")
+    .update({
+      name,
+      bio: bio || null,
+      website: website || null
+    })
+    .eq("id", authorId)
+    .select()
+    .single();
 
-    if (authorError) throw authorError;
+if (authorError) throw authorError;
+
+console.log("作者更新結果：", updatedAuthor);
 
     /*
       works 現在還有 author 文字欄位，
