@@ -1455,7 +1455,7 @@
     onclick="openChangelog()"
     style="padding:0;"
   >
-    fiction_v3_2
+    fiction_v3_3
   </button>
 · 查看版本更新日誌
 </span>
@@ -1565,6 +1565,7 @@ let searchText = "";
 let selectedCreationTypes = new Set();
 let selectedCategories = new Set();
 let selectedAuthor = "";
+let selectedAuthorId = null;
 let escapeFilter = false;
 let openSeriesId = "";
 let activeDetailId = null;
@@ -1778,6 +1779,32 @@ function findAuthorById(id) {
   return authors.find(author => String(author.id) === String(id)) || null;
 }
 
+function getAuthorWorkCount(authorId) {
+  if (!authorId) return 0;
+
+  return works.filter(
+    work => String(work.authorId) === String(authorId)
+  ).length;
+}
+
+function previewAuthorCard(authorId) {
+  const author = findAuthorById(authorId);
+
+  if (!author) {
+    showToast("找不到作者資料");
+    return;
+  }
+
+  const workCount = getAuthorWorkCount(authorId);
+
+  console.log("作者名片資料：", {
+    author,
+    workCount
+  });
+
+  showToast(author.name + "｜本站收錄 " + workCount + " 部作品");
+}
+
 function showToast(message) {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -1828,6 +1855,7 @@ function goHome() {
   selectedCategories.clear();
   selectedAuthor = "";
   escapeFilter = false;
+  selectedAuthorId = null;
   openSeriesId = "";
   currentPage = 1;
 
@@ -1902,13 +1930,23 @@ function renderActiveFilters() {
   const box = document.getElementById("activeFilters");
   const chips = [];
 
-  if (selectedAuthor) {
-    chips.push(`
-      <button class="active-chip" type="button" onclick="clearAuthorFilter()">
-        作者：${escapeHTML(selectedAuthor)} ×
+if (selectedAuthor) {
+  chips.push(`
+    <button class="active-chip" type="button" onclick="clearAuthorFilter()">
+      作者：${escapeHTML(selectedAuthor)} ×
+    </button>
+
+    ${selectedAuthorId ? `
+      <button
+        class="active-chip"
+        type="button"
+        onclick="previewAuthorCard('${escapeAttr(selectedAuthorId)}')"
+      >
+        作者名片預覽
       </button>
-    `);
-  }
+    ` : ""}
+  `);
+}
 
   selectedCreationTypes.forEach(tag => {
     chips.push(`
@@ -1968,8 +2006,9 @@ function toggleEscapeFilter() {
   renderAll();
 }
 
-function setAuthorFilter(author) {
+function setAuthorFilter(author, authorId = null) {
   selectedAuthor = author;
+  selectedAuthorId = authorId;
   currentPage = 1;
   closeDetail();
   renderAll();
@@ -1978,6 +2017,7 @@ function setAuthorFilter(author) {
 
 function clearAuthorFilter() {
   selectedAuthor = "";
+  selectedAuthorId = null;
   currentPage = 1;
   renderAll();
 }
@@ -1986,6 +2026,7 @@ function clearAllFilters() {
   selectedCreationTypes.clear();
   selectedCategories.clear();
   selectedAuthor = "";
+  selectedAuthorId = null;
   escapeFilter = false;
   searchText = "";
   currentPage = 1;
@@ -2046,7 +2087,7 @@ renderPagination(totalPages);
             <button
               class="author-link"
               type="button"
-              onclick="event.stopPropagation(); setAuthorFilter('${escapeAttr(work.author)}')"
+onclick="event.stopPropagation(); setAuthorFilter('${escapeAttr(work.author)}', '${escapeAttr(work.authorId ?? "")}')"
             >${escapeHTML(work.author || "未署名")}</button>
 
             ${systemTags.slice(0, 5).map(tag => `
@@ -2135,7 +2176,7 @@ function openDetail(id, updateUrl = true) {
     <section class="detail-section">
       <div class="detail-line">
         <span class="detail-key">作者</span>
-        <button class="author-link detail-value" type="button" onclick="setAuthorFilter('${escapeAttr(work.author)}')">
+        <button class="author-link detail-value" type="button" onclick="setAuthorFilter('${escapeAttr(work.author)}', '${escapeAttr(work.authorId ?? "")}')">
           ${escapeHTML(work.author || "未署名")} ›
         </button>
       </div>
@@ -2745,10 +2786,12 @@ async function confirmPasswordReset() {
 }
 
 function openLogin() {
-  if (isAdmin) {
-    showToast("目前已在管理模式");
-    return;
-  }
+if (isAdmin) {
+  openAdminMenu();
+  return;
+}
+
+
 
   openModal(`
     <div class="modal-head">
@@ -2781,6 +2824,30 @@ function openLogin() {
   `, true);
 
   setTimeout(() => document.getElementById("loginEmail")?.focus(), 50);
+}
+
+function openAdminMenu() {
+  openModal(`
+    <div class="modal-head">
+      <h3>管理</h3>
+      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <button type="button" onclick="openWorkForm()">
+        新增作品
+      </button>
+
+      <button type="button" onclick="openAuthorManager()">
+        作者資料管理
+      </button>
+    </div>
+  `);
+}
+
+function openAuthorManager() {
+  console.log("作者資料：", authors);
+  showToast(`目前有 ${authors.length} 位作者`);
 }
 
 async function loginAdmin() {
@@ -2890,6 +2957,96 @@ function openWorkForm(id = "") {
   renderWorkForm();
 }
 
+function openNewAuthorForm() {
+  openModal(`
+    <div class="modal-head">
+      <h3>新增作者</h3>
+      <button class="icon-btn" type="button" onclick="renderWorkForm()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="field">
+        <label>作者名稱 *</label>
+        <input
+          id="newAuthorName"
+          type="text"
+          placeholder="請輸入作者名稱"
+        >
+      </div>
+
+      <div class="field">
+        <label>作者簡介</label>
+        <textarea
+          id="newAuthorBio"
+          placeholder="請輸入作者簡介"
+        ></textarea>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+        <button class="ghost-btn" type="button" onclick="renderWorkForm()">
+          返回
+        </button>
+        <button class="save-btn" type="button" onclick="saveNewAuthor()">
+          新增作者
+        </button>
+      </div>
+    </div>
+  `, true);
+}
+
+async function saveNewAuthor() {
+  const nameInput = document.getElementById("newAuthorName");
+  const bioInput = document.getElementById("newAuthorBio");
+
+  const name = String(nameInput?.value || "").trim();
+  const bio = String(bioInput?.value || "").trim();
+
+  if (!name) {
+    showToast("請輸入作者名稱");
+    return;
+  }
+
+  const existingAuthor = authors.find(
+    author =>
+      String(author.name || "").trim().toLocaleLowerCase("zh-Hant") ===
+      name.toLocaleLowerCase("zh-Hant")
+  );
+
+  if (existingAuthor) {
+    formState.authorId = existingAuthor.id;
+    formState.author = existingAuthor.name;
+
+    renderWorkForm();
+    showToast(`作者「${existingAuthor.name}」已存在，已直接選取`);
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("authors")
+      .insert({
+        name,
+        bio: bio || null
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    await loadAuthors();
+
+    formState.authorId = data.id;
+    formState.author = data.name;
+
+    renderWorkForm();
+
+    showToast(`已新增作者：${data.name}`);
+  } catch (error) {
+    console.error("新增作者失敗", error);
+    showToast("新增作者失敗");
+  }
+}
+
 function renderWorkForm() {
   const editing = Boolean(formState.id);
 
@@ -2905,31 +3062,51 @@ function renderWorkForm() {
         <div class="form-grid">
           <div class="form-grid two">
             <div class="field">
-  <label>作者 *</label>
-  <select
-    id="formAuthorId"
-    onchange="setFormAuthor(this.value)"
-    style="
-      width:100%;
-      border:1px solid var(--line);
-      border-radius:13px;
-      padding:11px 12px;
-      outline:none;
-      background:rgba(72,101,108,.06);
-      color:var(--text);
-      font-size:13px;
-    "
-  >
-    <option value="">請選擇作者</option>
-    ${authors.map(author => `
-      <option
-        value="${escapeAttr(author.id)}"
-        ${String(formState.authorId || "") === String(author.id) ? "selected" : ""}
-      >
-        ${escapeHTML(author.name)}
-      </option>
-    `).join("")}
-  </select>
+<label>作者 *</label>
+
+<input
+  id="formAuthorSearch"
+  type="text"
+  placeholder="搜尋作者名稱或 ID"
+  autocomplete="off"
+  value="${escapeAttr(
+    formState.authorId
+      ? (findAuthorById(formState.authorId)?.name || "")
+      : ""
+  )}"
+  oninput="searchFormAuthor(this.value)"
+  style="
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:13px;
+    padding:11px 12px;
+    outline:none;
+    background:rgba(72,101,108,.06);
+    color:var(--text);
+    font-size:13px;
+  "
+>
+
+<div
+  id="formAuthorResults"
+  style="margin-top:6px;"
+></div>
+
+<input
+  id="formAuthorId"
+  type="hidden"
+  value="${escapeAttr(formState.authorId || "")}"
+>
+  
+  <button
+  type="button"
+  class="small-btn"
+  style="margin-top:8px;padding:9px 12px;"
+  onclick="openNewAuthorForm()"
+>
+  ＋ 新增作者
+</button>
+  
 </div>
             </div>
             <div class="field">
@@ -3125,6 +3302,98 @@ function updateWorkSaveButton() {
     !formState.author.trim() ||
     !formState.title.trim() ||
     !formState.hook.trim();
+}
+
+function searchFormAuthor(keyword) {
+  const box = document.getElementById("formAuthorResults");
+  if (!box) return;
+
+  const q = String(keyword || "").trim().toLocaleLowerCase("zh-Hant");
+
+  // 只要重新輸入，就先取消原本選定的作者
+  formState.authorId = null;
+  formState.author = "";
+
+  const hiddenInput = document.getElementById("formAuthorId");
+  if (hiddenInput) hiddenInput.value = "";
+
+  updateWorkSaveButton();
+
+  if (!q) {
+    box.innerHTML = "";
+    return;
+  }
+
+  const matchedAuthors = authors
+    .filter(author => {
+      const name = String(author.name || "").toLocaleLowerCase("zh-Hant");
+      const id = String(author.id || "");
+
+      return name.includes(q) || id.includes(q);
+    })
+    .slice(0, 20);
+
+  if (!matchedAuthors.length) {
+    box.innerHTML = `
+      <div style="padding:10px 4px;color:var(--muted);font-size:12px;">
+        找不到作者，可以使用「＋ 新增作者」
+      </div>
+    `;
+    return;
+  }
+
+  box.innerHTML = matchedAuthors.map(author => {
+    const workCount = getAuthorWorkCount(author.id);
+
+    return `
+      <button
+        type="button"
+        onclick="selectFormAuthor('${escapeAttr(author.id)}')"
+        style="
+          display:block;
+          width:100%;
+          padding:10px 12px;
+          margin-top:5px;
+          text-align:left;
+          border:1px solid var(--line);
+          border-radius:10px;
+          background:var(--surface-solid);
+          color:var(--text);
+          cursor:pointer;
+        "
+      >
+        #${escapeHTML(author.id)}
+        ${escapeHTML(author.name || "未命名作者")}
+        ｜本站收錄 ${workCount} 部
+      </button>
+    `;
+  }).join("");
+}
+
+function selectFormAuthor(authorId) {
+  const author = findAuthorById(authorId);
+  if (!author) return;
+
+  formState.authorId = author.id;
+  formState.author = author.name || "";
+
+  const searchInput = document.getElementById("formAuthorSearch");
+  const hiddenInput = document.getElementById("formAuthorId");
+  const results = document.getElementById("formAuthorResults");
+
+  if (searchInput) {
+    searchInput.value = author.name || "";
+  }
+
+  if (hiddenInput) {
+    hiddenInput.value = author.id;
+  }
+
+  if (results) {
+    results.innerHTML = "";
+  }
+
+  updateWorkSaveButton();
 }
 
 function setFormAuthor(authorId) {
@@ -3416,7 +3685,19 @@ function openChangelog() {
     </div>
 
     <div class="modal-body">
-
+<section class="form-section">
+  <div class="form-section-title">v3_3</div>
+  <p class="detail-copy">
+新增作者資料表與作品作者關聯。
+作品改以 author_id 對應作者資料。
+新增作者搜尋，可依作者名稱或 ID 搜尋。
+作者搜尋結果顯示本站收錄作品數。
+新增作品時可直接建立新作者。
+新增作者後會自動回填並選取該作者。
+新增同名作者時會優先使用既有作者資料，避免重複建立。
+加入作者名片預覽入口。
+  </p>
+</section>
 <section class="form-section">
   <div class="form-section-title">v3_2</div>
   <p class="detail-copy">
