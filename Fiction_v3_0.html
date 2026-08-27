@@ -1281,7 +1281,7 @@ function sanitizeFilename(name) {
   return String(name).replace(/[\\/:*?"<>|]/g, "_").trim() || "作品";
 }
 
-/* -------------------- 管理登入（前端模擬） -------------------- */
+/* -------------------- 管理登入-------------------- */
 
 function openPasswordReset() {
   openModal(`
@@ -1435,7 +1435,7 @@ if (isAdmin) {
       </div>
 
       <div class="login-note">
-        此區域只有管理者可以登入。登入權限由 Supabase Auth 與資料庫 RLS 控制。
+        此區域只有管理者可以登入。
       </div>
 
       <div id="loginError" class="error-text"></div>
