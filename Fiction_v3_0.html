@@ -411,7 +411,7 @@ function getAuthorWorkCount(authorId) {
   ).length;
 }
 
-function previewAuthorCard(authorId) {
+async function previewAuthorCard(authorId) {
   const author = findAuthorById(authorId);
 
   if (!author) {
@@ -421,12 +421,208 @@ function previewAuthorCard(authorId) {
 
   const workCount = getAuthorWorkCount(authorId);
 
-  console.log("作者名片資料：", {
-    author,
-    workCount
-  });
+  const width = 820;
+  const height = 450;
 
-  showToast(author.name + "｜本站收錄 " + workCount + " 部作品");
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+
+  /* 背景：完全沿用作品書卡 */
+  ctx.fillStyle = "#D9E8EB";
+  ctx.fillRect(0, 0, width, height);
+
+  /* 主卡 */
+  roundedRect(ctx, 24, 24, width - 48, height - 48, 28);
+  ctx.fillStyle = "#EDF5F6";
+  ctx.fill();
+
+  const left = 58;
+  const contentW = width - 116;
+  let y = 88;
+
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+
+  /* 作者名稱：對應原本書名 */
+  ctx.fillStyle = "#1F2C30";
+  ctx.font = '700 40px "Noto Serif TC", serif';
+
+  y = drawWrappedText(
+    ctx,
+    author.name || "未命名作者",
+    left,
+    y,
+    contentW,
+    58,
+    1
+  );
+
+  /* 本站收錄：對應原本作者欄 */
+  y += 46;
+
+  ctx.fillStyle = "#7D9196";
+  ctx.font = '600 17px "Noto Sans TC", sans-serif';
+  ctx.fillText("本站收錄", left, y);
+
+  ctx.fillStyle = "#1F2C30";
+  ctx.font = '700 20px "Noto Sans TC", sans-serif';
+  ctx.fillText(`${workCount} 部作品`, left + 92, y);
+
+  /* 個人網站：對應原本分類區 */
+  y += 48;
+
+  ctx.fillStyle = "#7D9196";
+  ctx.font = '600 15px "Noto Sans TC", sans-serif';
+  ctx.fillText("個人網站", left, y);
+
+  ctx.fillStyle = "#60747A";
+  ctx.font = '500 14px "Noto Sans TC", sans-serif';
+
+  const website = String(author.website || "").trim();
+
+  if (website) {
+    const websiteX = left + 82;
+    const maxWebsiteWidth = contentW - 82;
+
+    let displayWebsite = website;
+
+    while (
+      ctx.measureText(displayWebsite).width > maxWebsiteWidth &&
+      displayWebsite.length > 4
+    ) {
+      displayWebsite = displayWebsite.slice(0, -1);
+    }
+
+    if (displayWebsite !== website) {
+      displayWebsite = displayWebsite.slice(0, -1) + "…";
+    }
+
+    ctx.fillText(displayWebsite, websiteX, y);
+  } else {
+    ctx.fillText("未提供個人網站", left + 82, y);
+  }
+
+  /* 作者簡介：對應原本作品網址區 */
+  y += 48;
+
+  ctx.fillStyle = "#7D9196";
+  ctx.font = '600 15px "Noto Sans TC", sans-serif';
+  ctx.fillText("作者簡介", left, y);
+
+  ctx.fillStyle = "#1F2C30";
+  ctx.font = '500 16px "Noto Sans TC", sans-serif';
+
+  const bio = String(author.bio || "").trim();
+
+  if (bio) {
+    drawWrappedText(
+      ctx,
+      bio,
+      left + 82,
+      y,
+      contentW - 82,
+      28,
+      2
+    );
+  } else {
+    ctx.fillStyle = "#60747A";
+    ctx.fillText("未提供作者簡介", left + 82, y);
+  }
+
+  /* 底部品牌：完全沿用作品書卡 */
+  ctx.strokeStyle = "rgba(43,76,84,.14)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(58, 350);
+  ctx.lineTo(width - 58, 350);
+  ctx.stroke();
+
+  ctx.fillStyle = "#7D9196";
+  ctx.font = '600 17px "Noto Serif TC", serif';
+  ctx.fillText("慢 慢", 58, 398);
+
+  const logoWidth = ctx.measureText("慢 慢").width;
+
+  ctx.font =
+    '500 16px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
+
+  ctx.fillText(
+    " | stillness by slowly",
+    58 + logoWidth + 5,
+    398
+  );
+
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#7D9196";
+  ctx.font = '500 14px "Noto Sans TC", sans-serif';
+  ctx.fillText("作品探索", width - 58, 398);
+  ctx.textAlign = "left";
+
+  /* 產生 PNG */
+  const blob = await new Promise(resolve =>
+    canvas.toBlob(resolve, "image/png")
+  );
+
+  if (!blob) {
+    showToast("作者名片產生失敗");
+    return;
+  }
+
+  const previewUrl = URL.createObjectURL(blob);
+
+  const safeName = (author.name || "作者")
+    .replace(/[\\/:*?"<>|]/g, "_")
+    .trim();
+
+  /* 沿用現有 shareCardPreview */
+  window.shareCardPreview = {
+    blob,
+    url: previewUrl,
+    filename: `${safeName}_作者名片.png`
+  };
+
+  /* 沿用作品書卡的預覽 Modal */
+  openModal(`
+    <div class="modal-head">
+      <h3>作者名片預覽</h3>
+
+      <button
+        class="icon-btn"
+        type="button"
+        onclick="closeShareCardPreview()"
+      >×</button>
+    </div>
+
+    <div class="modal-body">
+      <img
+        src="${previewUrl}"
+        alt="${escapeAttr(author.name || "作者")} 作者名片"
+        style="
+          display:block;
+          width:100%;
+          height:auto;
+          border-radius:16px;
+        "
+      >
+    </div>
+
+    <div class="form-footer">
+      <button
+        class="ghost-btn"
+        type="button"
+        onclick="closeShareCardPreview()"
+      >取消</button>
+
+      <button
+        class="save-btn"
+        type="button"
+        onclick="confirmShareCardDownload()"
+      >下載 PNG</button>
+    </div>
+  `);
 }
 
 function showToast(message) {
@@ -2546,21 +2742,22 @@ function openChangelog() {
 <section class="form-section">
   <div class="form-section-title">v3_3</div>
   <p class="detail-copy">
-新增作者資料表與作品作者關聯。
-作品改以 author_id 對應作者資料。
-新增作者搜尋，可依作者名稱或 ID 搜尋。
-作者搜尋結果顯示本站收錄作品數。
-新增作品時可直接建立新作者。
-新增作者後會自動回填並選取該作者。
-新增同名作者時會優先使用既有作者資料，避免重複建立。
-加入作者名片預覽入口。
-CSS改外連
+管理：新增作者資料表與作品作者關聯。
+管理：：作品改以 author_id 對應作者資料。
+管理：新增作者搜尋，可依作者名稱或 ID 搜尋。
+前端：作者搜尋結果顯示本站收錄作品數。
+管理：新增作品時可直接建立新作者。
+管理：新增作者後會自動回填並選取該作者。
+管理：新增同名作者時會優先使用既有作者資料，避免重複建立。
+前端：加入作者名片預覽入口。
+前端：加入作者名片PNG下載
+管理：CSS改外連
   </p>
 </section>
 <section class="form-section">
   <div class="form-section-title">v3_2</div>
   <p class="detail-copy">
-新增犯罪系列、刑偵系列、懸疑系列、靈異系列、穿越系列、科幻系列、歷史系列、遊戲系列、戰爭軍事系列、心理系列、運動系列與世界觀設定分類。
+前端：新增犯罪系列、刑偵系列、懸疑系列、靈異系列、穿越系列、科幻系列、歷史系列、遊戲系列、戰爭軍事系列、心理系列、運動系列與世界觀設定分類。
 調整並擴充既有作品分類選項。
   </p>
 </section>
@@ -2568,22 +2765,22 @@ CSS改外連
 <section class="form-section">
   <div class="form-section-title">v3_1</div>
   <p class="detail-copy">
-新增作品列表分頁，每頁顯示 12 部作品。
-分享書卡最多顯示前 3 個有效作品網址。
-首頁說明文字調整。
-加入 PNG 分享書卡預覽。
+：新增作品列表分頁，每頁顯示 12 部作品。
+前端：分享書卡最多顯示前 3 個有效作品網址。
+前端：首頁說明文字調整。
+前端：加入 PNG 分享書卡預覽。
   </p>
 </section>
 
       <section class="form-section">
         <div class="form-section-title">v3_0</div>
         <p class="detail-copy">
-作品資料改用 Supabase 儲存。
-加入管理者登入。
-加入作品新增、編輯與刪除功能。
-加入作品分享功能。
-加入 PNG 分享書卡。
-加入作品分類與篩選功能。
+管理：作品資料改用 Supabase 儲存。
+管理：加入管理者登入。
+管理：加入作品新增、編輯與刪除功能。
+前端：加入作品分享功能。
+前端：加入 PNG 分享書卡。
+前端：加入作品分類與篩選功能。
         </p>
       </section>
 
