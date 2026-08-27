@@ -1410,10 +1410,10 @@ async function confirmPasswordReset() {
 }
 
 function openLogin() {
-if (isAdmin) {
-  openAdminMenu();
-  return;
-}
+  if (isAdmin) {
+    showToast("目前為管理模式");
+    return;
+  }
 
 
 
@@ -1450,29 +1450,8 @@ if (isAdmin) {
   setTimeout(() => document.getElementById("loginEmail")?.focus(), 50);
 }
 
-function openAdminMenu() {
-  openModal(`
-    <div class="modal-head">
-      <h3>管理</h3>
-      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
-    </div>
 
-    <div class="modal-body">
-      <button type="button" onclick="openWorkForm()">
-        新增作品
-      </button>
 
-      <button type="button" onclick="openAuthorManager()">
-        作者資料管理
-      </button>
-    </div>
-  `);
-}
-
-function openAuthorManager() {
-  console.log("作者資料：", authors);
-  showToast(`目前有 ${authors.length} 位作者`);
-}
 
 async function loginAdmin() {
   const email = document.getElementById("loginEmail")?.value.trim() || "";
@@ -1543,9 +1522,10 @@ function renderAdminState() {
 /* -------------------- 新增 / 編輯作品 -------------------- */
 
 function createEmptyFormState() {
-  return {
-    id: "",
-    author: "",
+return {
+  id: "",
+  authorId: null,
+  author: "",
     title: "",
     subtitle: "",
     hook: "",
@@ -1581,6 +1561,231 @@ function openWorkForm(id = "") {
   renderWorkForm();
 }
 
+function syncWorkFormState() {
+  if (!formState) return;
+
+  const title = document.getElementById("formTitle");
+  const subtitle = document.getElementById("formSubtitle");
+  const hook = document.getElementById("formHook");
+  const copy = document.getElementById("formCopy");
+  const lastPublishedAt = document.getElementById("formLastPublishedAt");
+
+  if (title) {
+    formState.title = title.value;
+  }
+
+  if (subtitle) {
+    formState.subtitle =
+      [...subtitle.value].slice(0, MAX_SUBTITLE).join("");
+  }
+
+  if (hook) {
+    formState.hook =
+      [...hook.value].slice(0, MAX_HOOK).join("");
+  }
+
+  if (copy) {
+    formState.copy = copy.value;
+  }
+
+  if (lastPublishedAt) {
+    formState.lastPublishedAt = lastPublishedAt.value;
+  }
+}
+
+function openAuthorEditForm(authorId) {
+  if (!isAdmin) {
+    showToast("請先登入管理者");
+    return;
+  }
+
+  const author = findAuthorById(authorId);
+
+  if (!author) {
+    showToast("找不到作者資料");
+    return;
+  }
+
+  /* 先保存目前作品表單內容，避免返回時遺失 */
+  syncWorkFormState();
+
+  openModal(`
+    <div class="modal-head">
+      <h3>編輯作者</h3>
+      <button class="icon-btn" type="button" onclick="renderWorkForm()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="field">
+        <label>作者 ID</label>
+        <input
+          type="text"
+          value="${escapeAttr(author.id)}"
+          readonly
+        >
+      </div>
+
+      <div class="field" style="margin-top:12px;">
+        <label>作者名稱 *</label>
+        <input
+          id="editAuthorName"
+          type="text"
+          value="${escapeAttr(author.name || "")}"
+        >
+      </div>
+
+      <div class="field" style="margin-top:12px;">
+        <label>作者簡介</label>
+        <textarea
+          id="editAuthorBio"
+          placeholder="請輸入作者簡介"
+        >${escapeHTML(author.bio || "")}</textarea>
+      </div>
+    </div>
+    <div class="field">
+  <label>個人網站</label>
+  <input
+    id="newAuthorWebsite"
+    type="url"
+    placeholder="https://..."
+  >
+</div>
+
+    <div class="form-footer">
+      <button
+        class="ghost-btn"
+        type="button"
+        onclick="renderWorkForm()"
+      >
+        返回
+      </button>
+
+      <button
+        id="authorSaveBtn"
+        class="save-btn"
+        type="button"
+        onclick="saveAuthorEdit('${escapeAttr(author.id)}')"
+      >
+        儲存作者資料
+      </button>
+    </div>
+  `, true);
+}
+
+async function saveAuthorEdit(authorId) {
+  if (!isAdmin) {
+    showToast("請先登入管理者");
+    return;
+  }
+
+  const author = findAuthorById(authorId);
+
+  if (!author) {
+    showToast("找不到作者資料");
+    return;
+  }
+
+  const name =
+    String(document.getElementById("editAuthorName")?.value || "").trim();
+
+  const bio =
+    String(document.getElementById("editAuthorBio")?.value || "").trim();
+    
+    const website =
+  String(document.getElementById("editAuthorWebsite")?.value || "").trim();
+  
+
+  if (!name) {
+    showToast("作者名稱不能空白");
+    return;
+  }
+
+  /* 不允許跟其他作者撞名 */
+  const duplicate = authors.find(item =>
+    String(item.id) !== String(authorId) &&
+    String(item.name || "").trim().toLocaleLowerCase("zh-Hant") ===
+      name.toLocaleLowerCase("zh-Hant")
+  );
+
+  if (duplicate) {
+    showToast("已有相同名稱的作者");
+    return;
+  }
+
+  const btn = document.getElementById("authorSaveBtn");
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "儲存中…";
+  }
+
+  try {
+    /* 更新 authors 資料表 */
+    const { error: authorError } =
+      await supabaseClient
+        .from("authors")
+.update({
+  name,
+  bio: bio || null,
+  website: website || null
+})
+        .eq("id", authorId);
+
+    if (authorError) throw authorError;
+
+    /*
+      works 現在還有 author 文字欄位，
+      所以同 author_id 的作品名稱也一起同步。
+    */
+    const { error: worksError } =
+      await supabaseClient
+        .from("works")
+        .update({
+          author: name
+        })
+        .eq("author_id", authorId);
+
+    if (worksError) throw worksError;
+
+    /* 更新前端 authors */
+    await loadAuthors();
+
+    /* 更新目前前端 works，不必整頁重新抓 */
+    works = works.map(work => {
+      if (String(work.authorId) === String(authorId)) {
+        return {
+          ...work,
+          author: name
+        };
+      }
+
+      return work;
+    });
+
+    /* 如果正在編輯的就是這位作者的作品，也同步 */
+    if (
+      formState &&
+      String(formState.authorId) === String(authorId)
+    ) {
+      formState.author = name;
+    }
+
+    /* 回作品編輯畫面 */
+    renderWorkForm();
+
+    showToast("作者資料已更新");
+
+  } catch (error) {
+    console.error("更新作者資料失敗", error);
+    showToast("作者資料更新失敗");
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "儲存作者資料";
+    }
+  }
+}
+
 function openNewAuthorForm() {
   openModal(`
     <div class="modal-head">
@@ -1606,6 +1811,15 @@ function openNewAuthorForm() {
         ></textarea>
       </div>
 
+      <div class="field" style="margin-top:12px;">
+        <label>個人網站</label>
+        <input
+          id="newAuthorWebsite"
+          type="url"
+          placeholder="https://..."
+        >
+      </div>
+
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
         <button class="ghost-btn" type="button" onclick="renderWorkForm()">
           返回
@@ -1617,13 +1831,14 @@ function openNewAuthorForm() {
     </div>
   `, true);
 }
-
 async function saveNewAuthor() {
-  const nameInput = document.getElementById("newAuthorName");
-  const bioInput = document.getElementById("newAuthorBio");
+ const nameInput = document.getElementById("newAuthorName");
+const bioInput = document.getElementById("newAuthorBio");
+const websiteInput = document.getElementById("newAuthorWebsite");
 
-  const name = String(nameInput?.value || "").trim();
-  const bio = String(bioInput?.value || "").trim();
+const name = String(nameInput?.value || "").trim();
+const bio = String(bioInput?.value || "").trim();
+const website = String(websiteInput?.value || "").trim();
 
   if (!name) {
     showToast("請輸入作者名稱");
@@ -1648,9 +1863,10 @@ async function saveNewAuthor() {
   try {
     const { data, error } = await supabaseClient
       .from("authors")
-      .insert({
-        name,
-        bio: bio || null
+.insert({
+  name,
+  bio: bio || null,
+  website: website || null
       })
       .select()
       .single();
@@ -1671,6 +1887,7 @@ async function saveNewAuthor() {
   }
 }
 
+
 function renderWorkForm() {
   const editing = Boolean(formState.id);
 
@@ -1687,6 +1904,23 @@ function renderWorkForm() {
           <div class="form-grid two">
             <div class="field">
 <label>作者 *</label>
+
+${editing && formState.authorId ? `
+  <div style="
+    margin-bottom:8px;
+    color:var(--muted);
+    font-size:11.5px;
+  ">
+    作者 ID：
+    <button
+      type="button"
+      class="author-link"
+      onclick="openAuthorEditForm('${escapeAttr(formState.authorId)}')"
+    >
+      ${escapeHTML(formState.authorId)}
+    </button>
+  </div>
+` : ""}
 
 <input
   id="formAuthorSearch"
