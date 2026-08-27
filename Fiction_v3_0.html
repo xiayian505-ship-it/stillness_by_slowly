@@ -57,12 +57,49 @@
     </section>
 
     <section>
-      <div class="index-toolbar">
-        <div class="index-title">
-          <h2>作品索引</h2>
-          <p id="resultCount">0 部作品</p>
-        </div>
-        <button id="addWorkBtn" class="primary-btn" type="button" style="display:none;">＋ 新增作品</button>
+<div class="index-toolbar">
+  <div class="index-title">
+    <h2>作品索引</h2>
+    <p id="resultCount">0 部作品</p>
+  </div>
+
+  <div class="index-actions">
+    <button
+      id="randomSortBtn"
+      class="sort-btn active"
+      type="button"
+      onclick="sortRandom()"
+    >
+      隨機
+    </button>
+
+    <button
+      id="oldestSortBtn"
+      class="sort-btn"
+      type="button"
+      onclick="sortByOldest()"
+    >
+      最早
+    </button>
+
+    <button
+      id="newestSortBtn"
+      class="sort-btn"
+      type="button"
+      onclick="sortByNewest()"
+    >
+      最新
+    </button>
+
+    <button
+      id="addWorkBtn"
+      class="primary-btn"
+      type="button"
+      style="display:none;"
+    >
+      ＋ 新增作品
+    </button>
+  </div>
       </div>
 
       <div id="bookList" class="book-list"></div>
@@ -79,7 +116,7 @@
     onclick="openChangelog()"
     style="padding:0;"
   >
-    fiction_v3_3
+    fiction_v3_4
   </button>
 · 查看版本更新日誌
 </span>
@@ -197,7 +234,9 @@ let isAdmin = false;
 /* -------------------- 分頁一次12本 -------------------- */
 const PAGE_SIZE = 12;
 let currentPage = 1;
+let sortMode = "random";
 let formState = null;
+let randomOrder = [];
 
 /* -------------------- 工具 -------------------- */
 
@@ -343,6 +382,9 @@ async function loadWorks() {
     if (error) throw error;
 
     works = (data || []).map(rowToWork);
+    if (!isAdmin && sortMode === "random") {
+  randomOrder = shuffleWorks(works);
+}
   } catch (error) {
     console.error("讀取作品失敗", error);
     works = [];
@@ -369,6 +411,9 @@ async function insertWork(work) {
       .single();
 
   if (error) throw error;
+  if (!isAdmin && sortMode === "random") {
+  randomOrder = shuffleWorks(works);
+}
   return rowToWork(data);
 }
 
@@ -855,6 +900,58 @@ function clearAllFilters() {
   renderAll();
 }
 
+function sortByNewest() {
+  sortMode = "newest";
+  currentPage = 1;
+
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  document.getElementById("newestSortBtn")?.classList.add("active");
+
+  renderBookList();
+}
+
+function sortByOldest() {
+  sortMode = "oldest";
+  currentPage = 1;
+
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  document.getElementById("oldestSortBtn")?.classList.add("active");
+
+  renderBookList();
+}
+
+function shuffleWorks(items) {
+  const shuffled = [...items];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled.map(work => work.id);
+}
+
+function sortRandom() {
+  sortMode = "random";
+  currentPage = 1;
+  
+  randomOrder = shuffleWorks(filterWorks())
+
+  document.querySelectorAll(".sort-btn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  document.getElementById("randomSortBtn")?.classList.add("active");
+
+  renderBookList();
+}
+
 /* -------------------- 作品列表 -------------------- */
 
 function renderBookList() {
@@ -871,7 +968,29 @@ function renderBookList() {
     return;
   }
 
-  const filtered = filterWorks();
+let filtered = filterWorks();
+
+if (!isAdmin && sortMode === "newest") {
+  filtered = [...filtered].sort((a, b) => Number(b.id) - Number(a.id));
+}
+
+if (!isAdmin && sortMode === "oldest") {
+  filtered = [...filtered].sort((a, b) => Number(a.id) - Number(b.id));
+}
+
+if (!isAdmin && sortMode === "random" && randomOrder.length) {
+  const orderMap = new Map(
+    randomOrder.map((id, index) => [String(id), index])
+  );
+
+  filtered = [...filtered].sort((a, b) => {
+    return (
+      (orderMap.get(String(a.id)) ?? Infinity) -
+      (orderMap.get(String(b.id)) ?? Infinity)
+    );
+  });
+}
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
 if (currentPage > totalPages) currentPage = totalPages;
@@ -2746,6 +2865,18 @@ function openChangelog() {
     </div>
 
     <div class="modal-body">
+    
+    <section class="form-section">
+  <div class="form-section-title">v3_4</div>
+  <p class="detail-copy">
+前端：進入網頁即隨機顯示作品。
+前端：新增作品排序功能，可切換隨機、最早、最新。
+前端：隨機排序可重新產生作品顯示順序。
+前端：隨機排序後翻頁會維持目前順序，不會重新排列。
+前端：作品排序功能不影響管理模式原有顯示順序。
+  </p>
+</section>
+    
 <section class="form-section">
   <div class="form-section-title">v3_3</div>
   <p class="detail-copy">
