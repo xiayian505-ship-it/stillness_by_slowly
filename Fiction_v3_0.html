@@ -116,7 +116,7 @@
     onclick="openChangelog()"
     style="padding:0;"
   >
-    fiction_v3_4
+    fiction_v3_5
   </button>
 
   ·
@@ -2865,6 +2865,35 @@ async function confirmDeleteWork(id) {
   }
 }
 
+let siteViewCount = 0;
+
+async function updateSiteCounter() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/increment_site_counter`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+"apikey": SUPABASE_PUBLISHABLE_KEY
+        },
+        body: JSON.stringify({
+          p_site_key: "Fiction_v3_0"
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    siteViewCount = Number(await response.json());
+
+  } catch (error) {
+    console.error("計數器更新失敗：", error);
+  }
+}
+
 /* -------------------- 版本更新 -------------------- */
 
 function openChangelog() {
@@ -2876,6 +2905,14 @@ function openChangelog() {
 
     <div class="modal-body">
     
+    <section class="form-section">
+  <div class="form-section-title">v3_5</div>
+  <p class="detail-copy">
+前端：新增本站瀏覽次數紀錄。
+前端：瀏覽次數整合至慢慢運行紀錄。
+前端：慢慢運行紀錄同步顯示作者、作品與瀏覽次數。
+  </p>
+</section>
     <section class="form-section">
   <div class="form-section-title">v3_4</div>
   <p class="detail-copy">
@@ -2946,16 +2983,23 @@ function openSiteRecord() {
     <div class="modal-body">
 
       <section class="form-section">
-        <div class="form-section-title">住在慢慢的作者</div>
+        <div class="form-section-title">住在慢慢的居民</div>
         <p class="detail-copy">
-${authors.length} 位
+${authors.length} 　位
         </p>
       </section>
 
       <section class="form-section">
-        <div class="form-section-title">住在慢慢的作品</div>
+        <div class="form-section-title">蓋在慢慢的房子</div>
         <p class="detail-copy">
-${works.length} 部
+${works.length} 　部
+        </p>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">掀開慢慢的次數</div>
+        <p class="detail-copy">
+${siteViewCount.toLocaleString("zh-TW")} 　次
         </p>
       </section>
 
@@ -3085,8 +3129,11 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 });
 
 init();
+updateSiteCounter();
 
 
 </script>
+
+
 </body>
 </html>
