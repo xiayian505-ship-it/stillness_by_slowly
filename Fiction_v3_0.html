@@ -118,7 +118,17 @@
   >
     fiction_v3_4
   </button>
-· 查看版本更新日誌
+
+  ·
+
+  <button
+    class="footer-manage"
+    type="button"
+    onclick="openSiteRecord()"
+    style="padding:0;"
+  >
+    慢慢運行紀錄
+  </button>
 </span>
       <button id="manageBtn" class="footer-manage" type="button">管理</button>
     </div>
@@ -2881,7 +2891,7 @@ function openChangelog() {
   <div class="form-section-title">v3_3</div>
   <p class="detail-copy">
 管理：新增作者資料表與作品作者關聯。
-管理：：作品改以 author_id 對應作者資料。
+管理：作品改以 author_id 對應作者資料。
 管理：新增作者搜尋，可依作者名稱或 ID 搜尋。
 前端：作者搜尋結果顯示本站收錄作品數。
 管理：新增作品時可直接建立新作者。
@@ -2903,7 +2913,7 @@ function openChangelog() {
 <section class="form-section">
   <div class="form-section-title">v3_1</div>
   <p class="detail-copy">
-：新增作品列表分頁，每頁顯示 12 部作品。
+前端：新增作品列表分頁，每頁顯示 12 部作品。
 前端：分享書卡最多顯示前 3 個有效作品網址。
 前端：首頁說明文字調整。
 前端：加入 PNG 分享書卡預覽。
@@ -2919,6 +2929,33 @@ function openChangelog() {
 前端：加入作品分享功能。
 前端：加入 PNG 分享書卡。
 前端：加入作品分類與篩選功能。
+        </p>
+      </section>
+
+    </div>
+  `);
+}
+
+function openSiteRecord() {
+  openModal(`
+    <div class="modal-head">
+      <h3>慢慢運行紀錄</h3>
+      <button class="icon-btn" type="button" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <section class="form-section">
+        <div class="form-section-title">住在慢慢的作者</div>
+        <p class="detail-copy">
+${authors.length} 位
+        </p>
+      </section>
+
+      <section class="form-section">
+        <div class="form-section-title">住在慢慢的作品</div>
+        <p class="detail-copy">
+${works.length} 部
         </p>
       </section>
 
