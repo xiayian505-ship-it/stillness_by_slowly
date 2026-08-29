@@ -19,73 +19,142 @@
       line-height: 1.8;
     }
 
-    /* 品牌識別 */
     .identity {
       text-align: center;
       padding: 30px;
       font-size: 1.2rem;
     }
 
-    /* 上方分類列 */
-    .tabs-wrap {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background-color: #f5f5f2;
+    .nav-wrap {
       max-width: 900px;
       margin: 0 auto;
       padding: 0 30px;
     }
 
-    .tabs {
+    /* 最上層大分類
+       永遠一排，超過寬度橫向滑動 */
+    .nav {
       display: flex;
       flex-wrap: nowrap;
       overflow-x: auto;
       white-space: nowrap;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid rgba(133, 146, 162, 0.2);
 
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
 
-    .tabs::-webkit-scrollbar {
+    .nav::-webkit-scrollbar {
       display: none;
     }
 
-    .tab {
+    .nav-item {
       flex: 0 0 auto;
       padding: 10px 18px 8px 0;
       margin-right: 18px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-family: inherit;
       font-size: 1rem;
       font-weight: 400;
       cursor: pointer;
       opacity: 0.6;
-      border-bottom: 1px solid transparent;
     }
 
-    .tab.active {
+    .nav-item.active {
       opacity: 1;
-      border-bottom-color: #8592A2;
     }
 
-    /* 內容 */
     .content {
       max-width: 900px;
       margin: 0 auto;
       padding: 30px;
     }
 
-    .page {
+    .content-text {
+      font-size: 1rem;
+      font-weight: 400;
+    }
+
+    /* 創作／工具裡的分類
+       永遠一排，超過寬度橫向滑動 */
+    .creative-categories {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 4px;
+
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .creative-categories::-webkit-scrollbar {
       display: none;
     }
 
-    .page.active {
-      display: block;
+    .creative-categories .creative-option {
+      flex: 0 0 auto;
     }
 
-    .page p {
-      font-size: 1rem;
+    /* 實際內容按鈕
+       這一層才自然換行 */
+    .creative-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .creative-option {
+      display: inline-flex;
+      align-items: center;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #f5f5f2;
+      color: #8592A2;
+      font-family: inherit;
+      font-size: 0.9rem;
       font-weight: 400;
+      line-height: 1.5;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(133, 146, 162, 0.2);
+    }
+
+    .creative-option:hover {
+      background: rgba(133, 146, 162, 0.08);
+    }
+
+    /* 內嵌頁面 */
+    .embedded-page {
+      width: 100%;
+      height: calc(100vh - 170px);
+      min-height: 600px;
+      border: 0;
+      display: block;
+      background: #f5f5f2;
+    }
+
+    .content.embedded {
+      max-width: none;
+      padding: 0;
+      margin-top: 0;
+    }
+
+    @media (max-width: 600px) {
+      .nav-wrap,
+      .content:not(.embedded) {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .embedded-page {
+        height: calc(100vh - 150px);
+        min-height: 500px;
+      }
     }
   </style>
 </head>
@@ -96,59 +165,367 @@
     慢　慢　|　stillness by slowly
   </header>
 
-  <!-- 分類 -->
-  <div class="tabs-wrap">
-    <div class="tabs">
-      <div class="tab active" data-tab="about">關於慢慢</div>
-      <div class="tab" data-tab="creative">創作</div>
-      <div class="tab" data-tab="time">時光</div>
-      <div class="tab" data-tab="tools">慢慢小工具</div>
-    </div>
+  <div class="nav-wrap">
+    <nav class="nav">
+
+      <button
+        class="nav-item active"
+        type="button"
+        data-page="about"
+      >
+        關於慢慢
+      </button>
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page="creative"
+      >
+        創作
+      </button>
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page="time"
+      >
+        時光
+      </button>
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page="tools"
+      >
+        工具
+      </button>
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page="games"
+      >
+        小遊戲
+      </button>
+
+    </nav>
   </div>
 
-  <!-- 內容 -->
-  <main class="content">
-
-    <div class="page active" id="about">
-      <p>（關於慢慢之後填）</p>
-    </div>
-
-    <div class="page" id="creative">
-      <p>（創作之後填）</p>
-    </div>
-
-    <div class="page" id="time">
-      <p>（時光之後填）</p>
-    </div>
-
-    <div class="page" id="tools">
-      <p>（慢慢小工具之後填）</p>
-    </div>
-
-  </main>
+  <main class="content" id="content"></main>
 
   <script>
-    const tabs = document.querySelectorAll(".tab");
-    const pages = document.querySelectorAll(".page");
+    const content = document.getElementById("content");
+    const navItems = document.querySelectorAll(".nav-item");
 
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
+    const pages = {
 
-        const target = tab.dataset.tab;
+      about: `
+        <p class="content-text">
+          （關於慢慢之後填）
+        </p>
+      `,
 
-        tabs.forEach(item => {
-          item.classList.remove("active");
-        });
+      creative: `
+        <div class="creative-categories">
 
-        pages.forEach(page => {
-          page.classList.remove("active");
-        });
+          <button
+            class="creative-option"
+            type="button"
+            onclick="showNovel()"
+          >
+            小說
+          </button>
 
-        tab.classList.add("active");
-        document.getElementById(target).classList.add("active");
+          <button
+            class="creative-option"
+            type="button"
+            onclick="showDrawing()"
+          >
+            繪圖
+          </button>
 
+        </div>
+      `,
+
+      time: `
+        <p class="content-text">
+          （時光之後填）
+        </p>
+      `,
+
+      tools: `
+        <div class="creative-categories">
+
+          <button
+            class="creative-option"
+            type="button"
+            onclick="showCalendarTools()"
+          >
+            寸寸光陰
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+            onclick="showAccountingTools()"
+          >
+            共付日常
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+            onclick="showPrismTools()"
+          >
+            棱鏡
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+            onclick="showMapTools()"
+          >
+            地圖
+          </button>
+
+        </div>
+      `,
+
+      games: `
+        <p class="content-text">
+          （小遊戲之後填）
+        </p>
+      `
+    };
+
+
+    function setNormalContent(html) {
+      content.classList.remove("embedded");
+      content.innerHTML = html;
+    }
+
+
+    function showPage(page) {
+
+      setNormalContent(pages[page] || "");
+
+      navItems.forEach(item => {
+        item.classList.toggle(
+          "active",
+          item.dataset.page === page
+        );
       });
+
+    }
+
+
+    function showNovel() {
+
+      setNormalContent(`
+        <div class="creative-options">
+
+          <button
+            class="creative-option"
+            type="button"
+            onclick="showEmbeddedPage(
+              'https://xiayian505-ship-it.github.io/stillness_by_slowly/Fiction_v3_0.html'
+            )"
+          >
+            作品探索
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            小說屍體堆積如山
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            創作事故處理中心
+          </button>
+
+        </div>
+      `);
+
+    }
+
+
+    function showDrawing() {
+
+      setNormalContent(`
+        <div class="creative-options">
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            口袋委圖本
+          </button>
+
+        </div>
+      `);
+
+    }
+
+
+    function showCalendarTools() {
+
+      setNormalContent(`
+        <div class="creative-options">
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            名片列印版
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            A6小冊印刷版
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            書頁編輯版
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            限制編輯版
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            自由編輯版（大尺寸模式）
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            整頁模式（無法編輯）
+          </button>
+
+        </div>
+      `);
+
+    }
+
+
+    function showAccountingTools() {
+
+      setNormalContent(`
+        <div class="creative-options">
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            基礎記帳
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            多幣結算模式
+          </button>
+
+        </div>
+      `);
+
+    }
+
+
+    function showPrismTools() {
+
+      setNormalContent(`
+        <div class="creative-options">
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            基礎色票
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            風格色票
+          </button>
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            慢慢宇宙色票
+          </button>
+
+        </div>
+      `);
+
+    }
+
+
+    function showMapTools() {
+
+      setNormalContent(`
+        <div class="creative-options">
+
+          <button
+            class="creative-option"
+            type="button"
+          >
+            路況控制台
+          </button>
+
+        </div>
+      `);
+
+    }
+
+
+    function showEmbeddedPage(url) {
+
+      content.classList.add("embedded");
+
+      content.innerHTML = `
+        <iframe
+          class="embedded-page"
+          src="${url}"
+          title="慢慢內容"
+        ></iframe>
+      `;
+
+    }
+
+
+    navItems.forEach(item => {
+
+      item.addEventListener("click", () => {
+        showPage(item.dataset.page);
+      });
+
     });
+
+
+    showPage("about");
+
   </script>
 
 </body>
