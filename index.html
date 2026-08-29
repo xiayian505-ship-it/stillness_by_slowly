@@ -6,117 +6,150 @@
   <title>慢 慢 | stillness by slowly</title>
 
   <style>
-    /* 基礎重置 */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    /* 全站基調 */
     body {
       font-family: "Noto Sans TC", sans-serif;
-      background-color: #e9e9e9;
-      color: #222;
+      background-color: #f5f5f2;
+      color: #8592A2;
       line-height: 1.8;
-    }
-
-    /* 區塊通用 */
-    section {
-      padding: 60px 20px;
-      max-width: 900px;
-      margin: 0 auto;
     }
 
     /* 品牌識別 */
     .identity {
       text-align: center;
-    }
-
-    .title-main {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-
-    .title-sub {
-      font-size: 1rem;
-      color: #666;
-      margin-bottom: 15px;
-    }
-
-    .tagline {
-      font-size: 0.95rem;
-      color: #777;
-    }
-
-    /* 章節標題 */
-    h3 {
-      margin-bottom: 15px;
+      padding: 30px;
       font-size: 1.2rem;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
     }
 
-    /* 入口 */
-    .enter {
-      text-align: center;
+    /* 上方分類列 */
+    .tabs-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: #f5f5f2;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 30px;
     }
 
-    .enter-link {
-      display: inline-block;
-      margin-top: 10px;
-      text-decoration: none;
-      color: #000;
-      border-bottom: 1px solid #000;
-      padding-bottom: 2px;
-      transition: opacity 0.3s ease;
+    .tabs {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
-    .enter-link:hover {
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      padding: 10px 18px 8px 0;
+      margin-right: 18px;
+      font-size: 1rem;
+      font-weight: 400;
+      cursor: pointer;
       opacity: 0.6;
+      border-bottom: 1px solid transparent;
     }
 
-    /* 基本資訊 */
-    .info {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #666;
+    .tab.active {
+      opacity: 1;
+      border-bottom-color: #8592A2;
+    }
+
+    /* 內容 */
+    .content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page p {
+      font-size: 1rem;
+      font-weight: 400;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- 區塊 1：識別 -->
-  <section class="identity">
-    <h1 class="title-main">慢 慢</h1>
-    <h2 class="title-sub">stillness by slowly</h2>
-    <p class="tagline">（慢慢的一句話）</p>
-  </section>
+  <header class="identity">
+    慢　慢　|　stillness by slowly
+  </header>
 
-  <!-- 區塊 2：關於慢慢 -->
-  <section class="concept">
-    <h3>關於慢慢</h3>
-    <p>（之後填）</p>
-  </section>
+  <!-- 分類 -->
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <div class="tab active" data-tab="about">關於慢慢</div>
+      <div class="tab" data-tab="creative">創作</div>
+      <div class="tab" data-tab="time">時光</div>
+      <div class="tab" data-tab="tools">慢慢小工具</div>
+    </div>
+  </div>
 
-  <!-- 區塊 3：慢慢裡有什麼 -->
-  <section class="world">
-    <h3>慢慢</h3>
-    <p>（之後填）</p>
-  </section>
+  <!-- 內容 -->
+  <main class="content">
 
-  <!-- 區塊 4：入口 -->
-  <section class="enter">
-    <a href="./inside.html" class="enter-link">
-      進入慢慢 →
-    </a>
-  </section>
+    <div class="page active" id="about">
+      <p>（關於慢慢之後填）</p>
+    </div>
 
-  <!-- 區塊 5：基本資訊 -->
-  <section class="info">
-    <p>（之後再決定要不要留）</p>
-  </section>
+    <div class="page" id="creative">
+      <p>（創作之後填）</p>
+    </div>
+
+    <div class="page" id="time">
+      <p>（時光之後填）</p>
+    </div>
+
+    <div class="page" id="tools">
+      <p>（慢慢小工具之後填）</p>
+    </div>
+
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const pages = document.querySelectorAll(".page");
+
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+
+        const target = tab.dataset.tab;
+
+        tabs.forEach(item => {
+          item.classList.remove("active");
+        });
+
+        pages.forEach(page => {
+          page.classList.remove("active");
+        });
+
+        tab.classList.add("active");
+        document.getElementById(target).classList.add("active");
+
+      });
+    });
+  </script>
 
 </body>
 </html>
