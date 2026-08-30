@@ -308,56 +308,14 @@
       `,
 
 temple: `
-  <div class="creative-options">
+  <div class="creative-categories">
 
     <button
       class="creative-option"
       type="button"
-      onclick="showEmbeddedPage(
-        'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/wooden_fish.html'
-      )"
+      onclick="showTempleTools()"
     >
-      功德木魚
-    </button>
-
-    <button
-      class="creative-option"
-      type="button"
-      onclick="showEmbeddedPage(
-        'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/incense.html'
-      )"
-    >
-      三柱香
-    </button>
-
-    <button
-      class="creative-option"
-      type="button"
-      onclick="showEmbeddedPage(
-        'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/joss_paper.html'
-      )"
-    >
-      電子燒紙錢
-    </button>
-
-    <button
-      class="creative-option"
-      type="button"
-      onclick="showEmbeddedPage(
-        'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/jiaobei.html'
-      )"
-    >
-      電子筊杯
-    </button>
-
-    <button
-      class="creative-option"
-      type="button"
-      onclick="showEmbeddedPage(
-        'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/fortune_sticks.html'
-      )"
-    >
-      電子抽籤
+      線上求神
     </button>
 
   </div>
@@ -646,6 +604,66 @@ temple: `
 
     }
 
+
+function showTempleTools() {
+
+  setNormalContent(`
+    <div class="creative-options">
+
+      <button
+        class="creative-option"
+        type="button"
+        onclick="showEmbeddedPage(
+          'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/wooden_fish.html'
+        )"
+      >
+        功德木魚
+      </button>
+
+      <button
+        class="creative-option"
+        type="button"
+        onclick="showEmbeddedPage(
+          'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/incense.html'
+        )"
+      >
+        三柱香
+      </button>
+
+      <button
+        class="creative-option"
+        type="button"
+        onclick="showEmbeddedPage(
+          'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/joss_paper.html'
+        )"
+      >
+        電子燒紙錢
+      </button>
+
+      <button
+        class="creative-option"
+        type="button"
+        onclick="showEmbeddedPage(
+          'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/jiaobei.html'
+        )"
+      >
+        電子筊杯
+      </button>
+
+      <button
+        class="creative-option"
+        type="button"
+        onclick="showEmbeddedPage(
+          'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/temple/fortune_sticks.html'
+        )"
+      >
+        電子抽籤
+      </button>
+
+    </div>
+  `);
+
+}
 
     function showEmbeddedPage(url) {
 
