@@ -303,6 +303,13 @@
           >
             地圖
           </button>
+          <button
+  class="creative-option"
+  type="button"
+  onclick="showQRCodeTools()"
+>
+  QRCode
+</button>
 
         </div>
       `,
@@ -603,6 +610,33 @@ temple: `
       `);
 
     }
+    
+    function showQRCodeTools() {
+
+  setNormalContent(`
+    <div class="creative-options">
+
+      <button
+        class="creative-option"
+        type="button"
+        onclick="showEmbeddedPage(
+          'https://xiayian505-ship-it.github.io/stillness_by_slowly_pocket/qrcode/qrcode_print_tool.html'
+        )"
+      >
+        通用
+      </button>
+
+      <button
+        class="creative-option"
+        type="button"
+      >
+        管理
+      </button>
+
+    </div>
+  `);
+
+}
 
 
 function showTempleTools() {
