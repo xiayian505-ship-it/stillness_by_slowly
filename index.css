@@ -1,0 +1,66 @@
+/*
+ * index.css — 五鬼搬運 ①：基礎結構
+ * 重置、共用字型、主要容器、響應式欄位；不放分類資料
+ */
+
+:root {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.65;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 280px; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; cursor: pointer; }
+code { font-family: "Space Mono", Consolas, monospace; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+
+.site-wrap {
+    width: min(1100px, calc(100% - 48px));
+    margin-inline: auto;
+}
+
+/* 只有最上方 Logo 所在的導覽列固定，其他內容正常捲動 */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.site-header,
+.brand,
+.section-heading,
+.window-top,
+.category-heading,
+.site-footer {
+    display: flex;
+    align-items: center;
+}
+
+.site-header,
+.section-heading,
+.site-footer { justify-content: space-between; }
+
+.terminal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.terminal-card { min-width: 0; }
+.terminal-card[data-size="full"] { grid-column: 1 / -1; }
+
+@media (max-width: 720px) {
+    .site-wrap { width: min(100%, calc(100% - 28px)); }
+    .terminal-grid { grid-template-columns: 1fr; gap: 15px; }
+    .terminal-card[data-size="full"] { grid-column: auto; }
+    .site-footer { align-items: flex-start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+}
