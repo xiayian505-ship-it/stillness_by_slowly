@@ -4,10 +4,22 @@
  * 新增或修改分類：編輯 siteCategories，不必複製整組 HTML
  * - headerUrl：可選，讓小終端機標題列的英文檔名成為連結
  * - folders：可選，放入可展開的資料夾與作品
+ * - brandImage：可選，在分類的內容區顯示小型品牌縮圖
+ * - folders[].preview：可選，展開資料夾後顯示作品縮圖
  * - size："normal" 或 "full"
  *
  * 作品 URL 使用絕對路徑，保持使用者原有網址不變
  */
+
+
+// 全部使用慢慢自己的外部圖床，不在 GitHub 專案存放圖片
+// 換圖只需要修改下列網址，不用更動 HTML 或排版
+const siteImages = {
+    slowlyGames: "https://img.stillnessbyslowly.com/images/2026/10/c03304c4-5ad7-4718-b2bf-74c37c9513c5_%E6%85%A2%E6%85%A2%E9%81%8A%E6%88%B2_aurora_horizontal_2x.png",
+    jieLong: "https://img.stillnessbyslowly.com/images/2026/10/1b2503bd-dcba-454f-b6ec-62ec49db0744_%E6%8E%A5%E9%BE%8D%E5%B8%9D%E5%9C%8B_%E5%BE%A1%E9%A7%95%E8%A6%AA%E5%BE%81_%E6%A9%AB%E5%BC%8F_2x.png",
+    slowlyWord: "https://img.stillnessbyslowly.com/images/2026/10/df1287c2-7dcf-4632-b318-453b4aa58aec_slowly-word-share.png",
+    bingo: "https://img.stillnessbyslowly.com/images/2026/10/f1226ede-34dd-4107-a659-da1d1db89897_%E6%A7%8B%E6%80%9D%E8%B3%93%E6%9E%9C_yin-yang_horizontal_2x.png"
+};
 
 const siteCategories = [
     {
@@ -34,10 +46,28 @@ const siteCategories = [
             {
                 name: "word/",
                 prompt: "/word $",
+                preview: {
+                    src: siteImages.slowlyWord,
+                    alt: "慢慢藝術字作品縮圖"
+                },
                 items: [
                     {
                         title: "慢慢藝術字",
                         url: "https://desk.stillnessbyslowly.com/word/"
+                    }
+                ]
+            },
+            {
+                name: "bingo/",
+                prompt: "/bingo $",
+                preview: {
+                    src: siteImages.bingo,
+                    alt: "構思賓果作品縮圖"
+                },
+                items: [
+                    {
+                        title: "構思賓果",
+                        url: "https://desk.stillnessbyslowly.com/novel/bingo/"
                     }
                 ]
             }
@@ -85,10 +115,18 @@ const siteCategories = [
         tone: "mint",
         size: "normal",
         headerUrl: "https://game.stillnessbyslowly.com/",
+        brandImage: {
+            src: siteImages.slowlyGames,
+            alt: "慢慢遊戲品牌藝術字"
+        },
         folders: [
             {
                 name: "JieLong/",
                 prompt: "/JieLong $",
+                preview: {
+                    src: siteImages.jieLong,
+                    alt: "接龍帝國作品縮圖"
+                },
                 items: [
                     {
                         title: "接龍帝國",
@@ -208,6 +246,28 @@ function createElement(tagName, className, text) {
     return element;
 }
 
+/**
+ * 建立純展示用的圖片，不改變既有作品連結的點擊方式
+ * 若圖床暫時無法載入，隱藏預覽區，但保留資料夾與文字連結
+ */
+function createImagePreview(preview, className) {
+    if (!preview || !preview.src) return null;
+
+    const container = createElement("div", className);
+    const image = createElement("img", "preview-image");
+
+    image.src = preview.src;
+    image.alt = preview.alt || "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.addEventListener("error", () => {
+        container.hidden = true;
+    });
+
+    container.appendChild(image);
+    return container;
+}
+
 function createFolder(folder, categoryId, folderIndex) {
     const folderEntry = createElement("div", "terminal-folder");
     const folderButton = createElement("button", "folder-toggle", folder.name);
@@ -219,6 +279,12 @@ function createFolder(folder, categoryId, folderIndex) {
     folderButton.setAttribute("aria-controls", contentId);
     folderContent.id = contentId;
     folderContent.hidden = true;
+
+    // 先顯示作品縮圖，再顯示原本的命令列與可點擊作品名稱
+    const folderPreview = createImagePreview(folder.preview, "folder-preview");
+    if (folderPreview) {
+        folderContent.appendChild(folderPreview);
+    }
 
     for (const item of folder.items || []) {
         const outputLine = createElement("p", "folder-output-line");
@@ -287,6 +353,12 @@ function createTerminalWindow(category, index) {
     categoryHeading.appendChild(title);
     content.appendChild(categoryHeading);
     content.appendChild(createElement("p", "category-description", category.description || ""));
+
+    // 例如遊戲區的品牌藝術字：小型展示，不占用標題列
+    const brandPreview = createImagePreview(category.brandImage, "category-brand-preview");
+    if (brandPreview) {
+        content.appendChild(brandPreview);
+    }
 
     if (Array.isArray(category.folders) && category.folders.length > 0) {
         const folderList = createElement("div", "terminal-folder-list");

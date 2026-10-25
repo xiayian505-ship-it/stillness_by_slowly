@@ -297,3 +297,52 @@ html[data-theme="light"] .window-dots i:nth-child(3) { background: #8bcbb2; }
         padding-left: 56px;
     }
 }
+
+/*
+ * 外部圖床的藝術字預覽
+ * 小終端機初始只顯示分類品牌圖（目前只有「遊戲」）
+ * 作品縮圖則在展開 word/、bingo/、JieLong/ 時顯示
+ * 不裁圖、不把圖片設為連結，保持原本的終端機操作方式
+ */
+.category-brand-preview {
+    width: min(236px, calc(100% - 64px));
+    margin: 16px 0 0 64px;
+    padding: 8px 10px;
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--accent) 4%, var(--panel));
+}
+
+.folder-preview {
+    width: min(100%, 370px);
+    margin: 3px 0 12px;
+    padding: 8px;
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--accent) 4%, var(--panel));
+}
+
+.preview-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 184px;
+    object-fit: contain;
+}
+
+.category-brand-preview .preview-image {
+    max-height: 106px;
+}
+
+/* 圖床異常時直接隱藏圖片，不出現破圖圖示 */
+.category-brand-preview[hidden],
+.folder-preview[hidden] {
+    display: none;
+}
+
+@media (max-width: 370px) {
+    .category-brand-preview {
+        width: min(236px, calc(100% - 56px));
+        margin-left: 56px;
+    }
+}
