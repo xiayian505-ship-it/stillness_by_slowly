@@ -1,6 +1,7 @@
 /*
  * index_style.js — 五鬼搬運 ③：純外觀互動
- * 處理色調切換、返回頂部；不提供任何作品或分類連結
+ * 深淺色由使用者手動切換並記住選擇，不跟隨裝置設定
+ * 不處理任何作品資料或連結
  */
 
 (function initializeTheme() {
@@ -17,11 +18,11 @@
         }
     }
 
-    function saveTheme(value) {
+    function saveTheme(theme) {
         try {
-            window.localStorage.setItem(storageKey, value);
+            window.localStorage.setItem(storageKey, theme);
         } catch {
-            // 例如禁止儲存的預覽環境：切換仍然能用
+            // 若瀏覽器禁用儲存，當次切換仍會正常運作
         }
     }
 

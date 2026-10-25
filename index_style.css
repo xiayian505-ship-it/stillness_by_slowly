@@ -58,9 +58,6 @@ body {
 }
 .brand-text strong { display: block; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.17em; line-height: 1.1; }
 .brand-text small { display: block; margin-top: 5px; color: var(--soft); font: 0.67rem var(--mono); letter-spacing: 0.045em; }
-.theme-toggle { display: inline-flex; align-items: center; gap: 9px; padding: 8px 15px; background: var(--panel); border: 1px solid var(--stroke); border-radius: 999px; color: var(--paper); font-size: 0.81rem; font-weight: 700; white-space: nowrap; }
-.theme-toggle:hover { border-color: var(--pink); }
-.theme-symbol { font-size: 1.2rem; color: var(--yellow); }
 
 .hero { padding: 73px 6px 72px; }
 .hero-prompt { font: 0.85rem var(--mono); color: var(--pink); letter-spacing: -0.02em; }
@@ -212,8 +209,6 @@ html[data-theme="light"] .window-dots i:nth-child(3) { background: #8bcbb2; }
     .brand-mark { width: 42px; height: 42px; }
     .brand-text strong { font-size: 1.12rem; }
     .brand-text small { font-size: 0.52rem; }
-    .theme-toggle { padding: 9px; }
-    .theme-toggle span:last-child { display: none; }
     .hero h1 { font-size: 2.65rem; }
     .hero-prompt { font-size: 0.72rem; }
     .category-heading { gap: 12px; }
@@ -358,5 +353,272 @@ html[data-theme="light"] .window-dots i:nth-child(3) { background: #8bcbb2; }
     .category-brand-preview {
         padding: 4px;
         max-width: 38%;
+    }
+}
+
+
+/*
+ * 第四代頂部：中文品牌和無外框的 SVG 搜尋終端機
+ * 保留語意化 button 方便鍵盤與螢幕閱讀器操作，但沒有可見的按鈕外觀
+ */
+.site-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    justify-content: initial;
+}
+
+.brand {
+    justify-self: start;
+}
+
+.terminal-search-toggle {
+    display: inline-grid;
+    place-items: center;
+    justify-self: center;
+    width: 56px;
+    height: 48px;
+    padding: 6px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--pink);
+}
+
+.terminal-search-toggle:hover {
+    color: var(--paper);
+}
+
+/* 外觀切換只有圖示，保留原本的手動切換功能 */
+.theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    justify-self: end;
+    width: 48px;
+    height: 48px;
+    padding: 6px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--yellow);
+}
+
+.theme-toggle:hover {
+    color: var(--paper);
+}
+
+.theme-symbol {
+    font: 700 1.55rem var(--mono);
+    line-height: 1;
+}
+
+/*
+ * 浮動搜尋終端機
+ * 真正的命令列排版：輸入框沒有自身外框，也不顯示傳統搜尋元件
+ */
+.search-overlay[hidden] {
+    display: none;
+}
+
+.search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    align-items: start;
+    justify-items: center;
+    overflow: auto;
+    padding: min(17vh, 160px) 16px 40px;
+    background: rgba(3, 5, 13, 0.62);
+}
+
+.search-is-open {
+    overflow: hidden;
+}
+
+.search-terminal {
+    width: min(640px, 100%);
+    overflow: hidden;
+    border: 1px solid var(--stroke);
+    border-radius: 17px;
+    background: var(--panel);
+    color: var(--paper);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.search-window-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 46px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--stroke);
+    background: var(--panel-bar);
+}
+
+.search-window-title {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font: 0.76rem var(--mono);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.search-terminal-close {
+    margin-left: auto;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: 1.65rem/1.2 var(--mono);
+}
+
+.search-terminal-close:hover {
+    color: var(--paper);
+}
+
+.search-terminal-body {
+    min-height: 122px;
+    padding: 26px 22px 28px;
+}
+
+.search-command-line {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 9px;
+    cursor: text;
+}
+
+.search-command-prefix {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font: 0.9rem/1.6 var(--mono);
+    white-space: nowrap;
+}
+
+.search-user {
+    color: var(--mint);
+}
+
+#terminal-search-input {
+    flex: 1 1 100px;
+    min-width: 70px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--paper);
+    caret-color: var(--pink);
+    font: 0.9rem/1.6 var(--mono);
+    box-shadow: none;
+    appearance: none;
+}
+
+#terminal-search-input:focus-visible {
+    outline: 0;
+}
+
+.search-terminal-output {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+    font: 0.82rem/1.6 var(--mono);
+    overflow-wrap: anywhere;
+}
+
+.search-terminal-output:empty {
+    display: none;
+}
+
+.search-output-line {
+    color: var(--muted);
+}
+
+.search-output-info {
+    color: var(--mint);
+}
+
+.search-output-error {
+    color: var(--pink);
+}
+
+.search-result-command {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--blue);
+    text-align: left;
+    font: inherit;
+    overflow-wrap: anywhere;
+}
+
+.search-result-command:hover,
+.search-result-command:focus-visible {
+    color: var(--paper);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* 搜尋定位後短暫標出對應視窗，不改變原本資料夾外觀 */
+.search-target-highlight {
+    animation: search-target-glow 1.5s ease-out;
+}
+
+@keyframes search-target-glow {
+    0% { border-color: var(--pink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pink) 28%, transparent); }
+    100% { border-color: var(--stroke); box-shadow: var(--shadow); }
+}
+
+/* 固定頂部不遮住搜尋定位後的標題與資料夾 */
+.terminal-card,
+.folder-toggle {
+    scroll-margin-top: 122px;
+}
+
+@media (max-width: 720px) {
+    .site-header {
+        gap: 10px;
+    }
+
+    .terminal-search-toggle {
+        width: 48px;
+        height: 44px;
+    }
+
+    .terminal-search-toggle svg {
+        width: 32px;
+        height: 26px;
+    }
+
+    .theme-toggle {
+        width: 44px;
+        height: 44px;
+    }
+
+    .search-overlay {
+        padding-top: min(14vh, 100px);
+    }
+
+    .search-terminal-body {
+        padding: 22px 16px 24px;
+    }
+}
+
+@media (max-width: 370px) {
+    .brand-text strong {
+        font-size: 1.12rem;
+    }
+
+    .terminal-search-toggle {
+        width: 44px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-target-highlight {
+        animation: none;
     }
 }

@@ -18,7 +18,8 @@ const siteImages = {
     slowlyGames: "https://img.stillnessbyslowly.com/images/2026/10/c03304c4-5ad7-4718-b2bf-74c37c9513c5_%E6%85%A2%E6%85%A2%E9%81%8A%E6%88%B2_aurora_horizontal_2x.png",
     jieLong: "https://img.stillnessbyslowly.com/images/2026/10/1b2503bd-dcba-454f-b6ec-62ec49db0744_%E6%8E%A5%E9%BE%8D%E5%B8%9D%E5%9C%8B_%E5%BE%A1%E9%A7%95%E8%A6%AA%E5%BE%81_%E6%A9%AB%E5%BC%8F_2x.png",
     slowlyWord: "https://img.stillnessbyslowly.com/images/2026/10/df1287c2-7dcf-4632-b318-453b4aa58aec_slowly-word-share.png",
-    bingo: "https://img.stillnessbyslowly.com/images/2026/10/f1226ede-34dd-4107-a659-da1d1db89897_%E6%A7%8B%E6%80%9D%E8%B3%93%E6%9E%9C_yin-yang_horizontal_2x.png"
+    bingo: "https://img.stillnessbyslowly.com/images/2026/10/f1226ede-34dd-4107-a659-da1d1db89897_%E6%A7%8B%E6%80%9D%E8%B3%93%E6%9E%9C_yin-yang_horizontal_2x.png",
+    temple: "https://img.stillnessbyslowly.com/images/2026/10/414977be-cd8b-4394-8136-f3ba57dddeab_%E5%BF%83%E8%AA%A0%E5%89%87%E9%9D%88_%E6%80%92%E7%84%B0%E6%B2%96%E5%A4%A9_%E6%A9%AB%E5%BC%8F_2x.png"
 };
 
 const siteCategories = [
@@ -148,14 +149,20 @@ const siteCategories = [
     },
     {
         id: "temple",
-        title: "電子宮廟",
+        title: "心誠則靈",
         filename: "temple.terminal",
         command: "ls ./temple/",
         description: "沒看錯，這裡真的有一座電子宮廟",
+        // 保留原分類名稱供終端機搜尋，不改動任何作品的連結
+        searchAliases: ["電子宮廟", "宮廟"],
         icon: "✧",
         tone: "peach",
         size: "normal",
         headerUrl: "https://pocket.stillnessbyslowly.com/temple/",
+        brandImage: {
+            src: siteImages.temple,
+            alt: "心誠則靈藝術字"
+        },
         folders: [
             {
                 name: "incense/",
@@ -410,3 +417,233 @@ function renderCategories() {
 }
 
 renderCategories();
+
+
+/*
+ * 全站定位終端機（不是外站搜尋，也不會直接跳轉作品網址）
+ * 搜尋資料取自上方 siteCategories 的分類、資料夾與作品名稱
+ * 用戶輸入 word → 自動開啟 art 裡的 word/，捲動到該小終端機
+ * 未來新增分類、資料夾時，無需再更新一份搜尋清單
+ */
+(function initializeTerminalSearch() {
+    const openButton = document.getElementById("terminal-search-toggle");
+    const overlay = document.getElementById("terminal-search-overlay");
+    const dialog = document.getElementById("terminal-search-dialog");
+    const closeButton = document.getElementById("terminal-search-close");
+    const form = document.getElementById("terminal-search-form");
+    const input = document.getElementById("terminal-search-input");
+    const output = document.getElementById("terminal-search-output");
+
+    if (!openButton || !overlay || !dialog || !closeButton || !form || !input || !output) {
+        return;
+    }
+
+    let lastFocusedElement = null;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function normalizeSearch(text) {
+        return String(text || "")
+            .normalize("NFKC")
+            .trim()
+            .toLocaleLowerCase()
+            .replace(/\\/g, "/")
+            .replace(/\s+/g, "");
+    }
+
+    function makeSearchIndex() {
+        const entries = [];
+
+        siteCategories.forEach((category) => {
+            // 以已渲染的分類為準，跳過無效分類 id
+            if (!document.getElementById(`section-${category.id}`)) return;
+
+            entries.push({
+                categoryId: category.id,
+                categoryTitle: category.title,
+                folderIndex: null,
+                name: category.title,
+                location: `./${category.id}/`,
+                keywords: [category.title, category.id, category.filename, category.command,
+                    ...(category.searchAliases || [])]
+            });
+
+            (category.folders || []).forEach((folder, folderIndex) => {
+                entries.push({
+                    categoryId: category.id,
+                    categoryTitle: category.title,
+                    folderIndex,
+                    name: folder.name,
+                    location: `./${category.id}/${folder.name}`,
+                    keywords: [folder.name, folder.name.replace(/\/$/, ""),
+                        ...(folder.items || []).map((item) => item.title)]
+                });
+            });
+        });
+
+        return entries;
+    }
+
+    // 不預先複製作品資料；每次搜尋從目前的分類資料讀取
+    function lookup(query) {
+        const needle = normalizeSearch(query);
+        if (!needle) return [];
+
+        const matches = makeSearchIndex()
+            .map((entry) => {
+                const keywords = entry.keywords.map(normalizeSearch).filter(Boolean);
+                let score = 0;
+
+                if (keywords.some((word) => word === needle)) {
+                    score = 3;
+                } else if (keywords.some((word) => word.startsWith(needle))) {
+                    score = 2;
+                } else if (keywords.some((word) => word.includes(needle))) {
+                    score = 1;
+                }
+
+                return { ...entry, score };
+            })
+            .filter((entry) => entry.score > 0)
+            .sort((a, b) => b.score - a.score);
+
+        // 完全符合、或分類名稱前綴有唯一最優結果：直接定位
+        const top = matches.filter((entry) => entry.score === matches[0]?.score);
+        if (top.length === 1 && top[0].score >= 2) {
+            return [top[0]];
+        }
+
+        return matches;
+    }
+
+    function clearTerminalOutput() {
+        output.replaceChildren();
+    }
+
+    function writeTerminalLine(text, className = "") {
+        const line = createElement("p", `search-output-line ${className}`.trim(), text);
+        output.appendChild(line);
+    }
+
+    function openTerminal() {
+        lastFocusedElement = document.activeElement;
+        overlay.hidden = false;
+        document.body.classList.add("search-is-open");
+        input.value = "";
+        clearTerminalOutput();
+        input.focus();
+    }
+
+    function closeTerminal(restoreFocus = true) {
+        overlay.hidden = true;
+        document.body.classList.remove("search-is-open");
+        if (restoreFocus && lastFocusedElement instanceof HTMLElement) {
+            lastFocusedElement.focus();
+        }
+    }
+
+    function revealOnPage(entry) {
+        const card = document.getElementById(`section-${entry.categoryId}`);
+        if (!card) return;
+
+        let target = card;
+        if (entry.folderIndex !== null) {
+            const folderButton = document.querySelector(
+                `#folder-${entry.categoryId}-${entry.folderIndex}`
+            )?.previousElementSibling;
+            const folderOutput = document.getElementById(
+                `folder-${entry.categoryId}-${entry.folderIndex}`
+            );
+            if (folderButton && folderOutput) {
+                folderOutput.hidden = false;
+                folderButton.setAttribute("aria-expanded", "true");
+                target = folderButton;
+            }
+        }
+
+        closeTerminal(false);
+        card.classList.remove("search-target-highlight");
+        // 重啟視覺標記，協助確認定位到哪個小終端機
+        void card.offsetWidth;
+        card.classList.add("search-target-highlight");
+        window.setTimeout(() => card.classList.remove("search-target-highlight"), 2000);
+
+        target.scrollIntoView({
+            behavior: reducedMotion.matches ? "auto" : "smooth",
+            block: "start"
+        });
+
+        // 讓鍵盤操作可接續操作該資料夾，不因 focus 而改變捲動位置
+        if (target instanceof HTMLButtonElement) {
+            target.focus({ preventScroll: true });
+        } else {
+            card.setAttribute("tabindex", "-1");
+            card.focus({ preventScroll: true });
+        }
+    }
+
+    function showChoices(matches) {
+        writeTerminalLine(`${matches.length} matches`, "search-output-info");
+
+        matches.forEach((match, index) => {
+            const row = createElement("p", "search-output-line");
+            const choice = createElement("button", "search-result-command",
+                `${String(index + 1).padStart(2, "0")}  ${match.location}`
+            );
+            choice.type = "button";
+            choice.setAttribute("aria-label", `定位 ${match.categoryTitle} ${match.name}`);
+            choice.addEventListener("click", () => revealOnPage(match));
+            row.appendChild(choice);
+            output.appendChild(row);
+        });
+    }
+
+    function runSearch(query) {
+        clearTerminalOutput();
+        if (!query.trim()) return;
+
+        const matches = lookup(query);
+        if (matches.length === 0) {
+            writeTerminalLine("not found", "search-output-error");
+        } else if (matches.length === 1) {
+            revealOnPage(matches[0]);
+        } else {
+            showChoices(matches);
+        }
+    }
+
+    openButton.addEventListener("click", openTerminal);
+    closeButton.addEventListener("click", () => closeTerminal());
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        runSearch(input.value);
+    });
+    input.addEventListener("input", clearTerminalOutput);
+    overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) closeTerminal();
+    });
+
+    overlay.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            event.preventDefault();
+            closeTerminal();
+            return;
+        }
+
+        if (event.key === "Tab") {
+            const focusables = [
+                closeButton,
+                input,
+                ...output.querySelectorAll("button")
+            ].filter((element) => !element.disabled);
+            const current = focusables.indexOf(document.activeElement);
+
+            if (event.shiftKey && current === 0) {
+                event.preventDefault();
+                focusables[focusables.length - 1].focus();
+            } else if (!event.shiftKey && current === focusables.length - 1) {
+                event.preventDefault();
+                focusables[0].focus();
+            }
+        }
+    });
+})();

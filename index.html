@@ -26,23 +26,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="./index.css">
-    <link rel="stylesheet" href="./index_style.css">
-    <script src="./index.js" defer></script>
-    <script src="./index_style.js" defer></script>
+    <link rel="stylesheet" href="./index.css?v=20261026b">
+    <link rel="stylesheet" href="./index_style.css?v=20261026b">
+    <script src="./index.js?v=20261026b" defer></script>
+    <script src="./index_style.js?v=20261026b" defer></script>
 </head>
 <body>
     <div class="site-wrap">
         <header class="site-header">
             <div class="brand" aria-label="慢 慢">
-                <span class="brand-mark" aria-hidden="true">~</span>
                 <div class="brand-text">
                     <strong>慢 慢</strong>
                 </div>
             </div>
-            <button class="theme-toggle" type="button" id="theme-toggle" aria-label="切換淺色或深色" aria-pressed="false">
+
+            <!-- SVG 小終端機本身就是點擊入口，沒有可見的按鈕外框 -->
+            <button class="terminal-search-toggle" id="terminal-search-toggle" type="button"
+                    aria-label="開啟站內搜尋終端機" aria-haspopup="dialog" aria-controls="terminal-search-dialog">
+                <svg viewBox="0 0 42 34" width="37" height="30" fill="none" stroke="currentColor"
+                     stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <rect x="2" y="2" width="38" height="30" rx="5"/>
+                    <path d="M2 10H40"/>
+                    <circle cx="8" cy="6" r="1" fill="currentColor" stroke="none"/>
+                    <circle cx="13" cy="6" r="1" fill="currentColor" stroke="none"/>
+                    <circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/>
+                    <path d="M10 17L16 22L10 27M21 27H29"/>
+                </svg>
+            </button>
+
+            <!-- 使用者自行切換深淺色，只顯示圖示，不顯示外框 -->
+            <button class="theme-toggle" type="button" id="theme-toggle"
+                    aria-label="切換淺色或深色" aria-pressed="false">
                 <span aria-hidden="true" class="theme-symbol">☼</span>
-                <span>切換色調</span>
             </button>
         </header>
 
@@ -73,6 +88,30 @@
         <footer class="site-footer">
             <span>慢 慢 | Stillness by Slowly</span>
         </footer>
+    </div>
+
+    <!-- 真正的終端機外觀，功能只負責定位首頁已收錄的分類與資料夾 -->
+    <div class="search-overlay" id="terminal-search-overlay" hidden>
+        <section class="search-terminal" id="terminal-search-dialog" role="dialog" aria-modal="true"
+                 aria-label="站內終端機" tabindex="-1">
+            <div class="search-window-top">
+                <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="search-window-title">search.terminal</span>
+                <button class="search-terminal-close" id="terminal-search-close" type="button"
+                        aria-label="關閉終端機">×</button>
+            </div>
+            <div class="search-terminal-body">
+                <form id="terminal-search-form" autocomplete="off" role="search">
+                    <label class="search-command-line" for="terminal-search-input">
+                        <span class="search-command-prefix" aria-hidden="true"><span class="search-user">slowly</span>@stillness:~$</span>
+                        <input id="terminal-search-input" type="text" name="command"
+                               aria-label="輸入名稱定位主頁分類或資料夾"
+                               autocomplete="off" autocapitalize="off" spellcheck="false">
+                    </label>
+                </form>
+                <div class="search-terminal-output" id="terminal-search-output" role="status" aria-live="polite"></div>
+            </div>
+        </section>
     </div>
 
     <!-- 固定於畫面右下角：向下捲動後才會出現 -->
