@@ -221,3 +221,79 @@ html[data-theme="light"] .window-dots i:nth-child(3) { background: #8bcbb2; }
     .category-description { margin-left: 56px; }
     .window-content { padding-inline: 16px; }
 }
+
+
+/*
+ * 小終端機資料夾
+ * 初始只顯示 word/、JieLong/；按下資料夾才展開指令行
+ * 作品連結維持文字風格，不加外連圖示或提示箭頭
+ */
+.terminal-folder-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 19px;
+    padding-left: 64px;
+}
+
+.terminal-folder {
+    min-width: 0;
+}
+
+.folder-toggle {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: 700 0.86rem var(--mono);
+    text-align: left;
+}
+
+.folder-toggle:hover {
+    color: var(--paper);
+}
+
+.folder-output[hidden] {
+    display: none;
+}
+
+.folder-output {
+    padding: 9px 0 0 12px;
+}
+
+.folder-output-line {
+    font: 0.83rem/1.8 var(--mono);
+    overflow-wrap: anywhere;
+}
+
+.folder-prompt {
+    color: var(--muted);
+    white-space: pre;
+}
+
+.folder-item-link {
+    color: var(--paper);
+    text-decoration: none;
+}
+
+.folder-item-link:hover {
+    color: var(--accent);
+}
+
+.window-filename-link {
+    text-decoration: none;
+}
+
+.window-filename-link:hover {
+    color: var(--accent);
+}
+
+.category-description {
+    white-space: pre-line;
+}
+
+@media (max-width: 370px) {
+    .terminal-folder-list {
+        padding-left: 56px;
+    }
+}
