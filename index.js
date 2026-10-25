@@ -116,7 +116,60 @@ const siteCategories = [
         description: "沒看錯，這裡真的有一座電子宮廟",
         icon: "✧",
         tone: "peach",
-        size: "normal"
+        size: "normal",
+        headerUrl: "https://pocket.stillnessbyslowly.com/temple/",
+        folders: [
+            {
+                name: "incense/",
+                prompt: "/incense $",
+                items: [
+                    {
+                        title: "上香",
+                        url: "https://pocket.stillnessbyslowly.com/temple/incense.html"
+                    }
+                ]
+            },
+            {
+                name: "jiaobei/",
+                prompt: "/jiaobei $",
+                items: [
+                    {
+                        title: "擲筊",
+                        url: "https://pocket.stillnessbyslowly.com/temple/jiaobei.html"
+                    }
+                ]
+            },
+            {
+                name: "fortune_sticks/",
+                prompt: "/fortune_sticks $",
+                items: [
+                    {
+                        title: "求籤",
+                        url: "https://pocket.stillnessbyslowly.com/temple/fortune_sticks.html"
+                    }
+                ]
+            },
+            {
+                name: "joss_paper/",
+                prompt: "/joss_paper $",
+                items: [
+                    {
+                        title: "燒紙錢",
+                        url: "https://pocket.stillnessbyslowly.com/temple/joss_paper.html"
+                    }
+                ]
+            },
+            {
+                name: "wooden_fish/",
+                prompt: "/wooden_fish $",
+                items: [
+                    {
+                        title: "敲木魚",
+                        url: "https://pocket.stillnessbyslowly.com/temple/wooden_fish.html"
+                    }
+                ]
+            }
+        ]
     },
     {
         id: "whatever",
