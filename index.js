@@ -351,14 +351,17 @@ function createTerminalWindow(category, index) {
     const title = createElement("h3", "category-title", category.title);
     title.id = headingId;
     categoryHeading.appendChild(title);
-    content.appendChild(categoryHeading);
-    content.appendChild(createElement("p", "category-description", category.description || ""));
 
-    // 例如遊戲區的品牌藝術字：小型展示，不占用標題列
+    // 分類品牌藝術字與中文標題並排，說明文字維持在下一行
+    // 未設定 brandImage 的分類，排版保持原樣
     const brandPreview = createImagePreview(category.brandImage, "category-brand-preview");
     if (brandPreview) {
-        content.appendChild(brandPreview);
+        categoryHeading.classList.add("category-heading-with-brand");
+        categoryHeading.appendChild(brandPreview);
     }
+
+    content.appendChild(categoryHeading);
+    content.appendChild(createElement("p", "category-description", category.description || ""));
 
     if (Array.isArray(category.folders) && category.folders.length > 0) {
         const folderList = createElement("div", "terminal-folder-list");

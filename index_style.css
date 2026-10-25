@@ -300,14 +300,24 @@ html[data-theme="light"] .window-dots i:nth-child(3) { background: #8bcbb2; }
 
 /*
  * 外部圖床的藝術字預覽
- * 小終端機初始只顯示分類品牌圖（目前只有「遊戲」）
+ * 分類品牌圖（目前為「慢慢遊戲」）位於中文標題右側
  * 作品縮圖則在展開 word/、bingo/、JieLong/ 時顯示
  * 不裁圖、不把圖片設為連結，保持原本的終端機操作方式
  */
+.category-heading-with-brand {
+    min-width: 0;
+}
+
+.category-heading-with-brand .category-title {
+    flex: 0 0 auto;
+}
+
 .category-brand-preview {
-    width: min(236px, calc(100% - 64px));
-    margin: 16px 0 0 64px;
-    padding: 8px 10px;
+    flex: 0 1 186px;
+    min-width: 0;
+    max-width: 43%;
+    margin-left: auto;
+    padding: 5px 8px;
     border: 1px solid var(--stroke);
     border-radius: 12px;
     background: color-mix(in srgb, var(--accent) 4%, var(--panel));
@@ -331,7 +341,7 @@ html[data-theme="light"] .window-dots i:nth-child(3) { background: #8bcbb2; }
 }
 
 .category-brand-preview .preview-image {
-    max-height: 106px;
+    max-height: 84px;
 }
 
 /* 圖床異常時直接隱藏圖片，不出現破圖圖示 */
@@ -341,8 +351,12 @@ html[data-theme="light"] .window-dots i:nth-child(3) { background: #8bcbb2; }
 }
 
 @media (max-width: 370px) {
+    .category-heading-with-brand {
+        gap: 10px;
+    }
+
     .category-brand-preview {
-        width: min(236px, calc(100% - 56px));
-        margin-left: 56px;
+        padding: 4px;
+        max-width: 38%;
     }
 }
