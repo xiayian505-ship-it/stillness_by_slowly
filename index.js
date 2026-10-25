@@ -51,7 +51,29 @@ const siteCategories = [
         description: "什麼都想做",
         icon: "⌘",
         tone: "blue",
-        size: "normal"
+        size: "normal",
+        folders: [
+            {
+                name: "termux/",
+                prompt: "/termux $",
+                items: [
+                    {
+                        title: "終端機",
+                        url: "https://desk.stillnessbyslowly.com/termux/"
+                    }
+                ]
+            },
+            {
+                name: "cycle/",
+                prompt: "/cycle $",
+                items: [
+                    {
+                        title: "給自己的溫柔紀錄",
+                        url: "https://xiayian505.stillnessbyslowly.com/cycle/"
+                    }
+                ]
+            }
+        ]
     },
     {
         id: "games",
